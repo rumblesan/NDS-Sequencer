@@ -1,6 +1,8 @@
 #include <nds.h>
 #include <stdio.h>
 
+// this is a test comment
+
 // Included Source Files
 
 #include "gfx.h"
