@@ -1,0 +1,7 @@
+*.nds
+*.pnproj
+*.pnps
+*.arm9
+*.elf
+build/
+Thumbs.db
