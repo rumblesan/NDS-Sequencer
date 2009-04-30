@@ -31,6 +31,8 @@ public:
 	
 	virtual void sendmididata(void) =0;
 
+	virtual void fileload(modes_t currentmode) =0;
+
 };
 
 
@@ -76,6 +78,11 @@ private:
 	void triggernotesoff(void);
 	
 	void editmidioptions(int amount);
+	
+	void patternfileloader();
+	void patternfilesaver();
+	void settingfileloader();
+	void settingfilesaver();
 
 public:
 
@@ -96,6 +103,8 @@ public:
 	void displayactivepattern(void);
 	
 	void sendmididata(void);
+
+	void fileload(modes_t currentmode);
 
 
 };

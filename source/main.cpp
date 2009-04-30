@@ -42,7 +42,6 @@ int midisyncclock = -1;
 int quarternotes = (60 * 24 * 4);
 int bpmcount;
 
-enum modes_t {home, edit, patternseq, follow, options, setup};
 modes_t currentmode;
 
 

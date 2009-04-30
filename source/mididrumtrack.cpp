@@ -144,7 +144,7 @@ void mididrumtrack::editpress(int xval, int yval) {
 
 // Load and Save Functions
 
-void patternfileloader() {
+void mididrumtrack::patternfileloader() {
 
 	patternbuffer patternloadsavestruct;
 	
@@ -191,7 +191,7 @@ void patternfileloader() {
 	
 }
 
-void patternfilesaver() {
+void mididrumtrack::patternfilesaver() {
 	
 	patternbuffer patternloadsavestruct;
 	
@@ -220,7 +220,7 @@ void patternfilesaver() {
 	fclose (pFile);
 
 }
-void settingfileloader() {
+void mididrumtrack::settingfileloader() {
 
 	presetbuffer presetloadsavestruct;
 	
@@ -263,7 +263,7 @@ void settingfileloader() {
 	
 }
 
-void settingfilesaver() {
+void mididrumtrack::settingfilesaver() {
 	
 	presetbuffer presetloadsavestruct;
 	

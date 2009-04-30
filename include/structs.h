@@ -2,7 +2,7 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
-
+enum modes_t {home, edit, patternseq, follow, options, setup};
 
 
 struct midinoteoptionsbuffer {
