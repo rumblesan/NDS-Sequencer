@@ -1,6 +1,4 @@
 *.nds
-*.pnproj
-*.pnps
 *.arm9
 *.elf
 build/
