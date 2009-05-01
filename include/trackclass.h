@@ -111,42 +111,75 @@ public:
 
 };
 
-/*
-class midicctrack :public track {
 
-private;
+class midinotetrack :public track {
 
-	int patterns[8][256];
-	int patternlengths[8];
+private:
+
+	int playing;
+
+	int settingsnumber;
+	int patternnumber;
+
+	int patterns[8][16][8];
+	int patternseq[16];
+	int patternseqlength;
 
 	int patternseqpos;
-	int currenteditpattern;
+	
 	int stepposition;
 
-	uint8_t midichannel;
-	uint8_t midiccnumbers[8];
-
-
-public;
-
-	void midicctrack();
+	int optionsrow;
+	int optionscolumn;
 	
+	int activerow;
+	int activecolumn;
+	
+	int stepbeatlength;
+	int clockcount;
+	
+	int pendinglistpos;
+	uint8_t pendingsenddata[32][3];
+	uint8_t currentonnotes[8][3];
+
+	uint8_t midichannel;
+	uint8_t midinotes[8][3];
+	
+	void triggernoteson(void);
+	void triggernotesoff(void);
+	
+	void editmidioptions(int amount);
+	
+	void patternfileloader(void);
+	void patternfilesaver(void);
+	void settingsfileloader(void);
+	void settingsfilesaver(void);
+
+public:
+
+	mididrumtrack(int assignedtracknumber);
+	
+	void starttrack(int playstatus);
 	void sequencerclock(void);
 	
 	void displaypattern(void);
-	void editpattern(void);
+	void editpress(int xval, int yval);
 	
 	void displaypatternseq(void);
-	void editpatternseq(void);
+	void patternseqpress(int xval, int yval);
 	
-	void displaymidioptions(void);
-	void editmidioptions(void);
+	void displayoptions(void);
+	void optionspress(int xval, int yval);
 
 	void displayactivepattern(void);
 	
-	void setactivepattern(void);
+	void sendmididata(void);
+
+	void fileload(modes_t currentmode);
+	void filesave(modes_t currentmode);
+
 
 };
-*/
+
 
 #endif //TRACKCLASSES_H

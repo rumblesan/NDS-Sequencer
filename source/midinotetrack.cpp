@@ -14,7 +14,7 @@
 
 // Constructor
 
-mididrumtrack::mididrumtrack(int assignedtracknumber) {
+midinotetrack::midinotetrack(int assignedtracknumber) {
 	
 	int x,y,z;
 	
@@ -71,7 +71,7 @@ mididrumtrack::mididrumtrack(int assignedtracknumber) {
 
 // Sequencer functions
 
-void mididrumtrack::starttrack(int playstatus) {
+void midinotetrack::starttrack(int playstatus) {
 
 	if (playstatus)
 	{
@@ -84,7 +84,7 @@ void mididrumtrack::starttrack(int playstatus) {
 	}
 }
 
-void mididrumtrack::sequencerclock(void) {
+void midinotetrack::sequencerclock(void) {
 	
 
 	clockcount++;
@@ -115,7 +115,7 @@ void mididrumtrack::sequencerclock(void) {
 
 // Edit view functions
 
-void mididrumtrack::displaypattern(void) {
+void midinotetrack::displaypattern(void) {
 	
 	int x,y;
 	
@@ -129,13 +129,17 @@ void mididrumtrack::displaypattern(void) {
 }
 	
 	
-void mididrumtrack::editpress(int xval, int yval) {
+void midinotetrack::editpress(int xval, int yval) {
 	
 	if (patterns[currenteditpattern][xval][yval] == 0)
 	{
 		patterns[currenteditpattern][xval][yval] = 1;
 	}
 	else if (patterns[currenteditpattern][xval][yval] == 1)
+	{
+		patterns[currenteditpattern][xval][yval] = 2;
+	}
+	else if (patterns[currenteditpattern][xval][yval] == 2)
 	{
 		patterns[currenteditpattern][xval][yval] = 0;
 	}
@@ -145,7 +149,7 @@ void mididrumtrack::editpress(int xval, int yval) {
 
 // Load and Save Functions
 
-void mididrumtrack::fileload(modes_t currentmode) {
+void midinotetrack::fileload(modes_t currentmode) {
 
 	if ((currentmode == edit) || (currentmode == seqpatterns) || (currentmode == follow)) {
 	
@@ -159,7 +163,7 @@ void mididrumtrack::fileload(modes_t currentmode) {
 
 }
 
-void mididrumtrack::filesave(modes_t currentmode) {
+void midinotetrack::filesave(modes_t currentmode) {
 
 	if ((currentmode == edit) || (currentmode == seqpatterns) || (currentmode == follow)) {
 	
@@ -173,7 +177,7 @@ void mididrumtrack::filesave(modes_t currentmode) {
 
 }
 
-void mididrumtrack::patternfileloader() {
+void midinotetrack::patternfileloader() {
 
 	patternbuffer patternloadstruct;
 	
@@ -228,7 +232,7 @@ void mididrumtrack::patternfileloader() {
 	
 }
 
-void mididrumtrack::patternfilesaver() {
+void midinotetrack::patternfilesaver() {
 	
 	patternbuffer patternsavestruct;
 	
@@ -265,7 +269,7 @@ void mididrumtrack::patternfilesaver() {
 	fclose (pFile);
 
 }
-void mididrumtrack::settingsfileloader() {
+void midinotetrack::settingsfileloader() {
 
 	settingsbuffer settingsloadstruct;
 	
@@ -309,7 +313,7 @@ void mididrumtrack::settingsfileloader() {
 	
 }
 
-void mididrumtrack::settingsfilesaver() {
+void midinotetrack::settingsfilesaver() {
 	
 	settingsbuffer settingssavestruct;
 	
@@ -343,7 +347,7 @@ void mididrumtrack::settingsfilesaver() {
 
 // Pattern sequencer functions
 
-void mididrumtrack::displaypatternseq(void) {
+void midinotetrack::displaypatternseq(void) {
 	
 	int x,y;
 	
@@ -355,7 +359,7 @@ void mididrumtrack::displaypatternseq(void) {
 		}
 	}
 }
-void mididrumtrack::patternseqpress(int xval, int yval) {
+void midinotetrack::patternseqpress(int xval, int yval) {
 
 	if (yval < 7)
 	{
@@ -388,7 +392,7 @@ void mididrumtrack::patternseqpress(int xval, int yval) {
 
 // Midi options menu functions
 
-void mididrumtrack::displayoptions() {
+void midinotetrack::displayoptions() {
 
 	iprintf("\x1b[2;4HTrack");
 	
@@ -469,7 +473,7 @@ void mididrumtrack::displayoptions() {
 }
 	
 	
-void mididrumtrack::optionspress(int xaxispress, int yaxispress) {
+void midinotetrack::optionspress(int xaxispress, int yaxispress) {
 	
 	
 	int xval = (xaxispress / 8);
@@ -563,7 +567,7 @@ void mididrumtrack::optionspress(int xaxispress, int yaxispress) {
 	}
 }
 
-void mididrumtrack::editmidioptions(int amount) {
+void midinotetrack::editmidioptions(int amount) {
 	
 	if (!playing)
 	{
@@ -700,7 +704,7 @@ void mididrumtrack::editmidioptions(int amount) {
 
 // Follow view functions
 
-void mididrumtrack::displayactivepattern(void) {
+void midinotetrack::displayactivepattern(void) {
 	
 	int x,y;
 	
@@ -724,7 +728,7 @@ void mididrumtrack::displayactivepattern(void) {
 	
 // Note functions
 
-void mididrumtrack::triggernoteson(void) {
+void midinotetrack::triggernoteson(void) {
 
 	int i, j;
 	int activetrackpattern;
@@ -762,7 +766,7 @@ void mididrumtrack::triggernoteson(void) {
 
 }
 
-void mididrumtrack::triggernotesoff(void) {
+void midinotetrack::triggernotesoff(void) {
 
 	int i, j;
 
@@ -795,7 +799,7 @@ void mididrumtrack::triggernotesoff(void) {
 
 // MIDI functions
 
-void mididrumtrack::sendmididata(void) {
+void midinotetrack::sendmididata(void) {
 
 	for (int i = 0; i < pendinglistpos; i++) {
 	

@@ -2,8 +2,6 @@
 #include <stdio.h>
 #include <fat.h>
 
-// this is a test comment
-
 // Included Source Files
 
 #include "gfx.h"
@@ -1029,7 +1027,9 @@ void bpmtimer() {
 
 	if (midisyncclock >= 60 * 16) {
 		midisyncclock = 0;
+		
 		// MIDI clock function can go here
+		
 		for (int i = 0; i < 4; i++)
 		{
 			tracks[i]->sequencerclock();
