@@ -7,6 +7,7 @@
 #include "trackclass.h"
 #include "gfx.h"
 #include "midi.h"
+#include "structs.h"
 
 #include "file_browse.h"
 
@@ -30,7 +31,7 @@ mididrumtrack::mididrumtrack(int assignedtracknumber) {
 	
 	stepposition = -1;
 
-	presetnumber = 0;
+	settingsnumber = 0;
 	patternnumber = 0;
 	
 	
@@ -144,9 +145,37 @@ void mididrumtrack::editpress(int xval, int yval) {
 
 // Load and Save Functions
 
+void mididrumtrack::fileload(modes_t currentmode) {
+
+	if ((currentmode == edit) || (currentmode == seqpatterns) || (currentmode == follow)) {
+	
+		patternfileloader();
+	
+	} else if (currentmode == options) {
+	
+		settingsfileloader();
+	
+	}
+
+}
+
+void mididrumtrack::filesave(modes_t currentmode) {
+
+	if ((currentmode == edit) || (currentmode == seqpatterns) || (currentmode == follow)) {
+	
+		patternfilesaver();
+	
+	} else if (currentmode == options) {
+	
+		settingsfilesaver();
+	
+	}
+
+}
+
 void mididrumtrack::patternfileloader() {
 
-	patternbuffer patternloadsavestruct;
+	patternbuffer patternloadstruct;
 	
 	filebrowsescreenbackground();
 
@@ -157,7 +186,7 @@ void mididrumtrack::patternfileloader() {
 	
 	filename = browseForFile (".ptr");
 
-		int x, y, z;
+	int x, y, z;
 
 	if (filename != "NULL")
 	{
@@ -168,9 +197,12 @@ void mididrumtrack::patternfileloader() {
 		
 		pFile = fopen ( filePath , "r" );
 		
-		fread((char *)&patternloadsavestruct, sizeof(patternbuffer), 1, pFile);
+		fread((char *)&patternloadstruct, sizeof(patternbuffer), 1, pFile);
 		
-		patternnumber = patternloadsavestruct.patternnumber;
+		patternnumber = patternloadstruct.patternnumber;
+		
+		patternseqlength = patternloadstruct.patternseqlength;
+		stepbeatlength = patternloadstruct.stepbeatlength;
 		
 		for ( z = 0; z < 8; z++ )
 		{
@@ -178,9 +210,14 @@ void mididrumtrack::patternfileloader() {
 			{
 				for( y = 0; y < 8; y++ )
 				{
-					patterns[z][x][y] = patternloadsavestruct.patterns[z][x][y];
+					patterns[z][x][y] = patternloadstruct.patterns[z][x][y];
 				}
 			}
+		}
+		
+		for( x = 0; x < 16; x++ )
+		{
+			patternseq[x] = patternloadstruct.patternseq[x];
 		}
 		
 		
@@ -193,36 +230,44 @@ void mididrumtrack::patternfileloader() {
 
 void mididrumtrack::patternfilesaver() {
 	
-	patternbuffer patternloadsavestruct;
+	patternbuffer patternsavestruct;
 	
 	char format[] = "/seqgrid/files/pattern-%d.ptr";
 	char filename[sizeof format+100];
 	sprintf(filename,format,patternnumber);
 	FILE *pFile = fopen(filename,"w");
 
-	patternloadsavestruct.patternnumber = patternnumber;
-
-	int x, y, z;
-	
-	for ( z = 0; z < 8; z++ )
-	{
-		for( x = 0; x < 16; x++ )
+		patternsavestruct.patternnumber = patternnumber;
+		
+		patternsavestruct.patternseqlength = patternseqlength;
+		patternsavestruct.stepbeatlength = stepbeatlength;
+		
+		int x, y, z;
+		
+		for ( z = 0; z < 8; z++ )
 		{
-			for( y = 0; y < 8; y++ )
+			for( x = 0; x < 16; x++ )
 			{
-				patternloadsavestruct.patterns[z][x][y] = patterns[z][x][y];
+				for( y = 0; y < 8; y++ )
+				{
+					patternsavestruct.patterns[z][x][y] = patterns[z][x][y];
+				}
 			}
 		}
-    }
+		
+		for( x = 0; x < 16; x++ )
+		{
+			patternsavestruct.patternseq[x] = patternseq[x];
+		}
 	
-	fwrite((char *)&patternloadsavestruct, sizeof(patternbuffer), 1, pFile);
+	fwrite((char *)&patternsavestruct, sizeof(patternbuffer), 1, pFile);
 
 	fclose (pFile);
 
 }
-void mididrumtrack::settingfileloader() {
+void mididrumtrack::settingsfileloader() {
 
-	presetbuffer presetloadsavestruct;
+	settingsbuffer settingsloadstruct;
 	
 	filebrowsescreenbackground();
 
@@ -242,17 +287,18 @@ void mididrumtrack::settingfileloader() {
 		
 		pFile = fopen ( filePath , "r" );
 		
-		fread((char *)&presetloadsavestruct, sizeof(presetbuffer), 1, pFile);
+		fread((char *)&settingsloadstruct, sizeof(settingsbuffer), 1, pFile);
 		
-		presetnumber = presetloadsavestruct.presetnumber;
-		midichannel = presetloadsavestruct.midichannel;
+		settingsnumber = settingsloadstruct.settingsnumber;
+		midichannel = settingsloadstruct.midichannel;
+		notelength = settingsloadstruct.notelength;
 
 		
 		for (int i = 0; i < 8; i ++)
 		{
 			for (int j = 0; j < 8; j ++)
 			{
-				midinotes[i][j] = presetloadsavestruct.midinotes[i][j];
+				midinotes[i][j] = settingsloadstruct.midinotes[i][j];
 			}
 		}
 		
@@ -263,27 +309,28 @@ void mididrumtrack::settingfileloader() {
 	
 }
 
-void mididrumtrack::settingfilesaver() {
+void mididrumtrack::settingsfilesaver() {
 	
-	presetbuffer presetloadsavestruct;
+	settingsbuffer settingssavestruct;
 	
-	char format[] = "/seqgrid/files/preset-%d.prs";
+	char format[] = "/seqgrid/files/settings-%d.prs";
 	char filename[sizeof format+100];
-	sprintf(filename,format,presetnumber);
+	sprintf(filename,format,settingsnumber);
 	FILE *pFile = fopen(filename,"w");
 
-	presetloadsavestruct.presetnumber = presetnumber;
-	presetloadsavestruct.midichannel = midichannel;
+	settingssavestruct.settingsnumber = settingsnumber;
+	settingssavestruct.midichannel = midichannel;
+	settingssavestruct.notelength = notelength;
 	
 	for (int i = 0; i < 8; i ++)
 	{
 		for (int j = 0; j < 3; j ++)
 		{
-			presetloadsavestruct.midinotes[i][j] = midinotes[i][j];
+			settingssavestruct.midinotes[i][j] = midinotes[i][j];
 		}
 	}
 	
-	fwrite((char *)&presetloadsavestruct, sizeof(presetbuffer), 1, pFile);
+	fwrite((char *)&settingssavestruct, sizeof(settingsbuffer), 1, pFile);
 
 	fclose (pFile);
 
@@ -345,7 +392,7 @@ void mididrumtrack::displayoptions() {
 
 	iprintf("\x1b[2;4HTrack");
 	
-	iprintf("\x1b[4;2HPreset No.");
+	iprintf("\x1b[4;2Hsettings No.");
 	iprintf("\x1b[5;2HPattern No.");
 	
 	iprintf("\x1b[7;2HStep Length");
@@ -367,7 +414,7 @@ void mididrumtrack::displayoptions() {
 	
 	iprintf("\x1b[2;12H%i  ",tracknumber);
 	
-	iprintf("\x1b[4;14H%i  ",presetnumber);
+	iprintf("\x1b[4;14H%i  ",settingsnumber);
 	iprintf("\x1b[5;14H%i  ",patternnumber);
 
 	iprintf("\x1b[7;14H%i  ",stepbeatlength);
@@ -409,7 +456,7 @@ void mididrumtrack::displayoptions() {
 
 	if (activerow == -1) {activevalue = 0;}
 
-	if (activerow == 4) {activevalue = presetnumber;}
+	if (activerow == 4) {activevalue = settingsnumber;}
 	if (activerow == 5) {activevalue = patternnumber;}
 
 	if (activerow == 7) {activevalue = stepbeatlength;}
@@ -524,7 +571,7 @@ void mididrumtrack::editmidioptions(int amount) {
 		
 		if (activerow == 4) {
 		
-			tempvalue = presetnumber + amount;
+			tempvalue = settingsnumber + amount;
 			
 			if (tempvalue > 200)
 			{
@@ -535,7 +582,7 @@ void mididrumtrack::editmidioptions(int amount) {
 				tempvalue = 0;
 			}
 			
-			presetnumber = tempvalue;
+			settingsnumber = tempvalue;
 			
 		}
 		

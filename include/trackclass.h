@@ -32,6 +32,7 @@ public:
 	virtual void sendmididata(void) =0;
 
 	virtual void fileload(modes_t currentmode) =0;
+	virtual void filesave(modes_t currentmode) =0;
 
 };
 
@@ -45,7 +46,7 @@ private:
 	
 	int tracknumber;
 
-	int presetnumber;
+	int settingsnumber;
 	int patternnumber;
 
 	int patterns[8][16][8];
@@ -79,10 +80,10 @@ private:
 	
 	void editmidioptions(int amount);
 	
-	void patternfileloader();
-	void patternfilesaver();
-	void settingfileloader();
-	void settingfilesaver();
+	void patternfileloader(void);
+	void patternfilesaver(void);
+	void settingsfileloader(void);
+	void settingsfilesaver(void);
 
 public:
 
@@ -105,6 +106,7 @@ public:
 	void sendmididata(void);
 
 	void fileload(modes_t currentmode);
+	void filesave(modes_t currentmode);
 
 
 };

@@ -1,5 +1,6 @@
 #include <nds.h>
 #include <stdio.h>
+#include <fat.h>
 
 // this is a test comment
 
@@ -290,7 +291,7 @@ void navbuttonpresses (int xval) {
 	}
 	if (xval == 2)
 	{
-		currentmode = patternseq;
+		currentmode = seqpatterns;
 		tracks[activetracknumber]->currenteditpattern = 7;
 	}
 	if (xval == 3)
@@ -307,41 +308,11 @@ void navbuttonpresses (int xval) {
 	}
 	if (xval == 6)
 	{	 
-		if (currentmode == edit)
-		{
-		//	patternfilesaver();
-		} else if (currentmode == patternseq)
-		{
-		//	patternfilesaver();
-		} else if (currentmode == follow)
-		{
-		//	patternfilesaver();
-		} else if (currentmode == options)
-		{
-		//	presetfilesaver();
-		} else if (currentmode == setup)
-		{
-		//	globalfilesaver();
-		}
+		tracks[activetracknumber]->filesave(currentmode);
 	}
 	if (xval == 7 )
 	{
-		if (currentmode == edit)
-		{
-		//	patternfileloader();
-		} else if (currentmode == patternseq)
-		{
-		//	patternfileloader();
-		} else if (currentmode == follow)
-		{
-		//	patternfileloader();
-		} else if (currentmode == options)
-		{
-		//	presetfileloader();
-		} else if (currentmode == setup)
-		{
-		//	globalfileloader();
-		}				
+		tracks[activetracknumber]->fileload(currentmode);			
 	}
 
 
@@ -583,7 +554,7 @@ void patternseqbuttonpresses () {
 			}
 			else if(xval == 7)
 			{
-				currentmode = patternseq;
+				currentmode = seqpatterns;
 				tracks[activetracknumber]->currenteditpattern = xval;
 			}		
 		}
@@ -660,7 +631,7 @@ void followviewbuttonpresses () {
 			else if(xval == 7)
 			{
 				tracks[activetracknumber]->currenteditpattern = xval;
-				currentmode = patternseq;
+				currentmode = seqpatterns;
 			}
 		}
 		if (yval == 5)
@@ -733,7 +704,7 @@ void editviewbuttonpresses () {
 			}
 			else if(xval == 7)
 			{
-				currentmode = patternseq;
+				currentmode = seqpatterns;
 				tracks[activetracknumber]->currenteditpattern = xval;
 			}
 		}
@@ -956,7 +927,7 @@ void followview () {
 
 void patternseqview () {
 
-	while(currentmode == patternseq)
+	while(currentmode == seqpatterns)
     {
 		swiWaitForVBlank();
 		
@@ -1118,7 +1089,7 @@ int main(void) {
 				homeview();
 				break;
 				
-			case patternseq:
+			case seqpatterns:
 			
 				patternseqview();
 				break;

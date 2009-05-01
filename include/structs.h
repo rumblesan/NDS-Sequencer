@@ -2,26 +2,16 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
-enum modes_t {home, edit, patternseq, follow, options, setup};
+enum modes_t {home, edit, seqpatterns, follow, options, setup};
 
 
-struct midinoteoptionsbuffer {
+struct settingsbuffer {
 
-int tracknumber;
-int presetnumber;
-int patternnumber;
+int settingsnumber;
 
 uint8_t midichannel;
 uint8_t midinotes[8][3];
-
-};
-
-struct presetbuffer {
-
-int presetnumber;
-
-uint8_t midichannel;
-uint8_t midinotes[8][3];
+uint8_t notelength;
 
 };
 
@@ -32,6 +22,7 @@ int patternnumber;
 int patterns[8][16][8];
 int patternseq[16];
 int patternseqlength;
+int stepbeatlength;
 
 };
 

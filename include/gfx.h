@@ -18,7 +18,6 @@ void drawgridbuttonSUB(int xoffset, int yoffset, int buttonval);
 void drawstepdisplaySUB(int globalstep, int yoffset);
 void drawbigbuttonSUB(int xoffset, int yoffset, int colour);
 void drawbiglongbuttonSUB(int xoffset, int yoffset, int colour);
-void drawtriggeredsoundsSUB(trackdata * trackarray, int xoffset, int yoffset, int channel);
 
 
 // Nav Buttons
@@ -30,9 +29,7 @@ void navbuttons(int colour, int yoffset, int activebutton);
 // Grid Button Function
 
 void drawgridbutton(int xoffset, int yoffset, int buttonval);
-void displaycurrentgrid(trackdata * activetrack);
-void displayseqgrid(trackdata * activetrack);
-void displayactivegrid(trackdata * activetrack);
+
 
 
 // Button Display Functions
@@ -48,7 +45,6 @@ void drawbignumber(int xoffset, int yoffset, int number);
 void drawarrow(int xoffset, int yoffset, int direction);
 void mainnumbers(int xoffset, int yoffset, int colour);
 void calcanddispnumber(int xoffset, int yoffset, int number);
-void displayactiverowvalue(trackdata * activetrack, int activerow, int activecolumn);
 
 
 // File Browser
@@ -65,7 +61,6 @@ void drawsetuptext(int dsmienable, int globalnumber);
 
 // Options Screen
 
-void drawoptionstext(midinoteoptionsbuffer * activetrack);
 void optionsscreenbackground(int activerow, int activecolumn);
 void drawkeypad(int xoffset, int yoffset);
 
