@@ -88,7 +88,7 @@ void midinotetrack::sequencerclock(void) {
 
 	clockcount++;
 	
-	if (clockcount >= (16 * stepbeatlength))
+	if (clockcount >= (stepbeatlength))
 	{
 		if (playing)
 		{

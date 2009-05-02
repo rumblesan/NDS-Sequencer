@@ -38,9 +38,11 @@ int midienable = 0;
 int globalplay = 0;
 int globalstep = -1;
 
-int midisyncclock = -1;
+int beatcount = -1;
+int midiclockcount = -1;
+int tracksynccount = -1;
+int stepcount = -1;
 
-int bpmcount;
 
 modes_t currentmode;
 
@@ -861,11 +863,11 @@ void topscreendisplay() {
 		
 	}
 	
-	if ((globalstep % 4) == 0)
+	if (((globalstep % 4) == 0) || ((globalstep % 4) == 1))
 	{
-		drawbiglongbuttonSUB(22,18,0);
-	} else {
 		drawbiglongbuttonSUB(22,18,1);
+	} else {
+		drawbiglongbuttonSUB(22,18,0);
 	}
 	
 	drawbpmtextSUB(2,18);
@@ -990,11 +992,12 @@ void syncstarttracks() {
 
 void movestepforward() {
 
-	bpmcount++;
-	
-	if (bpmcount >= 6) {
-		bpmcount = 0;
+	stepcount++;
 
+	if (stepcount >= 4)
+	{
+		stepcount = 0;
+		
 		if (globalplay == 1)
 		{
 			globalstep++;
@@ -1018,6 +1021,9 @@ void movestepforward() {
 				tracks[i]->starttrack(0);
 			}
 			globalstep = -1;
+			beatcount = -1;
+			midiclockcount = -1;
+			tracksynccount = -1;
 		}
 	}
 
@@ -1028,23 +1034,37 @@ void movestepforward() {
 
 void bpmtimer() {
 
-	midisyncclock++;
+	beatcount++;
 
-	if (midisyncclock >= 60 * 16) {
-		midisyncclock = 0;
+	if (beatcount >= 60) {
+		beatcount = 0;
 		
-		// MIDI clock function can go here
+		midiclockcount++;
 		
-		for (int i = 0; i < 4; i++)
-		{
-			tracks[i]->sequencerclock();
+		if (midiclockcount >= 16) {
+			midiclockcount = 0;
+
+			//midiclock function
+			
 		}
-		for (int i = 0; i < 4; i++)
-		{
-			tracks[i]->sendmididata();
+			
+		tracksynccount++;
+			
+		if (tracksynccount >= 24) {
+			
+			tracksynccount = 0;
+			
+			for (int i = 0; i < 4; i++)
+			{
+				tracks[i]->sequencerclock();
+			}
+			for (int i = 0; i < 4; i++)
+			{
+				tracks[i]->sendmididata();
+			}
+			
+			movestepforward();
 		}
-		
-		movestepforward();
 		
 	}
 }
