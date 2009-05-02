@@ -18,8 +18,8 @@ track* tracks[] =
 
 	new mididrumtrack(1),
 	new mididrumtrack(2),
-	new mididrumtrack(3),
-	new mididrumtrack(4),
+	new midinotetrack(3),
+	new midinotetrack(4),
 
 };
 
@@ -40,7 +40,6 @@ int globalstep = -1;
 
 int midisyncclock = -1;
 
-int quarternotes = (60 * 24 * 4);
 int bpmcount;
 
 modes_t currentmode;
@@ -991,29 +990,35 @@ void syncstarttracks() {
 
 void movestepforward() {
 
-	if (globalplay == 1)
-	{
-		globalstep++;
-		
-		if (globalstep >= 16) {
-			globalstep = 0;
-		}
-		
-		if (globalstep == 0)
+	bpmcount++;
+	
+	if (bpmcount >= 6) {
+		bpmcount = 0;
+
+		if (globalplay == 1)
 		{
-			syncstarttracks();
+			globalstep++;
+			
+			if (globalstep >= 16) {
+				globalstep = 0;
+			}
+			
+			if (globalstep == 0)
+			{
+				syncstarttracks();
+			}
+			
+			
 		}
-		
-		
-	}
-	else if (globalplay == 0)
-	{
-		for (int i = 0; i < 4; i++)
+		else if (globalplay == 0)
 		{
-			playingtracks[i] = 0;
-			tracks[i]->starttrack(0);
+			for (int i = 0; i < 4; i++)
+			{
+				playingtracks[i] = 0;
+				tracks[i]->starttrack(0);
+			}
+			globalstep = -1;
 		}
-		globalstep = -1;
 	}
 
 }
@@ -1038,13 +1043,9 @@ void bpmtimer() {
 		{
 			tracks[i]->sendmididata();
 		}
-	}
-	
-	bpmcount++;
-	
-	if (bpmcount >= quarternotes) {
-		bpmcount = 0;
+		
 		movestepforward();
+		
 	}
 }
 

@@ -89,11 +89,10 @@ void mididrumtrack::sequencerclock(void) {
 
 	clockcount++;
 	
-	if (clockcount >= (60 * 24 * stepbeatlength))
+	if (clockcount >= (16 * stepbeatlength))
 	{
 		if (playing)
 		{
-			
 			clockcount = 0;
 			stepposition++;
 			
@@ -296,7 +295,7 @@ void mididrumtrack::settingsfileloader() {
 		
 		for (int i = 0; i < 8; i ++)
 		{
-			for (int j = 0; j < 8; j ++)
+			for (int j = 0; j < 3; j ++)
 			{
 				midinotes[i][j] = settingsloadstruct.midinotes[i][j];
 			}
@@ -565,7 +564,7 @@ void mididrumtrack::optionspress(int xaxispress, int yaxispress) {
 
 void mididrumtrack::editmidioptions(int amount) {
 	
-	if (!playing)
+	if (playing == 0)
 	{
 		int tempvalue;
 		
@@ -584,9 +583,7 @@ void mididrumtrack::editmidioptions(int amount) {
 			
 			settingsnumber = tempvalue;
 			
-		}
-		
-		if (activerow == 5) {
+		} else if (activerow == 5) {
 		
 			tempvalue = patternnumber + amount;
 			
@@ -600,9 +597,8 @@ void mididrumtrack::editmidioptions(int amount) {
 			}
 			
 			patternnumber = tempvalue;
-		}
-		
-		if (activerow == 7) {
+			
+		} else if (activerow == 7) {
 		
 			tempvalue = stepbeatlength + amount;
 			
@@ -617,10 +613,7 @@ void mididrumtrack::editmidioptions(int amount) {
 			
 			stepbeatlength = tempvalue;
 			
-//			channelchangenotesoff();
-		}
-		
-		if (activerow == 8) {
+		} else if (activerow == 8) {
 		
 			tempvalue = midichannel + amount;
 			
@@ -635,11 +628,7 @@ void mididrumtrack::editmidioptions(int amount) {
 			
 			midichannel = tempvalue;
 			
-//			channelchangenotesoff();
-		}
-		
-		
-		if ((activerow > 10) && (activerow < 19)) {
+		} else if ((activerow > 10) && (activerow < 19)) {
 		
 			if (activecolumn == 0)
 			{
@@ -656,10 +645,7 @@ void mididrumtrack::editmidioptions(int amount) {
 				
 				midinotes[activerow - 11][0] = tempvalue;
 				
-//				midichangenotesoff((activerow - 10));
-			}
-				
-			if (activecolumn == 1)
+			} else if (activecolumn == 1)
 			{
 				tempvalue = midinotes[activerow - 11][1] + amount;
 			
@@ -673,9 +659,8 @@ void mididrumtrack::editmidioptions(int amount) {
 				}
 				
 				midinotes[activerow - 11][1] = tempvalue;
-			}
 				
-			if (activecolumn == 2)
+			} else if (activecolumn == 2)
 			{
 				tempvalue = midinotes[activerow - 11][2] + amount;
 			

@@ -321,6 +321,8 @@ void setupVideo() {
     dmaCopyHalfWords( 3, gfx_greengridbuttonPal,   pal2bgsubram( pal_greengridbutton ),  gfx_greengridbuttonPalLen );	
     dmaCopyHalfWords( 3, gfx_graygridbuttonPal,    pal2bgsubram( pal_graygridbutton ),   gfx_graygridbuttonPalLen );	
     dmaCopyHalfWords( 3, gfx_orangegridbuttonPal,  pal2bgsubram( pal_orangegridbutton ), gfx_orangegridbuttonPalLen );
+    dmaCopyHalfWords( 3, gfx_yellowgridbuttonPal,  pal2bgsubram( pal_yellowgridbutton ), gfx_yellowgridbuttonPalLen );	
+    dmaCopyHalfWords( 3, gfx_redgridbuttonPal,     pal2bgsubram( pal_redgridbutton ),    gfx_redgridbuttonPalLen );
 
 	dmaCopyHalfWords( 3, gfx_lrgbluebuttonPal,     pal2bgsubram( pal_lrgbluebutton ),    gfx_lrgbluebuttonPalLen );	
     dmaCopyHalfWords( 3, gfx_lrggreenbuttonPal,    pal2bgsubram( pal_lrggreenbutton ),   gfx_lrggreenbuttonPalLen );	

@@ -88,7 +88,7 @@ void midinotetrack::sequencerclock(void) {
 
 	clockcount++;
 	
-	if (clockcount >= (60 * 24 * stepbeatlength))
+	if (clockcount >= (16 * stepbeatlength))
 	{
 		if (playing)
 		{
@@ -297,7 +297,7 @@ void midinotetrack::settingsfileloader() {
 		
 		for (int i = 0; i < 8; i ++)
 		{
-			for (int j = 0; j < 8; j ++)
+			for (int j = 0; j < 2; j ++)
 			{
 				midinotes[i][j] = settingsloadstruct.midinotes[i][j];
 			}
@@ -324,7 +324,7 @@ void midinotetrack::settingsfilesaver() {
 	
 	for (int i = 0; i < 8; i ++)
 	{
-		for (int j = 0; j < 3; j ++)
+		for (int j = 0; j < 2; j ++)
 		{
 			settingssavestruct.midinotes[i][j] = midinotes[i][j];
 		}
@@ -401,7 +401,6 @@ void midinotetrack::displayoptions() {
 	
 	iprintf("\x1b[10;8HNote");
 	iprintf("\x1b[10;13HVel");
-	iprintf("\x1b[10;18HLen");
 	
 	iprintf("\x1b[11;2HRow 1");
 	iprintf("\x1b[12;2HRow 2");
@@ -416,8 +415,6 @@ void midinotetrack::displayoptions() {
 	
 	iprintf("\x1b[4;14H%i  ",settingsnumber);
 	iprintf("\x1b[5;14H%i  ",patternnumber);
-
-	iprintf("\x1b[7;14H%i  ",stepbeatlength);
 
 	iprintf("\x1b[8;14H%i  ",midichannel);
 	
@@ -438,15 +435,6 @@ void midinotetrack::displayoptions() {
 	iprintf("\x1b[16;14H%i  ",midinotes[5][1]);
 	iprintf("\x1b[17;14H%i  ",midinotes[6][1]);
 	iprintf("\x1b[18;14H%i  ",midinotes[7][1]);
-	
-	iprintf("\x1b[11;19H%i ",midinotes[0][2]);
-	iprintf("\x1b[12;19H%i ",midinotes[1][2]);
-	iprintf("\x1b[13;19H%i ",midinotes[2][2]);
-	iprintf("\x1b[14;19H%i ",midinotes[3][2]);
-	iprintf("\x1b[15;19H%i ",midinotes[4][2]);
-	iprintf("\x1b[16;19H%i ",midinotes[5][2]);
-	iprintf("\x1b[17;19H%i ",midinotes[6][2]);
-	iprintf("\x1b[18;19H%i ",midinotes[7][2]);
 	
 	optionsscreenbackground(activerow, activecolumn);
 	
@@ -522,9 +510,6 @@ void midinotetrack::optionspress(int xaxispress, int yaxispress) {
 		if ((xval > 14) && (xval < 18)) {
 			activecolumn = 1;
 		}
-		if ((xval > 19) && (xval < 23)) {
-			activecolumn = 2;
-		}
 	} else  if ((xval > 23) && (xval < 30) && (yval > 1) && (yval < 9))
 	{
 		xval = (xaxispress / 16);
@@ -584,9 +569,7 @@ void midinotetrack::editmidioptions(int amount) {
 			
 			settingsnumber = tempvalue;
 			
-		}
-		
-		if (activerow == 5) {
+		} else if (activerow == 5) {
 		
 			tempvalue = patternnumber + amount;
 			
@@ -600,9 +583,7 @@ void midinotetrack::editmidioptions(int amount) {
 			}
 			
 			patternnumber = tempvalue;
-		}
-		
-		if (activerow == 7) {
+		} else if (activerow == 7) {
 		
 			tempvalue = stepbeatlength + amount;
 			
@@ -618,9 +599,7 @@ void midinotetrack::editmidioptions(int amount) {
 			stepbeatlength = tempvalue;
 			
 //			channelchangenotesoff();
-		}
-		
-		if (activerow == 8) {
+		} else if (activerow == 8) {
 		
 			tempvalue = midichannel + amount;
 			
@@ -634,12 +613,7 @@ void midinotetrack::editmidioptions(int amount) {
 			}
 			
 			midichannel = tempvalue;
-			
-//			channelchangenotesoff();
-		}
-		
-		
-		if ((activerow > 10) && (activerow < 19)) {
+		} else if ((activerow > 10) && (activerow < 19)) {
 		
 			if (activecolumn == 0)
 			{
@@ -655,11 +629,7 @@ void midinotetrack::editmidioptions(int amount) {
 				}
 				
 				midinotes[activerow - 11][0] = tempvalue;
-				
-//				midichangenotesoff((activerow - 10));
-			}
-				
-			if (activecolumn == 1)
+			} else if (activecolumn == 1)
 			{
 				tempvalue = midinotes[activerow - 11][1] + amount;
 			
@@ -673,22 +643,6 @@ void midinotetrack::editmidioptions(int amount) {
 				}
 				
 				midinotes[activerow - 11][1] = tempvalue;
-			}
-				
-			if (activecolumn == 2)
-			{
-				tempvalue = midinotes[activerow - 11][2] + amount;
-			
-				if (tempvalue > 32)
-				{
-					tempvalue = 32;
-				}
-				if (tempvalue < 0)
-				{
-					tempvalue = 0;
-				}
-				
-				midinotes[activerow - 11][2] = tempvalue;
 			}
 		}
 	}
@@ -733,11 +687,13 @@ void midinotetrack::triggernotes(void) {
 	{
 		int stepvalue = patterns[activetrackpattern][stepposition][j];
 		
-		if (stepvalue == 1)
+		if ((stepvalue == 1) || (stepvalue == 2))
 		{
 			pendingsenddata[pendinglistpos][0] = midichannel;
 			pendingsenddata[pendinglistpos][1] = midinotes[j][0];
-			pendingsenddata[pendinglistpos][2] = midinotes[j][1];
+			
+			if (stepvalue == 1) {pendingsenddata[pendinglistpos][2] = midinotes[j][1];}
+			if (stepvalue == 2) {pendingsenddata[pendinglistpos][2] = 0;}
 			
 			pendinglistpos++;
 			
@@ -753,29 +709,10 @@ void midinotetrack::triggernotes(void) {
 			
 			currentonnotes[j][0] = midichannel;
 			currentonnotes[j][1] = midinotes[j][0];
-			currentonnotes[j][2] = 1;
 			
-		} else if (stepvalue == 2)
-		{
-			pendingsenddata[pendinglistpos][0] = midichannel;
-			pendingsenddata[pendinglistpos][1] = midinotes[j][0];
-			pendingsenddata[pendinglistpos][2] = 0;
+			if (stepvalue == 1) {currentonnotes[j][2] = 1;}
+			if (stepvalue == 2) {currentonnotes[j][2] = 0;}
 			
-			pendinglistpos++;
-			
-			if ((currentonnotes[j][0] != midichannel || currentonnotes[j][1] != midinotes[j][0]) && ( currentonnotes[j][2] == 1)) {
-				
-				pendingsenddata[pendinglistpos][0] = midichannel;
-				pendingsenddata[pendinglistpos][1] = midinotes[j][0];
-				pendingsenddata[pendinglistpos][2] = 0;
-				
-				pendinglistpos++;
-				
-			}
-			
-			currentonnotes[j][0] = midichannel;
-			currentonnotes[j][1] = midinotes[j][0];
-			currentonnotes[j][2] = 0;
 		}
 	}
 
