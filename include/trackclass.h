@@ -143,10 +143,9 @@ private:
 	uint8_t currentonnotes[8][3];
 
 	uint8_t midichannel;
-	uint8_t midinotes[8][3];
+	uint8_t midinotes[8][2];
 	
-	void triggernoteson(void);
-	void triggernotesoff(void);
+	void triggernotes(void);
 	
 	void editmidioptions(int amount);
 	
@@ -157,7 +156,7 @@ private:
 
 public:
 
-	mididrumtrack(int assignedtracknumber);
+	midinotetrack(int assignedtracknumber);
 	
 	void starttrack(int playstatus);
 	void sequencerclock(void);

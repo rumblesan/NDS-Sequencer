@@ -726,37 +726,33 @@ void mididrumtrack::displayactivepattern(void) {
 
 void mididrumtrack::triggernoteson(void) {
 
-	int i, j;
-	int activetrackpattern;
+	int j;
+	int activetrackpattern = patternseq[patternseqpos];
 
-	for (i = 0; i < 4; i++)
+	for (j = 0 ; j < 8 ; j++)
 	{
-		for (j = 0 ; j < 8 ; j++)
+		
+		if (patterns[activetrackpattern][stepposition][j] == 1)
 		{
-			activetrackpattern = patternseq[patternseqpos];
+			pendingsenddata[pendinglistpos][0] = midichannel;
+			pendingsenddata[pendinglistpos][1] = midinotes[j][0];
+			pendingsenddata[pendinglistpos][2] = midinotes[j][1];
 			
-			if (patterns[activetrackpattern][stepposition][j] == 1)
-			{
+			pendinglistpos++;
+			
+			if (currentonnotes[j][0] != midichannel || currentonnotes[j][1] != midinotes[j][0]) {
+				
 				pendingsenddata[pendinglistpos][0] = midichannel;
 				pendingsenddata[pendinglistpos][1] = midinotes[j][0];
-				pendingsenddata[pendinglistpos][2] = midinotes[j][1];
+				pendingsenddata[pendinglistpos][2] = 0;
 				
 				pendinglistpos++;
 				
-				if (currentonnotes[j][0] != midichannel || currentonnotes[j][1] != midinotes[j][0]) {
-					
-					pendingsenddata[pendinglistpos][0] = midichannel;
-					pendingsenddata[pendinglistpos][1] = midinotes[j][0];
-					pendingsenddata[pendinglistpos][2] = 0;
-					
-					pendinglistpos++;
-					
-				}
-				currentonnotes[j][0] = midichannel;
-				currentonnotes[j][1] = midinotes[j][0];
-				currentonnotes[j][2] = midinotes[j][2];
-				
 			}
+			currentonnotes[j][0] = midichannel;
+			currentonnotes[j][1] = midinotes[j][0];
+			currentonnotes[j][2] = midinotes[j][2];
+			
 		}
 	}
 
@@ -764,27 +760,24 @@ void mididrumtrack::triggernoteson(void) {
 
 void mididrumtrack::triggernotesoff(void) {
 
-	int i, j;
+	int j;
 
-	for (i = 0; i < 4; i++)
+	for (j = 0 ; j < 8 ; j++)
 	{
-		for (j = 0 ; j < 8 ; j++)
+		if (currentonnotes[j][2] == 0)
 		{
-			if (currentonnotes[j][2] == 0)
-			{
-				pendingsenddata[pendinglistpos][0] = currentonnotes[j][0];
-				pendingsenddata[pendinglistpos][1] = currentonnotes[j][1];
-				pendingsenddata[pendinglistpos][2] = 0;
-				
-				pendinglistpos++;
-				
-				currentonnotes[j][2] = -1;
-			}
+			pendingsenddata[pendinglistpos][0] = currentonnotes[j][0];
+			pendingsenddata[pendinglistpos][1] = currentonnotes[j][1];
+			pendingsenddata[pendinglistpos][2] = 0;
 			
-			if (currentonnotes[j][2] > 0)
-			{
-				currentonnotes[j][2] = (currentonnotes[j][2] - 1);
-			}
+			pendinglistpos++;
+			
+			currentonnotes[j][2] = -1;
+		}
+		
+		if (currentonnotes[j][2] > 0)
+		{
+			currentonnotes[j][2] = (currentonnotes[j][2] - 1);
 		}
 	}
 
