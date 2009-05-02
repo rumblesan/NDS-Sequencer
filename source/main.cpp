@@ -186,6 +186,39 @@ void incrementglobalval(int amount) {
 }
 // Edit and Follow View Functions
 
+void drawtopscreen() {
+	
+	for (int i = 0; i < 4; i++)
+	{
+	
+		drawbigbuttonSUB(i, 0, playingtracks[i]);
+		
+		if (i == activetracknumber)
+		{
+			drawbiglongbuttonSUB((i * 8), 6, 3);
+		} else {
+			drawbiglongbuttonSUB((i * 8), 6, 2);
+		}
+		
+		drawbignumberSUB(((i * 8) + 3),1,(i + 1));
+		
+	}
+	
+	if (((globalstep % 4) == 0) || ((globalstep % 4) == 1))
+	{
+		drawbiglongbuttonSUB(22,18,1);
+	} else {
+		drawbiglongbuttonSUB(22,18,0);
+	}
+	
+	drawbpmtextSUB(2,18);
+	
+	displaybpm(bpm,12,18);
+
+	drawstepdisplaySUB(globalstep, 11);
+	
+}
+
 
 void drawsetupscreen () {
 
@@ -845,38 +878,47 @@ void homeviewbuttonpresses () {
 // Mode Functions
 
 
-void topscreendisplay() {
-	
-	for (int i = 0; i < 4; i++)
-	{
-	
-		drawbigbuttonSUB(i, 0, playingtracks[i]);
-		
-		if (i == activetracknumber)
-		{
-			drawbiglongbuttonSUB((i * 8), 6, 3);
-		} else {
-			drawbiglongbuttonSUB((i * 8), 6, 2);
-		}
-		
-		drawbignumberSUB(((i * 8) + 3),1,(i + 1));
-		
-	}
-	
-	if (((globalstep % 4) == 0) || ((globalstep % 4) == 1))
-	{
-		drawbiglongbuttonSUB(22,18,1);
-	} else {
-		drawbiglongbuttonSUB(22,18,0);
-	}
-	
-	drawbpmtextSUB(2,18);
-	
-	displaybpm(bpm,12,18);
+void displayupdater () {
 
-	drawstepdisplaySUB(globalstep, 11);
+	drawtopscreen();
 	
+	switch (currentmode) {
+		
+		case home:
+		
+			drawhomescreen();
+			break;
+			
+		case seqpatterns:
+		
+			drawpatternseqscreen();
+			break;
+			
+		case edit:
+		
+			draweditscreen();
+			break;
+			
+		case options:
+		
+			drawoptionsscreen();
+			break;
+			
+		case follow:
+		
+			drawfollowscreen();
+			break;
+		
+		case setup:
+		
+			drawsetupscreen();
+			break;
+	}
+
+
 }
+
+
 
 
 
@@ -885,8 +927,6 @@ void setupview () {
 	while(currentmode == setup)
     {
 		swiWaitForVBlank();
-		
-		drawsetupscreen();
 		
 		setupviewbuttonpresses();
     }
@@ -902,8 +942,6 @@ void homeview () {
     {
 		swiWaitForVBlank();
 		
-		drawhomescreen();
-		
 		homeviewbuttonpresses();
     }
 	
@@ -915,8 +953,6 @@ void followview () {
 	while(currentmode == follow)
     {
 		swiWaitForVBlank();
-		
-		drawfollowscreen();
 		
 		followviewbuttonpresses();
     }
@@ -930,8 +966,6 @@ void patternseqview () {
     {
 		swiWaitForVBlank();
 		
-		draweditscreen();
-		
 		patternseqbuttonpresses();
 		
     }
@@ -944,8 +978,6 @@ void editview () {
 	while(currentmode == edit)
     {
 		swiWaitForVBlank();
-		
-		draweditscreen();
 		
 		editviewbuttonpresses();
 		
@@ -962,8 +994,6 @@ void optionsview () {
     {
 		swiWaitForVBlank();		
 		
-		drawoptionsscreen();
-		
 		optionsviewbuttonpresses();
 		
 	}
@@ -974,7 +1004,6 @@ void optionsview () {
 
 
 // Sequencer Functions
-
 
 
 void syncstarttracks() {
@@ -1077,7 +1106,7 @@ void setupbpmtimer() {
 
 	irqEnable  	(IRQ_TIMER0);
 	irqSet (IRQ_TIMER0,bpmtimer);
-	irqSet(IRQ_VBLANK, topscreendisplay);
+	irqSet(IRQ_VBLANK, displayupdater);
 
 }
 
