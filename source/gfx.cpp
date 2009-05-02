@@ -8,6 +8,8 @@
 #include "gfx_greengridbutton.h"
 #include "gfx_graygridbutton.h"
 #include "gfx_orangegridbutton.h"
+#include "gfx_yellowgridbutton.h"
+#include "gfx_redgridbutton.h"
 
 // Menu Buttons
 #include "gfx_lrgbluebutton.h"
@@ -80,16 +82,18 @@
 
 
 // BG MAIN VRAM PALETTES
-#define pal_bluegridbutton		1
+#define pal_graygridbutton		1
 #define pal_greengridbutton		2
-#define pal_graygridbutton		3
-#define pal_orangegridbutton	4
-#define pal_lrgbluebutton		5
-#define pal_lrggreenbutton		6
-#define pal_lrgredbutton		7
-#define pal_lrgyellowbutton		8
-#define pal_brandw				9
-#define pal_optionsviewtiles	10
+#define pal_bluegridbutton		3
+#define pal_yellowgridbutton	4
+#define pal_redgridbutton		5
+#define pal_orangegridbutton	6
+#define pal_lrgbluebutton		7
+#define pal_lrggreenbutton		8
+#define pal_lrgredbutton		9
+#define pal_lrgyellowbutton		10
+#define pal_brandw				11
+#define pal_optionsviewtiles	12
 
 
 // BG Colours
@@ -299,6 +303,8 @@ void setupVideo() {
     dmaCopyHalfWords( 3, gfx_greengridbuttonPal,   pal2bgram( pal_greengridbutton ),   gfx_greengridbuttonPalLen );	
     dmaCopyHalfWords( 3, gfx_graygridbuttonPal,    pal2bgram( pal_graygridbutton ),    gfx_graygridbuttonPalLen );	
     dmaCopyHalfWords( 3, gfx_orangegridbuttonPal,  pal2bgram( pal_orangegridbutton ),  gfx_orangegridbuttonPalLen );
+	dmaCopyHalfWords( 3, gfx_yellowgridbuttonPal,  pal2bgram( pal_yellowgridbutton ),  gfx_yellowgridbuttonPalLen );	
+    dmaCopyHalfWords( 3, gfx_redgridbuttonPal,     pal2bgram( pal_redgridbutton ),     gfx_redgridbuttonPalLen );
 
 	dmaCopyHalfWords( 3, gfx_lrgbluebuttonPal,     pal2bgram( pal_lrgbluebutton ),     gfx_lrgbluebuttonPalLen );	
     dmaCopyHalfWords( 3, gfx_lrggreenbuttonPal,    pal2bgram( pal_lrggreenbutton ),    gfx_lrggreenbuttonPalLen );	
@@ -396,21 +402,9 @@ void drawbpmtextSUB(int xoffset, int yoffset) {
 }
 void drawgridbuttonSUB(int xoffset, int yoffset, int buttonval) {
 
-	int palref = 0;
 
-	if (buttonval == 0) {
-		palref = pal_graygridbutton;
-	}
-	if (buttonval == 1) {
-		palref = pal_greengridbutton;
-	}
-	if (buttonval == 2) {
-		palref = pal_bluegridbutton;
-	}
-	if (buttonval == 3) {
-		palref = pal_orangegridbutton;
-	}
-	
+	int palref = pal_graygridbutton + buttonval;
+
 
     int x, y;
 	int buttoncycle = 0;
