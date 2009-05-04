@@ -25,11 +25,11 @@ midinotetrack::midinotetrack(int assignedtracknumber) {
 	patternseqlength = 4;
 	
 	playing = 0;
+	triggerplay = 0;
 	
 	stepbeatlength = 4;
-	clockcount = -1;
-	
-	stepposition = -1;
+	clockcount = 0;
+	stepposition = 0;
 
 	settingsnumber = 0;
 	patternnumber = 0;
@@ -67,6 +67,24 @@ midinotetrack::midinotetrack(int assignedtracknumber) {
 }
 
 
+
+
+
+// Sequencer Functions
+
+void midinotetrack::starttrack(int playstatus) {
+
+	if (playstatus == 1)
+	{
+		playing = 1;
+		triggerplay = 1;
+		
+	} else {
+		triggerplay = 0;
+	}
+	
+}
+
 void midinotetrack::resettrack(void) {
 
 	playing = 0;
@@ -77,41 +95,36 @@ void midinotetrack::resettrack(void) {
 	
 }
 
-// Sequencer functions
-
-void midinotetrack::starttrack(int playstatus) {
-
-	if (playstatus)
-	{
-		playing = 1;
-	} else {
-		playing = 0;
-		clockcount = -1;
-		patternseqpos = 0;
-		stepposition = -1;
-	}
-}
-
 void midinotetrack::sequencerclock(void) {
 	
 
-	clockcount++;
-	
-	if (clockcount >= (stepbeatlength))
+	if (clockcount == 0)
 	{
-		if (playing)
+		if (stepposition == 0)
 		{
-			
-			clockcount = 0;
-			stepposition++;
-			
-			triggernotes();
-			
-			
-			if (stepposition >= 16)
+			if (triggerplay == 0)
 			{
+				resettrack();
+			}
+		}
+
+		if (playing == 1)
+		{
+			triggernotes();
+		}
+	}
+	
+	clockcount++;
+	if (clockcount == stepbeatlength) {
+		clockcount = 0;
+		
+		if (playing == 1)
+		{
+			stepposition++;		
+			if (stepposition == 16) {
 				stepposition = 0;
-				starttrack(1);
+				patternseqpos++;
+				if (patternseqpos > patternseqlength) { patternseqpos = 0; }
 			}
 		}
 	}
@@ -121,6 +134,7 @@ void midinotetrack::sequencerclock(void) {
 
 
 // Edit view functions
+
 
 void midinotetrack::displaypattern(void) {
 	
@@ -158,6 +172,9 @@ void midinotetrack::editpress(int xval, int yval) {
 
 void midinotetrack::fileload(modes_t currentmode) {
 
+	modes_t previousmode = currentmode;
+	currentmode = loadsave;
+
 	if ((currentmode == edit) || (currentmode == seqpatterns) || (currentmode == follow)) {
 	
 		patternfileloader();
@@ -167,7 +184,8 @@ void midinotetrack::fileload(modes_t currentmode) {
 		settingsfileloader();
 	
 	}
-
+	
+	currentmode = previousmode;
 }
 
 void midinotetrack::filesave(modes_t currentmode) {
@@ -559,100 +577,96 @@ void midinotetrack::optionspress(int xaxispress, int yaxispress) {
 
 void midinotetrack::editmidioptions(int amount) {
 	
-	if (!playing)
-	{
-		int tempvalue;
+	int tempvalue;
 		
-		if (activerow == 4) {
+	if (activerow == 4) {
+	
+		tempvalue = settingsnumber + amount;
 		
-			tempvalue = settingsnumber + amount;
-			
-			if (tempvalue > 200)
+		if (tempvalue > 200)
+		{
+			tempvalue = 200;
+		}
+		if (tempvalue < 0)
+		{
+			tempvalue = 0;
+		}
+		
+		settingsnumber = tempvalue;
+		
+	} else if (activerow == 5) {
+	
+		tempvalue = patternnumber + amount;
+		
+		if (tempvalue > 200)
+		{
+			tempvalue = 200;
+		}
+		if (tempvalue < 0)
+		{
+			tempvalue = 0;
+		}
+		
+		patternnumber = tempvalue;
+	} else if (activerow == 7) {
+	
+		tempvalue = stepbeatlength + amount;
+		
+		if (tempvalue > 16)
+		{
+			tempvalue = 16;
+		}
+		if (tempvalue < 1)
+		{
+			tempvalue = 1;
+		}
+		
+		stepbeatlength = tempvalue;
+		
+	} else if (activerow == 8) {
+	
+		tempvalue = midichannel + amount;
+		
+		if (tempvalue > 15)
+		{
+			tempvalue = 15;
+		}
+		if (tempvalue < 0)
+		{
+			tempvalue = 0;
+		}
+		
+		midichannel = tempvalue;
+	} else if ((activerow > 10) && (activerow < 19)) {
+	
+		if (activecolumn == 0)
+		{
+			tempvalue = midinotes[activerow - 11][0] + amount;
+		
+			if (tempvalue > 127)
 			{
-				tempvalue = 200;
+				tempvalue = 127;
 			}
 			if (tempvalue < 0)
 			{
 				tempvalue = 0;
 			}
 			
-			settingsnumber = tempvalue;
-			
-		} else if (activerow == 5) {
+			midinotes[activerow - 11][0] = tempvalue;
+		} else if (activecolumn == 1)
+		{
+			tempvalue = midinotes[activerow - 11][1] + amount;
 		
-			tempvalue = patternnumber + amount;
-			
-			if (tempvalue > 200)
+			if (tempvalue > 127)
 			{
-				tempvalue = 200;
+				tempvalue = 127;
 			}
 			if (tempvalue < 0)
 			{
 				tempvalue = 0;
 			}
 			
-			patternnumber = tempvalue;
-		} else if (activerow == 7) {
-		
-			tempvalue = stepbeatlength + amount;
-			
-			if (tempvalue > 16)
-			{
-				tempvalue = 16;
-			}
-			if (tempvalue < 1)
-			{
-				tempvalue = 1;
-			}
-			
-			stepbeatlength = tempvalue;
-			
-//			channelchangenotesoff();
-		} else if (activerow == 8) {
-		
-			tempvalue = midichannel + amount;
-			
-			if (tempvalue > 15)
-			{
-				tempvalue = 15;
-			}
-			if (tempvalue < 0)
-			{
-				tempvalue = 0;
-			}
-			
-			midichannel = tempvalue;
-		} else if ((activerow > 10) && (activerow < 19)) {
-		
-			if (activecolumn == 0)
-			{
-				tempvalue = midinotes[activerow - 11][0] + amount;
-			
-				if (tempvalue > 127)
-				{
-					tempvalue = 127;
-				}
-				if (tempvalue < 0)
-				{
-					tempvalue = 0;
-				}
-				
-				midinotes[activerow - 11][0] = tempvalue;
-			} else if (activecolumn == 1)
-			{
-				tempvalue = midinotes[activerow - 11][1] + amount;
-			
-				if (tempvalue > 127)
-				{
-					tempvalue = 127;
-				}
-				if (tempvalue < 0)
-				{
-					tempvalue = 0;
-				}
-				
-				midinotes[activerow - 11][1] = tempvalue;
-			}
+			midinotes[activerow - 11][1] = tempvalue;
 		}
 	}
 }

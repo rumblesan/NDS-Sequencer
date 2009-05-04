@@ -168,9 +168,6 @@ void mididrumtrack::editpress(int xval, int yval) {
 
 void mididrumtrack::fileload(modes_t currentmode) {
 
-	previousmode = currentmode;
-	currentmode = loadsave;
-
 	if ((currentmode == edit) || (currentmode == seqpatterns) || (currentmode == follow)) {
 	
 		patternfileloader();
@@ -180,8 +177,6 @@ void mididrumtrack::fileload(modes_t currentmode) {
 		settingsfileloader();
 	
 	}
-	
-	currentmode = previousmode;
 }
 
 void mididrumtrack::filesave(modes_t currentmode) {
@@ -340,7 +335,7 @@ void mididrumtrack::settingsfilesaver() {
 	
 	settingsbuffer settingssavestruct;
 	
-	char format[] = "/seqgrid/files/settings-%d.prs";
+	char format[] = "/seqgrid/files/settings-%d.set";
 	char filename[sizeof format+100];
 	sprintf(filename,format,settingsnumber);
 	FILE *pFile = fopen(filename,"w");
@@ -592,117 +587,115 @@ void mididrumtrack::optionspress(int xaxispress, int yaxispress) {
 
 void mididrumtrack::editmidioptions(int amount) {
 	
-	if (playing == 0)
-	{
-		int tempvalue;
+
+	int tempvalue;
+	
+	if (activerow == 4) {
+	
+		tempvalue = settingsnumber + amount;
 		
-		if (activerow == 4) {
+		if (tempvalue > 200)
+		{
+			tempvalue = 200;
+		}
+		if (tempvalue < 0)
+		{
+			tempvalue = 0;
+		}
 		
-			tempvalue = settingsnumber + amount;
-			
-			if (tempvalue > 200)
+		settingsnumber = tempvalue;
+		
+	} else if (activerow == 5) {
+	
+		tempvalue = patternnumber + amount;
+		
+		if (tempvalue > 200)
+		{
+			tempvalue = 200;
+		}
+		if (tempvalue < 0)
+		{
+			tempvalue = 0;
+		}
+		
+		patternnumber = tempvalue;
+		
+	} else if (activerow == 7) {
+	
+		tempvalue = stepbeatlength + amount;
+		
+		if (tempvalue > 16)
+		{
+			tempvalue = 16;
+		}
+		if (tempvalue < 1)
+		{
+			tempvalue = 1;
+		}
+		
+		stepbeatlength = tempvalue;
+		
+	} else if (activerow == 8) {
+	
+		tempvalue = midichannel + amount;
+		
+		if (tempvalue > 15)
+		{
+			tempvalue = 15;
+		}
+		if (tempvalue < 0)
+		{
+			tempvalue = 0;
+		}
+		
+		midichannel = tempvalue;
+		
+	} else if ((activerow > 10) && (activerow < 19)) {
+	
+		if (activecolumn == 0)
+		{
+			tempvalue = midinotes[activerow - 11][0] + amount;
+		
+			if (tempvalue > 127)
 			{
-				tempvalue = 200;
+				tempvalue = 127;
 			}
 			if (tempvalue < 0)
 			{
 				tempvalue = 0;
 			}
 			
-			settingsnumber = tempvalue;
+			midinotes[activerow - 11][0] = tempvalue;
 			
-		} else if (activerow == 5) {
+		} else if (activecolumn == 1)
+		{
+			tempvalue = midinotes[activerow - 11][1] + amount;
 		
-			tempvalue = patternnumber + amount;
-			
-			if (tempvalue > 200)
+			if (tempvalue > 127)
 			{
-				tempvalue = 200;
+				tempvalue = 127;
 			}
 			if (tempvalue < 0)
 			{
 				tempvalue = 0;
 			}
 			
-			patternnumber = tempvalue;
+			midinotes[activerow - 11][1] = tempvalue;
 			
-		} else if (activerow == 7) {
+		} else if (activecolumn == 2)
+		{
+			tempvalue = midinotes[activerow - 11][2] + amount;
 		
-			tempvalue = stepbeatlength + amount;
-			
-			if (tempvalue > 16)
+			if (tempvalue > 32)
 			{
-				tempvalue = 16;
-			}
-			if (tempvalue < 1)
-			{
-				tempvalue = 1;
-			}
-			
-			stepbeatlength = tempvalue;
-			
-		} else if (activerow == 8) {
-		
-			tempvalue = midichannel + amount;
-			
-			if (tempvalue > 15)
-			{
-				tempvalue = 15;
+				tempvalue = 32;
 			}
 			if (tempvalue < 0)
 			{
 				tempvalue = 0;
 			}
 			
-			midichannel = tempvalue;
-			
-		} else if ((activerow > 10) && (activerow < 19)) {
-		
-			if (activecolumn == 0)
-			{
-				tempvalue = midinotes[activerow - 11][0] + amount;
-			
-				if (tempvalue > 127)
-				{
-					tempvalue = 127;
-				}
-				if (tempvalue < 0)
-				{
-					tempvalue = 0;
-				}
-				
-				midinotes[activerow - 11][0] = tempvalue;
-				
-			} else if (activecolumn == 1)
-			{
-				tempvalue = midinotes[activerow - 11][1] + amount;
-			
-				if (tempvalue > 127)
-				{
-					tempvalue = 127;
-				}
-				if (tempvalue < 0)
-				{
-					tempvalue = 0;
-				}
-				
-				midinotes[activerow - 11][1] = tempvalue;
-				
-			} else if (activecolumn == 2)
-			{
-				tempvalue = midinotes[activerow - 11][2] + amount;
-			
-				if (tempvalue > 32)
-				{
-					tempvalue = 32;
-				}
-				if (tempvalue < 0)
-				{
-					tempvalue = 0;
-				}
-				
-				midinotes[activerow - 11][2] = tempvalue;
-			}
+			midinotes[activerow - 11][2] = tempvalue;
 		}
 	}
 }

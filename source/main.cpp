@@ -223,7 +223,10 @@ void navbuttonpresses (int xval) {
 		tracks[activetracknumber]->filesave(currentmode);
 	} else if (xval == 7 )
 	{
+		modes_t previousmode = currentmode;
+		currentmode = loadsave;
 		tracks[activetracknumber]->fileload(previousmode);
+		currentmode = previousmode;
 	}
 
 
@@ -878,7 +881,7 @@ void triggertracks () {
 
 	for (int i = 0; i < 4; i++ )
 	{
-		tracks[activetracknumber]->sequencerclock();
+		tracks[i]->sequencerclock();
 	}
 
 }
@@ -898,7 +901,12 @@ void bpmtimer() {
 		
 		bpmcount++;
 		if (bpmcount == 60 * 4) { bpmcount = 0;}
-
+		
+		for (int i = 0; i < 4; i++ )
+		{
+			tracks[i]->sendmididata();
+		}
+		
 	} else {
 
 		bpmcount = 0;
