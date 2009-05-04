@@ -7,14 +7,13 @@
 class track {
 
 protected:
-	
-	int tracknumber;
 
 public:
 	
 	int currenteditpattern;
 	
 	virtual void starttrack(int playstatus) =0;
+	virtual void resettrack(void) =0;
 	
 	virtual void sequencerclock(void) =0;
 	
@@ -43,7 +42,8 @@ class mididrumtrack : public track {
 private:
 
 	int playing;
-	
+	int triggerplay;
+
 	int tracknumber;
 
 	int settingsnumber;
@@ -90,6 +90,7 @@ public:
 	mididrumtrack(int assignedtracknumber);
 	
 	void starttrack(int playstatus);
+	void resettrack();
 	void sequencerclock(void);
 	
 	void displaypattern(void);
@@ -117,6 +118,9 @@ class midinotetrack :public track {
 private:
 
 	int playing;
+	int triggerplay;
+	
+	int tracknumber;
 
 	int settingsnumber;
 	int patternnumber;
@@ -159,6 +163,7 @@ public:
 	midinotetrack(int assignedtracknumber);
 	
 	void starttrack(int playstatus);
+	void resettrack();
 	void sequencerclock(void);
 	
 	void displaypattern(void);

@@ -25,11 +25,11 @@ mididrumtrack::mididrumtrack(int assignedtracknumber) {
 	patternseqlength = 4;
 	
 	playing = 0;
+	triggerplay = 0;
 	
 	stepbeatlength = 4;
-	clockcount = -1;
-	
-	stepposition = -1;
+	clockcount = 0;
+	stepposition = 0;
 
 	settingsnumber = 0;
 	patternnumber = 0;
@@ -73,37 +73,57 @@ mididrumtrack::mididrumtrack(int assignedtracknumber) {
 
 void mididrumtrack::starttrack(int playstatus) {
 
-	if (playstatus)
+	if (playstatus == 1)
 	{
 		playing = 1;
+		triggerplay = 1;
+		
 	} else {
-		playing = 0;
-		clockcount = -1;
-		patternseqpos = 0;
-		stepposition = -1;
+		triggerplay = 0;
 	}
+	
+}
+
+void mididrumtrack::resettrack(void) {
+
+	playing = 0;
+	triggerplay = 0;
+	stepposition = 0;
+	patternseqpos = 0;
+	clockcount = 0;
+	
 }
 
 void mididrumtrack::sequencerclock(void) {
 	
 
-	clockcount++;
-	
-	if (clockcount >= (stepbeatlength))
+	if (clockcount == 0)
 	{
-		if (playing)
+		if (stepposition == 0)
 		{
-			clockcount = 0;
-			stepposition++;
-			
-			triggernoteson();
-			triggernotesoff();
-			
-			
-			if (stepposition >= 16)
+			if (triggerplay == 0)
 			{
+				resettrack();
+			}
+		}
+
+		if (playing == 1)
+		{
+			triggernoteson();
+		}
+		
+		triggernotesoff();
+	}
+	
+	clockcount++;
+	if (clockcount == stepbeatlength) {
+		clockcount = 0;
+		
+		if (playing == 1)
+		{
+			stepposition++;		
+			if (stepposition == 16) {
 				stepposition = 0;
-				starttrack(1);
 			}
 		}
 	}
@@ -716,9 +736,10 @@ void mididrumtrack::triggernoteson(void) {
 
 	for (j = 0 ; j < 8 ; j++)
 	{
-		
 		if (patterns[activetrackpattern][stepposition][j] == 1)
-		{
+		{	
+			iprintf("Triggered\n");
+			
 			pendingsenddata[pendinglistpos][0] = midichannel;
 			pendingsenddata[pendinglistpos][1] = midinotes[j][0];
 			pendingsenddata[pendinglistpos][2] = midinotes[j][1];
@@ -745,9 +766,7 @@ void mididrumtrack::triggernoteson(void) {
 
 void mididrumtrack::triggernotesoff(void) {
 
-	int j;
-
-	for (j = 0 ; j < 8 ; j++)
+	for (int j = 0 ; j < 8 ; j++)
 	{
 		if (currentonnotes[j][2] == 0)
 		{

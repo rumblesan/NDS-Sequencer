@@ -18,8 +18,8 @@ track* tracks[] =
 
 	new mididrumtrack(1),
 	new mididrumtrack(2),
-	new midinotetrack(3),
-	new midinotetrack(4),
+	new mididrumtrack(3),
+	new mididrumtrack(4),
 
 };
 
@@ -36,12 +36,12 @@ int setuprow = -1;
 int midienable = 0;
 
 int globalplay = 0;
-int globalstep = -1;
 
-int beatcount = -1;
-int midiclockcount = -1;
+
+int globalstep = -1;
+int bpmcount = 0;
+
 int tracksynccount = -1;
-int stepcount = -1;
 
 
 modes_t currentmode;
@@ -260,7 +260,7 @@ void drawhomescreen () {
 	calcanddispnumber(4,14,bpm);
 	
 	navbuttons(1,5,currentmode);
-	navbuttonwords();
+//	navbuttonwords();
 }
 
 void drawoptionsscreen () {
@@ -280,7 +280,7 @@ void drawfollowscreen() {
 	navbuttons(2,4,tracks[activetracknumber]->currenteditpattern);
 	navbuttons(1,5,currentmode);
 	
-	navbuttonwords();
+//	navbuttonwords();
 
 }
 
@@ -361,7 +361,7 @@ void changebpm(int changeval) {
 		bpm = 40;
 	}	
 
-	int onebeat = (bpm * 16 * 24);
+	int onebeat = (bpm * 16);
 
 	TIMER_DATA(0) = TIMER_FREQ_64(onebeat);
 }
@@ -879,8 +879,6 @@ void homeviewbuttonpresses () {
 
 
 void displayupdater () {
-
-	drawtopscreen();
 	
 	switch (currentmode) {
 		
@@ -914,7 +912,8 @@ void displayupdater () {
 			drawsetupscreen();
 			break;
 	}
-
+	
+	drawtopscreen();
 
 }
 
@@ -1006,102 +1005,64 @@ void optionsview () {
 // Sequencer Functions
 
 
-void syncstarttracks() {
 
-	int i;
+void triggerglobalstep() {
 	
-	for (i = 0; i < 4; i++)
+	if (globalstep == 0)
 	{
-		if (playingtracks[i] == 1)
+		for (int i = 0; i < 4; i++ )
 		{
-			tracks[i]->starttrack(1);
+			tracks[i]->starttrack(playingtracks[i]);
 		}
 	}
-}
-
-void movestepforward() {
-
-	stepcount++;
-
-	if (stepcount >= 4)
-	{
-		stepcount = 0;
-		
-		if (globalplay == 1)
-		{
-			globalstep++;
-			
-			if (globalstep >= 16) {
-				globalstep = 0;
-			}
-			
-			if (globalstep == 0)
-			{
-				syncstarttracks();
-			}
-			
-			
-		}
-		else if (globalplay == 0)
-		{
-			for (int i = 0; i < 4; i++)
-			{
-				playingtracks[i] = 0;
-				tracks[i]->starttrack(0);
-			}
-			globalstep = -1;
-			beatcount = -1;
-			midiclockcount = -1;
-			tracksynccount = -1;
-		}
-	}
-
+	
+	globalstep++;
+	
+	if (globalstep > 15) { globalstep = 0; }
 }
 
 
+void triggertracks () {
+
+	for (int i = 0; i < 4; i++ )
+	{
+		tracks[activetracknumber]->sequencerclock();
+	}
+
+}
 
 
 void bpmtimer() {
 
-	beatcount++;
-
-	if (beatcount >= 60) {
-		beatcount = 0;
-		
-		midiclockcount++;
-		
-		if (midiclockcount >= 16) {
-			midiclockcount = 0;
-
-			//midiclock function
+	if (globalplay == 1)
+	{		
+		if (bpmcount == 0)
+		{
+			bpmcount = 0;
 			
-		}
-			
-		tracksynccount++;
-			
-		if (tracksynccount >= 24) {
-			
-			tracksynccount = 0;
-			
-			for (int i = 0; i < 4; i++)
-			{
-				tracks[i]->sequencerclock();
-			}
-			for (int i = 0; i < 4; i++)
-			{
-				tracks[i]->sendmididata();
-			}
-			
-			movestepforward();
+			triggerglobalstep();
+			triggertracks();
 		}
 		
+		bpmcount++;
+		if (bpmcount == 60 * 4) { bpmcount = 0;}
+
+	} else {
+
+		bpmcount = 0;
+		globalstep = 0;
+		
+		for (int i = 0; i < 4; i++ )
+		{
+			tracks[i]->resettrack();
+		}
 	}
 }
 
 
 void setupbpmtimer() {
 
-	TIMER_DATA(0) = TIMER_FREQ_64(bpm*24*16);
+	TIMER_DATA(0) = TIMER_FREQ_64(bpm*16);
 	TIMER_CR(0) = TIMER_DIV_64 | TIMER_ENABLE | TIMER_IRQ_REQ; 
 
 	irqEnable  	(IRQ_TIMER0);

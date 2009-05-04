@@ -67,6 +67,15 @@ midinotetrack::midinotetrack(int assignedtracknumber) {
 }
 
 
+void midinotetrack::resettrack(void) {
+
+	playing = 0;
+	triggerplay = 0;
+	stepposition = 0;
+	patternseqpos = 0;
+	clockcount = 0;
+	
+}
 
 // Sequencer functions
 
