@@ -45,121 +45,7 @@ int tracksynccount = -1;
 
 
 modes_t currentmode;
-
-
-/* global setting load and save functions
-void globalfileloader() {
-
-	filebrowsescreenbackground();
-
-	trackbuffer globalloadsave;
-
-	char filePath[MAXPATHLEN * 2];
-	int pathLen;
-	std::string filename;
-	FILE * pFile;
-	
-	filename = browseForFile (".glb");
-
-	if (filename != "NULL")
-	{
-		// Construct a command line if we weren't supplied with one
-		getcwd (filePath, MAXPATHLEN);
-		pathLen = strlen (filePath);
-		strcpy (filePath + pathLen, filename.c_str());
-		
-		pFile = fopen ( filePath , "r" );
-		
-		fread((char *)&globalloadsave, sizeof(globalloadsave), 1, pFile);
-	
-		int i, x, y, z;
-	
-		for (i = 0; i < 4; i++)
-		{
-			
-			tracks[i].patternnumber = globalloadsave.patternnumber[i];
-			tracks[i].presetnumber = globalloadsave.presetnumber[i];
-			
-			tracks[i].midichannel = globalloadsave.midichannel[i];
-			
-			tracks[i].patternseqlength = globalloadsave.patternseqlength[i];
-			
-			for (x = 0; x < 8; x ++)
-			{
-				for (y = 0; y < 3; y ++)
-				{
-					tracks[i].midinotes[x][y] = globalloadsave.midinotes[i][x][y];
-				}
-			}
-			
-			for ( z = 0; z < 8; z++ )
-			{				
-				for( x = 0; x < 16; x++ )
-				{
-					for( y = 0; y < 8; y++ )
-					{
-						tracks[i].patterns[z][x][y] = globalloadsave.patterns[i][z][x][y];
-					}
-				}
-			}
-		}
-		
-		fclose (pFile);
-	}
-	
-	clearbottomscreen();
-
-}
-
-void globalfilesaver() {
-
-	trackbuffer globalloadsave;
-	
-	char format[] = "/seqgrid/files/global-%i.glb";
-	char filename[sizeof format+100];
-	sprintf(filename,format,globalnumber);
-	FILE *pFile = fopen(filename,"w");
-
-	int i, x, y, z;
-
-	for (i = 0; i < 4; i++)
-	{
-		
-		globalloadsave.patternnumber[i] = tracks[i].patternnumber;
-		globalloadsave.presetnumber[i] = tracks[i].presetnumber;
-		
-		globalloadsave.midichannel[i] = tracks[i].midichannel;
-		
-		globalloadsave.patternseqlength[i] = tracks[i].patternseqlength;
-		
-		for (x = 0; x < 8; x ++)
-		{
-			for (y = 0; y < 3; y ++)
-			{
-				globalloadsave.midinotes[i][x][y] = tracks[i].midinotes[x][y];
-			}
-		}
-		
-		for ( z = 0; z < 8; z++ )
-		{			
-			for( x = 0; x < 16; x++ )
-			{
-				for( y = 0; y < 8; y++ )
-				{
-					globalloadsave.patterns[i][z][x][y] = tracks[i].patterns[z][x][y];
-				}
-			}
-		}
-	}
-
-	fwrite((char *)&globalloadsave, sizeof(trackbuffer), 1, pFile);
-
-	fclose (pFile);
-
-}
-
-
-*/
+modes_t previousmode;
 
 
 void incrementglobalval(int amount) {
@@ -260,7 +146,7 @@ void drawhomescreen () {
 	calcanddispnumber(4,14,bpm);
 	
 	navbuttons(1,5,currentmode);
-//	navbuttonwords();
+	navbuttonwords();
 }
 
 void drawoptionsscreen () {
@@ -280,7 +166,7 @@ void drawfollowscreen() {
 	navbuttons(2,4,tracks[activetracknumber]->currenteditpattern);
 	navbuttons(1,5,currentmode);
 	
-//	navbuttonwords();
+	navbuttonwords();
 
 }
 
@@ -315,36 +201,29 @@ void navbuttonpresses (int xval) {
 	if (xval == 0)
 	{
 		currentmode = home;
-	}
-	if (xval == 1)
+	} else if (xval == 1)
 	{
 		currentmode = edit;
 		tracks[activetracknumber]->currenteditpattern = 0;
-	}
-	if (xval == 2)
+	} else if (xval == 2)
 	{
 		currentmode = seqpatterns;
 		tracks[activetracknumber]->currenteditpattern = 7;
-	}
-	if (xval == 3)
+	} else if (xval == 3)
 	{	
 		currentmode = follow;
-	}
-	if (xval == 4)
+	} else if (xval == 4)
 	{
 		currentmode = options;
-	}
-	if (xval == 5)
+	} else if (xval == 5)
 	{
 		currentmode = setup;
-	}
-	if (xval == 6)
+	} else if (xval == 6)
 	{	 
 		tracks[activetracknumber]->filesave(currentmode);
-	}
-	if (xval == 7 )
+	} else if (xval == 7 )
 	{
-		tracks[activetracknumber]->fileload(currentmode);			
+		tracks[activetracknumber]->fileload(previousmode);
 	}
 
 
@@ -356,14 +235,11 @@ void changebpm(int changeval) {
 
 	if (bpm > 300) {
 		bpm = 300;
-	}
-		if (bpm < 40) {
+	} else if (bpm < 40) {
 		bpm = 40;
 	}	
 
-	int onebeat = (bpm * 16);
-
-	TIMER_DATA(0) = TIMER_FREQ_64(onebeat);
+	TIMER_DATA(0) = TIMER_FREQ_64((bpm * 16));
 }
 
 void changetrack(int changeval) {
@@ -372,8 +248,7 @@ void changetrack(int changeval) {
 
 	if (activetracknumber > 3) {
 		activetracknumber = 0;
-	}
-		if (activetracknumber < 0) {
+	} else if (activetracknumber < 0) {
 		activetracknumber = 3;
 	}	
 
@@ -385,28 +260,33 @@ void setupviewbuttonpresses () {
 
 	scanKeys();
 	
-	if (keysDown() & KEY_UP) {
-	changebpm(10);
+	if (keysDown() & KEY_UP)
+	{
+		changebpm(10);
 	}
-	if (keysDown() & KEY_DOWN) {
-	changebpm(-10);
+	if (keysDown() & KEY_DOWN)
+	{
+		changebpm(-10);
 	}
-	if (keysDown() & KEY_LEFT) {
-	changebpm(-1);
+	if (keysDown() & KEY_LEFT)
+	{
+		changebpm(-1);
 	}
-	if (keysDown() & KEY_RIGHT) {
-	changebpm(1);
+	if (keysDown() & KEY_RIGHT)
+	{
+		changebpm(1);
 	}
-	if (keysDown() & KEY_L) {
-	changetrack(-1);
+	if (keysDown() & KEY_L)
+	{
+		changetrack(-1);
 	}
-	if (keysDown() & KEY_R) {
-	changetrack(1);
+	if (keysDown() & KEY_R)
+	{
+		changetrack(1);
 	}
-
 	
-	
-	if (keysDown() & KEY_TOUCH) {
+	if (keysDown() & KEY_TOUCH)
+	{
 		touchRead(&touch);
 		
 		int xaxispress = touch.px;
@@ -415,51 +295,7 @@ void setupviewbuttonpresses () {
 		int yval = (yaxispress / 8);
 		int xval = (xaxispress / 8);
 		
-		if ((yval == 4) && (xval > 16) && (xval < 20))
-		{
-			setuprow = 4;
-			
-		} else if ((xval > 23) && (xval < 30) && (yval > 1) && (yval < 9))
-		{
-			
-			int xval = (xaxispress / 16);
-			int yval = (yaxispress / 16);
-			
-			if (setuprow > 0)
-			{			
-				if (yval == 1)
-				{
-					if (xval == 12)
-					{
-						incrementglobalval(100);
-					}
-					if (xval == 13)
-					{
-						incrementglobalval(10);
-					}
-					if (xval == 14)
-					{
-						incrementglobalval(1);
-					}
-				}
-				
-				if (yval == 3)
-				{
-					if (xval == 12)
-					{
-						incrementglobalval(-100);
-					}
-					if (xval == 13)
-					{
-						incrementglobalval(-10);
-					}
-					if (xval == 14)
-					{
-						incrementglobalval(-1);
-					}
-				}
-			}
-		} else if ((xval > 7) && (xval < 16) && (yval > 11) && (yval < 18))
+		if ((xval > 7) && (xval < 16) && (yval > 11) && (yval < 18))
 		{
 			if (midienable == 0)
 			{
@@ -483,41 +319,44 @@ void optionsviewbuttonpresses () {
 
 	scanKeys();
 	
-	if (keysDown() & KEY_UP) {
+	if (keysDown() & KEY_UP)
+	{
 	changebpm(10);
 	}
-	if (keysDown() & KEY_DOWN) {
+	if (keysDown() & KEY_DOWN)
+	{
 	changebpm(-10);
 	}
-	if (keysDown() & KEY_LEFT) {
+	if (keysDown() & KEY_LEFT)
+	{
 	changebpm(-1);
 	}
-	if (keysDown() & KEY_RIGHT) {
+	if (keysDown() & KEY_RIGHT)
+	{
 	changebpm(1);
 	}
-	if (keysDown() & KEY_L) {
+	if (keysDown() & KEY_L)
+	{
 	changetrack(-1);
 	}
-	if (keysDown() & KEY_R) {
+	if (keysDown() & KEY_R)
+	{
 	changetrack(1);
 	}
-	
+		
 	if (keysDown() & KEY_TOUCH) {
 		touchRead(&touch);
 		
 		int xaxispress = touch.px;
 		int yaxispress = touch.py;
-		int xval;
 		
 		if (yaxispress < 160) {
 		
 			tracks[activetracknumber]->optionspress(xaxispress, yaxispress);
 			
 		} else {
-		
-			xval = (xaxispress / 32);
 			
-			navbuttonpresses(xval);
+			navbuttonpresses((xaxispress / 32));
 		}
 	}
 }
@@ -529,24 +368,31 @@ void patternseqbuttonpresses () {
 
 	scanKeys();
 	
-	if (keysDown() & KEY_UP) {
-		changebpm(10);
+	if (keysDown() & KEY_UP)
+	{
+	changebpm(10);
 	}
-	if (keysDown() & KEY_DOWN) {
-		changebpm(-10);
+	if (keysDown() & KEY_DOWN)
+	{
+	changebpm(-10);
 	}
-	if (keysDown() & KEY_LEFT) {
-		changebpm(-1);
+	if (keysDown() & KEY_LEFT)
+	{
+	changebpm(-1);
 	}
-	if (keysDown() & KEY_RIGHT) {
-		changebpm(1);
+	if (keysDown() & KEY_RIGHT)
+	{
+	changebpm(1);
 	}
-	if (keysDown() & KEY_L) {
+	if (keysDown() & KEY_L)
+	{
 	changetrack(-1);
 	}
-	if (keysDown() & KEY_R) {
+	if (keysDown() & KEY_R)
+	{
 	changetrack(1);
 	}
+	
 	if (keysDown() & KEY_START)
 	{
 		if(playingtracks[activetracknumber] == 0)
@@ -565,20 +411,15 @@ void patternseqbuttonpresses () {
 		int xaxispress = touch.px;
 		int yaxispress = touch.py;
 		
-		int xval = (xaxispress / 16);
-		int yval = (yaxispress / 16);
-
-		if (yval < 8)
-		{
-			tracks[activetracknumber]->patternseqpress(xval,yval);
-		}
+		int xval = (xaxispress / 32);
+		int yval = (yaxispress / 32);
 		
-		xval = (xval / 2);
-		yval = (yval / 2);
-		
-		if (yval == 4)
+		if (yaxispress < 128)
 		{
+			tracks[activetracknumber]->patternseqpress((xaxispress / 16),(yaxispress / 16));
 			
+		} else if (yval == 4)
+		{
 			if (xval < 7)
 			{
 				currentmode = edit;
@@ -589,8 +430,7 @@ void patternseqbuttonpresses () {
 				currentmode = seqpatterns;
 				tracks[activetracknumber]->currenteditpattern = xval;
 			}		
-		}
-		if (yval == 5)
+		} else if (yval == 5)
 		{
 			navbuttonpresses(xval);	
 		}	
@@ -606,24 +446,31 @@ void followviewbuttonpresses () {
 
 	scanKeys();
 	
-	if (keysDown() & KEY_UP) {
+	if (keysDown() & KEY_UP)
+	{
 	changebpm(10);
 	}
-	if (keysDown() & KEY_DOWN) {
+	if (keysDown() & KEY_DOWN)
+	{
 	changebpm(-10);
 	}
-	if (keysDown() & KEY_LEFT) {
+	if (keysDown() & KEY_LEFT)
+	{
 	changebpm(-1);
 	}
-	if (keysDown() & KEY_RIGHT) {
+	if (keysDown() & KEY_RIGHT)
+	{
 	changebpm(1);
 	}
-	if (keysDown() & KEY_L) {
+	if (keysDown() & KEY_L)
+	{
 	changetrack(-1);
 	}
-	if (keysDown() & KEY_R) {
+	if (keysDown() & KEY_R)
+	{
 	changetrack(1);
 	}
+	
 	if (keysDown() & KEY_START)
 	{
 		if(playingtracks[activetracknumber] == 0)
@@ -642,18 +489,13 @@ void followviewbuttonpresses () {
 		int xaxispress = touch.px;
 		int yaxispress = touch.py;
 		
-		int xval = (xaxispress / 16);
-		int yval = (yaxispress / 16);
+		int xval = (xaxispress / 32);
+		int yval = (yaxispress / 32);
 
-		if (yval < 8)
+		if (yaxispress < 128)
 		{
-			tracks[activetracknumber]->editpress(xval,yval);
-		}
-		
-		xval = (xval / 2);
-		yval = (yval / 2);
-		
-		if (yval == 4)
+			tracks[activetracknumber]->editpress(xaxispress / 16,yaxispress / 16);
+		} else if (yval == 4)
 		{	
 			if (xval < 7)
 			{
@@ -665,8 +507,7 @@ void followviewbuttonpresses () {
 				tracks[activetracknumber]->currenteditpattern = xval;
 				currentmode = seqpatterns;
 			}
-		}
-		if (yval == 5)
+		} else if (yval == 5)
 		{
 			navbuttonpresses(xval);
 		}	
@@ -679,24 +520,31 @@ void editviewbuttonpresses () {
 
 	scanKeys();
 	
-	if (keysDown() & KEY_UP) {
+	if (keysDown() & KEY_UP)
+	{
 	changebpm(10);
 	}
-	if (keysDown() & KEY_DOWN) {
+	if (keysDown() & KEY_DOWN)
+	{
 	changebpm(-10);
 	}
-	if (keysDown() & KEY_LEFT) {
+	if (keysDown() & KEY_LEFT)
+	{
 	changebpm(-1);
 	}
-	if (keysDown() & KEY_RIGHT) {
+	if (keysDown() & KEY_RIGHT)
+	{
 	changebpm(1);
 	}
-	if (keysDown() & KEY_L) {
+	if (keysDown() & KEY_L)
+	{
 	changetrack(-1);
 	}
-	if (keysDown() & KEY_R) {
+	if (keysDown() & KEY_R)
+	{
 	changetrack(1);
 	}
+	
 	if (keysDown() & KEY_START)
 	{
 		if(playingtracks[activetracknumber] == 0)
@@ -709,25 +557,19 @@ void editviewbuttonpresses () {
 		}
 	}
 
-	
 	if (keysDown() & KEY_TOUCH) {
 		touchRead(&touch);
 		
 		int xaxispress = touch.px;
 		int yaxispress = touch.py;
 		
-		int xval = (xaxispress / 16);
-		int yval = (yaxispress / 16);
+		int xval = (xaxispress / 32);
+		int yval = (yaxispress / 32);
 
-		if (yval < 8)
+		if (yaxispress < 128)
 		{
-			tracks[activetracknumber]->editpress(xval,yval);
-		}
-		
-		xval = (xval / 2);
-		yval = (yval / 2);
-		
-		if (yval == 4)
+			tracks[activetracknumber]->editpress((xaxispress / 16),(yaxispress / 16));
+		} else if (yval == 4)
 		{	
 			if (xval < 7)
 			{
@@ -739,8 +581,7 @@ void editviewbuttonpresses () {
 				currentmode = seqpatterns;
 				tracks[activetracknumber]->currenteditpattern = xval;
 			}
-		}
-		if (yval == 5)
+		} else if (yval == 5)
 		{
 			navbuttonpresses(xval);
 		}	
@@ -753,25 +594,33 @@ void homeviewbuttonpresses () {
 
 	scanKeys();
 	
-	if (keysDown() & KEY_UP) {
+	if (keysDown() & KEY_UP)
+	{
 	changebpm(10);
 	}
-	if (keysDown() & KEY_DOWN) {
+	if (keysDown() & KEY_DOWN)
+	{
 	changebpm(-10);
 	}
-	if (keysDown() & KEY_LEFT) {
+	if (keysDown() & KEY_LEFT)
+	{
 	changebpm(-1);
 	}
-	if (keysDown() & KEY_RIGHT) {
+	if (keysDown() & KEY_RIGHT)
+	{
 	changebpm(1);
 	}
-	if (keysDown() & KEY_L) {
+	if (keysDown() & KEY_L)
+	{
 	changetrack(-1);
 	}
-	if (keysDown() & KEY_R) {
+	if (keysDown() & KEY_R)
+	{
 	changetrack(1);
 	}
-	if (keysDown() & KEY_START) {
+	
+	if (keysDown() & KEY_START)
+	{
 		if (globalplay == 1)
 		{
 			globalplay = 0;
@@ -780,7 +629,6 @@ void homeviewbuttonpresses () {
 			globalplay = 1;
 		}
 	}
-	
 	
 	if (keysDown() & KEY_TOUCH) {
 		touchRead(&touch);
@@ -910,6 +758,10 @@ void displayupdater () {
 		case setup:
 		
 			drawsetupscreen();
+			break;
+			
+		case loadsave:
+		
 			break;
 	}
 	
@@ -1123,6 +975,11 @@ int main(void) {
 			case setup:
 			
 				setupview();
+				break;
+				
+			
+			case loadsave:
+			
 				break;
 		}
 	}

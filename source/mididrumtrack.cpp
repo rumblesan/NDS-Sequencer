@@ -124,6 +124,8 @@ void mididrumtrack::sequencerclock(void) {
 			stepposition++;		
 			if (stepposition == 16) {
 				stepposition = 0;
+				patternseqpos++;
+				if (patternseqpos > patternseqlength) { patternseqpos = 0; }
 			}
 		}
 	}
@@ -166,6 +168,9 @@ void mididrumtrack::editpress(int xval, int yval) {
 
 void mididrumtrack::fileload(modes_t currentmode) {
 
+	previousmode = currentmode;
+	currentmode = loadsave;
+
 	if ((currentmode == edit) || (currentmode == seqpatterns) || (currentmode == follow)) {
 	
 		patternfileloader();
@@ -175,7 +180,8 @@ void mididrumtrack::fileload(modes_t currentmode) {
 		settingsfileloader();
 	
 	}
-
+	
+	currentmode = previousmode;
 }
 
 void mididrumtrack::filesave(modes_t currentmode) {
@@ -202,6 +208,8 @@ void mididrumtrack::patternfileloader() {
 	int pathLen;
 	std::string filename;
 	FILE * pFile;
+	
+	iprintf("loading\n");
 	
 	filename = browseForFile (".ptr");
 
@@ -737,9 +745,7 @@ void mididrumtrack::triggernoteson(void) {
 	for (j = 0 ; j < 8 ; j++)
 	{
 		if (patterns[activetrackpattern][stepposition][j] == 1)
-		{	
-			iprintf("Triggered\n");
-			
+		{				
 			pendingsenddata[pendinglistpos][0] = midichannel;
 			pendingsenddata[pendinglistpos][1] = midinotes[j][0];
 			pendingsenddata[pendinglistpos][2] = midinotes[j][1];
