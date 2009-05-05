@@ -17,18 +17,19 @@ public:
 	
 	virtual void sequencerclock(void) =0;
 	
-	virtual void displaypattern(void) =0;
+	virtual void sendmididata(void) =0;
+	
+	virtual void editview(void) =0;
 	virtual void editpress(int xval, int yval) =0;
 	
-	virtual void displaypatternseq(void) =0;
+	virtual void patternseqview(void) =0;
 	virtual void patternseqpress(int xval, int yval) =0;
 	
-	virtual void displayoptions(void) =0;
-	virtual void optionspress(int xval, int yval) =0;
-
-	virtual void displayactivepattern(void) =0;
+	virtual void flowview(void) =0;
+	virtual void flowpress(int xval, int yval) =0;
 	
-	virtual void sendmididata(void) =0;
+	virtual void optionsview(void) =0;
+	virtual void optionspress(int xval, int yval) =0;
 
 	virtual void fileload(void) =0;
 	virtual void filesave(void) =0;
@@ -37,7 +38,7 @@ public:
 
 
 
-class mididrumtrack : public track {
+class mididrumtrack :public track {
 
 private:
 
@@ -59,15 +60,11 @@ private:
 
 	int optionsrow;
 	int optionscolumn;
-	
-	int activerow;
-	int activecolumn;
-	
+		
 	int stepbeatlength;
 	int clockcount;
 	
 	int pendinglistpos;
-	int onnoteslistpos;
 	uint8_t pendingsenddata[32][3];
 	uint8_t currentonnotes[8][3];
 
@@ -90,25 +87,26 @@ public:
 	mididrumtrack(int assignedtracknumber);
 	
 	void starttrack(int playstatus);
-	void resettrack();
+	void resettrack(void);
+	
 	void sequencerclock(void);
 	
-	void displaypattern(void);
+	void sendmididata(void);
+	
+	void editview(void);
 	void editpress(int xval, int yval);
 	
-	void displaypatternseq(void);
+	void patternseqview(void);
 	void patternseqpress(int xval, int yval);
 	
-	void displayoptions(void);
-	void optionspress(int xval, int yval);
-
-	void displayactivepattern(void);
+	void flowview(void);
+	void flowpress(int xval, int yval);
 	
-	void sendmididata(void);
+	void optionsview(void);
+	void optionspress(int xval, int yval);
 
 	void fileload(void);
 	void filesave(void);
-
 
 };
 
@@ -163,21 +161,23 @@ public:
 	midinotetrack(int assignedtracknumber);
 	
 	void starttrack(int playstatus);
-	void resettrack();
+	void resettrack(void);
+	
 	void sequencerclock(void);
 	
-	void displaypattern(void);
+	void sendmididata(void);
+	
+	void editview(void);
 	void editpress(int xval, int yval);
 	
-	void displaypatternseq(void);
+	void patternseqview(void);
 	void patternseqpress(int xval, int yval);
 	
-	void displayoptions(void);
-	void optionspress(int xval, int yval);
-
-	void displayactivepattern(void);
+	void flowview(void);
+	void flowpress(int xval, int yval);
 	
-	void sendmididata(void);
+	void optionsview(void);
+	void optionspress(int xval, int yval);
 
 	void fileload(void);
 	void filesave(void);

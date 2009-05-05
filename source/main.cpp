@@ -47,29 +47,6 @@ modes_t currentmode;
 modes_t previousmode;
 
 
-
-void incrementglobalval(int amount) {
-	
-	int tempvalue;
-
-	if (setuprow == 4) {
-	
-		tempvalue = globalnumber + amount;
-		
-		if (tempvalue > 200)
-		{
-			tempvalue = 200;
-		}
-		if (tempvalue < 0)
-		{
-			tempvalue = 0;
-		}
-		
-		globalnumber = tempvalue;
-		
-	}
-	
-}
 // Edit and Follow View Functions
 
 void drawtopscreen() {
@@ -112,11 +89,7 @@ void drawsetupscreen () {
 	navbuttonwords();
 	drawsetuptext(midienable, globalnumber);
 
-	drawkeypad(24,2);
-
 	navbuttons(1,5,currentmode);
-	
-	displaysetuprowvalue(setuprow, globalnumber);
 	
 	drawbigbutton(8,12,midienable);
 
@@ -151,7 +124,7 @@ void drawhomescreen () {
 
 void drawoptionsscreen () {
 	
-	tracks[activetracknumber]->displayoptions();
+	tracks[activetracknumber]->optionsview();
 	
 	navbuttonwords();
 	navbuttons(1,5,currentmode);
@@ -161,11 +134,9 @@ void drawoptionsscreen () {
 
 void drawfollowscreen() {
 
-	tracks[activetracknumber]->displayactivepattern();
+	tracks[activetracknumber]->flowview();
 	
-	navbuttons(2,4,tracks[activetracknumber]->currenteditpattern);
 	navbuttons(1,5,currentmode);
-	
 	navbuttonwords();
 
 }
@@ -174,26 +145,23 @@ void drawfollowscreen() {
 
 void draweditscreen() {
 
-	tracks[activetracknumber]->displaypattern();
+	tracks[activetracknumber]->editview();
 	
-	navbuttons(2,4,tracks[activetracknumber]->currenteditpattern);
 	navbuttons(1,5,currentmode);
-	
 	navbuttonwords();
 
 }
 
 void drawpatternseqscreen() {
 
-	tracks[activetracknumber]->displaypatternseq();
+	tracks[activetracknumber]->patternseqview();
 	
-	navbuttons(2,4,tracks[activetracknumber]->currenteditpattern);
 	navbuttons(1,5,currentmode);
-	
 	navbuttonwords();
 
 }
 // Mode Button Press Functions
+
 
 
 void navbuttonpresses (int xval) {
@@ -223,10 +191,7 @@ void navbuttonpresses (int xval) {
 		tracks[activetracknumber]->filesave();
 	} else if (xval == 7 )
 	{
-		modes_t previousmode = currentmode;
-		currentmode = loadsave;
 		tracks[activetracknumber]->fileload();
-		currentmode = previousmode;
 	}
 
 
@@ -242,7 +207,7 @@ void changebpm(int changeval) {
 		bpm = 40;
 	}	
 
-	TIMER_DATA(0) = TIMER_FREQ_64((bpm * 16));
+	TIMER_DATA(0) = TIMER_FREQ_64(bpm * 16);
 }
 
 void changetrack(int changeval) {
@@ -394,18 +359,6 @@ void patternseqbuttonpresses () {
 	if (keysDown() & KEY_R)
 	{
 	changetrack(1);
-	}
-	
-	if (keysDown() & KEY_START)
-	{
-		if(playingtracks[activetracknumber] == 0)
-		{
-			playingtracks[activetracknumber] = 1;
-		}
-		else if(playingtracks[activetracknumber] == 1)
-		{
-			playingtracks[activetracknumber] = 0;
-		}
 	}	
 	
 	if (keysDown() & KEY_TOUCH) {
@@ -419,7 +372,7 @@ void patternseqbuttonpresses () {
 		
 		if (yaxispress < 160)
 		{
-			tracks[activetracknumber]->patternseqpress((xaxispress / 16),(yaxispress / 16));
+			tracks[activetracknumber]->patternseqpress(xaxispress,yaxispress);
 			
 		} else if (yval == 5)
 		{
@@ -462,18 +415,6 @@ void followviewbuttonpresses () {
 	changetrack(1);
 	}
 	
-	if (keysDown() & KEY_START)
-	{
-		if(playingtracks[activetracknumber] == 0)
-		{
-			playingtracks[activetracknumber] = 1;
-		}
-		else if(playingtracks[activetracknumber] == 1)
-		{
-			playingtracks[activetracknumber] = 0;
-		}
-	}
-	
 	if (keysDown() & KEY_TOUCH) {
 		touchRead(&touch);
 			
@@ -485,20 +426,9 @@ void followviewbuttonpresses () {
 
 		if (yaxispress < 128)
 		{
-			tracks[activetracknumber]->editpress(xaxispress / 16,yaxispress / 16);
-		} else if (yval == 4)
-		{	
-			if (xval < 7)
-			{
-				tracks[activetracknumber]->currenteditpattern = xval;
-				currentmode = edit;
-			}
-			else if(xval == 7)
-			{
-				tracks[activetracknumber]->currenteditpattern = xval;
-				currentmode = seqpatterns;
-			}
-		} else if (yval == 5)
+			tracks[activetracknumber]->flowpress(xaxispress,yaxispress);
+		}
+		else if (yval == 5)
 		{
 			navbuttonpresses(xval);
 		}	
@@ -535,18 +465,6 @@ void editviewbuttonpresses () {
 	{
 	changetrack(1);
 	}
-	
-	if (keysDown() & KEY_START)
-	{
-		if(playingtracks[activetracknumber] == 0)
-		{
-			playingtracks[activetracknumber] = 1;
-		}
-		else if(playingtracks[activetracknumber] == 1)
-		{
-			playingtracks[activetracknumber] = 0;
-		}
-	}
 
 	if (keysDown() & KEY_TOUCH) {
 		touchRead(&touch);
@@ -559,7 +477,7 @@ void editviewbuttonpresses () {
 
 		if (yaxispress < 160)
 		{
-			tracks[activetracknumber]->editpress((xaxispress / 16),(yaxispress / 16));
+			tracks[activetracknumber]->editpress(xaxispress,yaxispress);
 		}
 		else if (yval == 5)
 		{
@@ -704,6 +622,7 @@ void homeviewbuttonpresses () {
 
 
 // Mode Functions
+
 
 
 void displayupdater () {
@@ -929,7 +848,6 @@ int main(void) {
 
 	while (1)
 	{
-		
 		switch (currentmode) {
 			
 			case home:

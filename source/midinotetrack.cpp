@@ -114,6 +114,7 @@ void midinotetrack::sequencerclock(void) {
 		{
 			triggernotes();
 		}
+		
 	}
 	
 	clockcount++;
@@ -131,14 +132,30 @@ void midinotetrack::sequencerclock(void) {
 		}
 	}
 }
+
+
+
+// MIDI functions
+
+void midinotetrack::sendmididata(void) {
+
+	for (int i = 0; i < pendinglistpos; i++) {
 	
+		midinote(pendingsenddata[i][0],pendingsenddata[i][1],pendingsenddata[i][2]);
 	
+	}
+	
+	pendinglistpos = 0;
+
+}
+
+
+
 
 
 // Edit view functions
 
-
-void midinotetrack::displaypattern(void) {
+void midinotetrack::editview(void) {
 	
 	int x,y;
 	
@@ -149,10 +166,15 @@ void midinotetrack::displaypattern(void) {
 			drawgridbutton(x,y,(patterns[currenteditpattern][x][y]));
 		}
 	}
+	
+	navbuttons(2,4,currenteditpattern);
 }
 	
 	
 void midinotetrack::editpress(int xval, int yval) {
+	
+	yval = (yval / 16);
+	xval = (xval / 16);
 	
 	if (yval < 8)
 	{
@@ -168,7 +190,8 @@ void midinotetrack::editpress(int xval, int yval) {
 		{
 			patterns[currenteditpattern][xval][yval] = 0;
 		}
-	} else if ((yval == 8) || (yval == 9))
+	}
+	else if ((yval == 8) || (yval == 9))
 	{	
 		xval = xval / 2;
 		
@@ -186,6 +209,300 @@ void midinotetrack::editpress(int xval, int yval) {
 }
 
 	
+
+// Pattern sequencer functions
+
+void midinotetrack::patternseqview(void) {
+	
+	int x,y;
+	
+	for ( x = 0; x < 16; x++ )
+	{
+		for( y = 0; y < 8; y++ )
+		{
+			drawgridbutton(x,y,(patterns[7][x][y]));
+		}
+	}
+	
+	navbuttons(2,4,currenteditpattern);
+
+}
+void midinotetrack::patternseqpress(int xval, int yval) {
+
+	yval = (yval / 16);
+	xval = (xval / 16);
+	
+	if (yval < 7)
+	{
+		for (int i = 0; i < 7; i++)
+		{
+			patterns[7][xval][i] = 0;
+		}
+		patterns[7][xval][yval] = 1;
+		patternseq[xval] = yval;
+
+	} else if (yval == 7)
+	{
+		for (int i = 0; i < 16; i++)
+		{
+			if (i <= xval)
+			{
+				patterns[7][i][7] = 1;
+			}
+			else if (i > xval)
+			{
+				patterns[7][i][7] = 0;
+			}
+		}
+		patternseqlength = (xval + 1);
+	} 
+	else if ((yval == 8) || (yval == 9))
+	{	
+		xval = xval / 2;
+		
+		currenteditpattern = xval;
+		
+		if (xval < 7)
+		{
+			currentmode = edit;
+		}
+		else if(xval == 7)
+		{
+			currentmode = seqpatterns;
+		}
+	}
+}
+	
+
+
+// Follow view functions
+
+void midinotetrack::flowview(void) {
+	
+	int x,y;
+	
+	int activepattern = patternseq[patternseqpos];
+	currenteditpattern = activepattern;
+	
+	for ( x = 0; x < 16; x++ )
+	{
+		for( y = 0; y < 8; y++ )
+		{
+			if (x == stepposition)
+			{
+				drawgridbutton(x,y,((patterns[activepattern][x][y]) + 2));
+			} else
+			{
+				drawgridbutton(x,y,(patterns[activepattern][x][y]));
+			}
+		}	
+	}
+	
+	navbuttons(2,4,currenteditpattern);
+
+}
+
+	
+void midinotetrack::flowpress(int xval, int yval) {
+	
+	yval = (yval / 16);
+	xval = (xval / 16);
+	
+	if (yval < 8)
+	{
+		if (patterns[currenteditpattern][xval][yval] == 0)
+		{
+			patterns[currenteditpattern][xval][yval] = 1;
+		}
+		else if (patterns[currenteditpattern][xval][yval] == 1)
+		{
+			patterns[currenteditpattern][xval][yval] = 2;
+		}
+		else if (patterns[currenteditpattern][xval][yval] == 2)
+		{
+			patterns[currenteditpattern][xval][yval] = 0;
+		}
+	}
+	else if ((yval == 8) || (yval == 9))
+	{	
+		xval = xval / 2;
+		
+		currenteditpattern = xval;
+		
+		if (xval < 7)
+		{
+			currentmode = edit;
+		}
+		else if(xval == 7)
+		{
+			currentmode = seqpatterns;
+		}
+	}
+}
+
+
+
+// Options view functions
+
+void midinotetrack::optionsview(void) {
+
+	iprintf("\x1b[2;4HTrack");
+	
+	iprintf("\x1b[4;2Hsettings No.");
+	iprintf("\x1b[5;2HPattern No.");
+	
+	iprintf("\x1b[7;2HStep Length");
+
+	iprintf("\x1b[8;2HChannel");
+	
+	iprintf("\x1b[10;8HNote");
+	iprintf("\x1b[10;13HVel");
+	
+	iprintf("\x1b[11;2HRow 1");
+	iprintf("\x1b[12;2HRow 2");
+	iprintf("\x1b[13;2HRow 3");
+	iprintf("\x1b[14;2HRow 4");
+	iprintf("\x1b[15;2HRow 5");
+	iprintf("\x1b[16;2HRow 6");
+	iprintf("\x1b[17;2HRow 7");
+	iprintf("\x1b[18;2HRow 8");
+	
+	iprintf("\x1b[2;12H%i  ",tracknumber);
+	
+	iprintf("\x1b[4;14H%i  ",settingsnumber);
+	iprintf("\x1b[5;14H%i  ",patternnumber);
+
+	iprintf("\x1b[8;14H%i  ",midichannel);
+	
+	iprintf("\x1b[11;9H%i  ",midinotes[0][0]);
+	iprintf("\x1b[12;9H%i  ",midinotes[1][0]);
+	iprintf("\x1b[13;9H%i  ",midinotes[2][0]);
+	iprintf("\x1b[14;9H%i  ",midinotes[3][0]);
+	iprintf("\x1b[15;9H%i  ",midinotes[4][0]);
+	iprintf("\x1b[16;9H%i  ",midinotes[5][0]);
+	iprintf("\x1b[17;9H%i  ",midinotes[6][0]);
+	iprintf("\x1b[18;9H%i  ",midinotes[7][0]);
+	
+	iprintf("\x1b[11;14H%i  ",midinotes[0][1]);
+	iprintf("\x1b[12;14H%i  ",midinotes[1][1]);
+	iprintf("\x1b[13;14H%i  ",midinotes[2][1]);
+	iprintf("\x1b[14;14H%i  ",midinotes[3][1]);
+	iprintf("\x1b[15;14H%i  ",midinotes[4][1]);
+	iprintf("\x1b[16;14H%i  ",midinotes[5][1]);
+	iprintf("\x1b[17;14H%i  ",midinotes[6][1]);
+	iprintf("\x1b[18;14H%i  ",midinotes[7][1]);
+	
+	optionsscreenbackground(optionsrow, optionscolumn);
+	
+	drawkeypad(24,2);
+	
+	int activevalue = 0;
+
+	if (optionsrow == -1) {activevalue = 0;}
+
+	if (optionsrow == 4) {activevalue = settingsnumber;}
+	if (optionsrow == 5) {activevalue = patternnumber;}
+	
+	if (optionsrow == 8) {activevalue = midichannel;}
+
+	if ((optionsrow > 10) && (optionsrow < 19) && (optionscolumn > -1)) {activevalue = midinotes[optionsrow - 11][optionscolumn];}
+
+	calcanddispnumber(24,4,activevalue);
+}
+	
+	
+void midinotetrack::optionspress(int xval, int yval) {
+	
+	yval = (yval / 8);
+	xval = (xval / 8);
+
+	if ((xval > 1) && (xval < 23) && (yval > 1) && (yval < 19))
+	{
+		if (yval == 4) {
+		optionsrow = 4;
+		}
+		if (yval == 5) {
+			optionsrow = 5;
+		}
+			
+		if (yval == 7) {
+			optionsrow = 7;
+		}
+		
+		if (yval == 8) {
+			optionsrow = 8;
+		}
+		
+		if (yval == 11) {
+			optionsrow = 11;
+		}
+		if (yval == 12) {
+			optionsrow = 12;
+		}
+		if (yval == 13) {
+			optionsrow = 13;
+		}
+		if (yval == 14) {
+			optionsrow = 14;
+		}
+		if (yval == 15) {
+			optionsrow = 15;
+		}
+		if (yval == 16) {
+			optionsrow = 16;
+		}
+		if (yval == 17) {
+			optionsrow = 17;
+		}
+		if (yval == 18) {
+			optionsrow = 18;
+		}
+		if ((xval > 9) && (xval < 13)) {
+			optionscolumn = 0;
+		}
+		if ((xval > 14) && (xval < 18)) {
+			optionscolumn = 1;
+		}
+	} else  if ((xval > 23) && (xval < 30) && (yval > 1) && (yval < 9))
+	{
+		xval = (xval / 2);
+		yval = (yval / 2);
+			
+		if (yval == 1)
+		{
+			if (xval == 12)
+			{
+				editmidioptions(100);
+			}
+			if (xval == 13)
+			{
+				editmidioptions(10);
+			}
+			if (xval == 14)
+			{
+				editmidioptions(1);
+			}
+		}
+		if (yval == 3)
+		{
+			if (xval == 12)
+			{
+				editmidioptions(-100);
+			}
+			if (xval == 13)
+			{
+				editmidioptions(-10);
+			}
+			if (xval == 14)
+			{
+				editmidioptions(-1);
+			}
+		}
+	}
+}
+
+
+
 
 // Load and Save Functions
 
@@ -205,6 +522,7 @@ void midinotetrack::fileload(void) {
 	}
 	
 	currentmode = previousmode;
+
 }
 
 void midinotetrack::filesave(void) {
@@ -225,6 +543,11 @@ void midinotetrack::filesave(void) {
 	currentmode = previousmode;
 
 }
+
+// Private Object Functions
+
+
+// Load and Save Sub Functions
 
 void midinotetrack::patternfileloader() {
 
@@ -394,231 +717,12 @@ void midinotetrack::settingsfilesaver() {
 
 // Pattern sequencer functions
 
-void midinotetrack::displaypatternseq(void) {
-	
-	int x,y;
-	
-	for ( x = 0; x < 16; x++ )
-	{
-		for( y = 0; y < 8; y++ )
-		{
-			drawgridbutton(x,y,(patterns[7][x][y]));
-		}
-	}
-}
-void midinotetrack::patternseqpress(int xval, int yval) {
-
-	if (yval < 7)
-	{
-		for (int i = 0; i < 7; i++)
-		{
-			patterns[7][xval][i] = 0;
-		}
-		patterns[7][xval][yval] = 1;
-		patternseq[xval] = yval;
-
-	} else if (yval == 7)
-	{
-		for (int i = 0; i < 16; i++)
-		{
-			if (i <= xval)
-			{
-				patterns[7][i][7] = 1;
-			}
-			else if (i > xval)
-			{
-				patterns[7][i][7] = 0;
-			}
-		}
-		patternseqlength = (xval + 1);
-	}
-	else if ((yval == 8) || (yval == 9))
-	{	
-		xval = xval / 2;
-		
-		currenteditpattern = xval;
-		
-		if (xval < 7)
-		{
-			currentmode = edit;
-		}
-		else if(xval == 7)
-		{
-			currentmode = seqpatterns;
-		}
-	}
-}
-	
-
-
-
-// Midi options menu functions
-
-void midinotetrack::displayoptions() {
-
-	iprintf("\x1b[2;4HTrack");
-	
-	iprintf("\x1b[4;2Hsettings No.");
-	iprintf("\x1b[5;2HPattern No.");
-	
-	iprintf("\x1b[7;2HStep Length");
-
-	iprintf("\x1b[8;2HChannel");
-	
-	iprintf("\x1b[10;8HNote");
-	iprintf("\x1b[10;13HVel");
-	
-	iprintf("\x1b[11;2HRow 1");
-	iprintf("\x1b[12;2HRow 2");
-	iprintf("\x1b[13;2HRow 3");
-	iprintf("\x1b[14;2HRow 4");
-	iprintf("\x1b[15;2HRow 5");
-	iprintf("\x1b[16;2HRow 6");
-	iprintf("\x1b[17;2HRow 7");
-	iprintf("\x1b[18;2HRow 8");
-	
-	iprintf("\x1b[2;12H%i  ",tracknumber);
-	
-	iprintf("\x1b[4;14H%i  ",settingsnumber);
-	iprintf("\x1b[5;14H%i  ",patternnumber);
-
-	iprintf("\x1b[8;14H%i  ",midichannel);
-	
-	iprintf("\x1b[11;9H%i  ",midinotes[0][0]);
-	iprintf("\x1b[12;9H%i  ",midinotes[1][0]);
-	iprintf("\x1b[13;9H%i  ",midinotes[2][0]);
-	iprintf("\x1b[14;9H%i  ",midinotes[3][0]);
-	iprintf("\x1b[15;9H%i  ",midinotes[4][0]);
-	iprintf("\x1b[16;9H%i  ",midinotes[5][0]);
-	iprintf("\x1b[17;9H%i  ",midinotes[6][0]);
-	iprintf("\x1b[18;9H%i  ",midinotes[7][0]);
-	
-	iprintf("\x1b[11;14H%i  ",midinotes[0][1]);
-	iprintf("\x1b[12;14H%i  ",midinotes[1][1]);
-	iprintf("\x1b[13;14H%i  ",midinotes[2][1]);
-	iprintf("\x1b[14;14H%i  ",midinotes[3][1]);
-	iprintf("\x1b[15;14H%i  ",midinotes[4][1]);
-	iprintf("\x1b[16;14H%i  ",midinotes[5][1]);
-	iprintf("\x1b[17;14H%i  ",midinotes[6][1]);
-	iprintf("\x1b[18;14H%i  ",midinotes[7][1]);
-	
-	optionsscreenbackground(activerow, activecolumn);
-	
-	drawkeypad(24,2);
-	
-	int activevalue = 0;
-
-	if (activerow == -1) {activevalue = 0;}
-
-	if (activerow == 4) {activevalue = settingsnumber;}
-	if (activerow == 5) {activevalue = patternnumber;}
-
-	if (activerow == 7) {activevalue = stepbeatlength;}
-	
-	if (activerow == 8) {activevalue = midichannel;}
-
-	if ((activerow > 10) && (activerow < 19) && (activecolumn > -1)) {activevalue = midinotes[activerow - 11][activecolumn];}
-
-	calcanddispnumber(24,4,activevalue);
-}
-	
-	
-void midinotetrack::optionspress(int xaxispress, int yaxispress) {
-	
-	
-	int xval = (xaxispress / 8);
-	int yval = (yaxispress / 8);
-
-	if ((xval > 1) && (xval < 23) && (yval > 1) && (yval < 19))
-	{
-		if (yval == 4) {
-		activerow = 4;
-		}
-		if (yval == 5) {
-			activerow = 5;
-		}
-			
-		if (yval == 7) {
-			activerow = 7;
-		}
-		
-		if (yval == 8) {
-			activerow = 8;
-		}
-		
-		if (yval == 11) {
-			activerow = 11;
-		}
-		if (yval == 12) {
-			activerow = 12;
-		}
-		if (yval == 13) {
-			activerow = 13;
-		}
-		if (yval == 14) {
-			activerow = 14;
-		}
-		if (yval == 15) {
-			activerow = 15;
-		}
-		if (yval == 16) {
-			activerow = 16;
-		}
-		if (yval == 17) {
-			activerow = 17;
-		}
-		if (yval == 18) {
-			activerow = 18;
-		}
-		if ((xval > 9) && (xval < 13)) {
-			activecolumn = 0;
-		}
-		if ((xval > 14) && (xval < 18)) {
-			activecolumn = 1;
-		}
-	} else  if ((xval > 23) && (xval < 30) && (yval > 1) && (yval < 9))
-	{
-		xval = (xaxispress / 16);
-		yval = (yaxispress / 16);
-			
-		if (yval == 1)
-		{
-			if (xval == 12)
-			{
-				editmidioptions(100);
-			}
-			if (xval == 13)
-			{
-				editmidioptions(10);
-			}
-			if (xval == 14)
-			{
-				editmidioptions(1);
-			}
-		}
-		if (yval == 3)
-		{
-			if (xval == 12)
-			{
-				editmidioptions(-100);
-			}
-			if (xval == 13)
-			{
-				editmidioptions(-10);
-			}
-			if (xval == 14)
-			{
-				editmidioptions(-1);
-			}
-		}
-	}
-}
-
 void midinotetrack::editmidioptions(int amount) {
 	
+
 	int tempvalue;
-		
-	if (activerow == 4) {
+	
+	if (optionsrow == 4) {
 	
 		tempvalue = settingsnumber + amount;
 		
@@ -633,7 +737,7 @@ void midinotetrack::editmidioptions(int amount) {
 		
 		settingsnumber = tempvalue;
 		
-	} else if (activerow == 5) {
+	} else if (optionsrow == 5) {
 	
 		tempvalue = patternnumber + amount;
 		
@@ -647,22 +751,8 @@ void midinotetrack::editmidioptions(int amount) {
 		}
 		
 		patternnumber = tempvalue;
-	} else if (activerow == 7) {
-	
-		tempvalue = stepbeatlength + amount;
 		
-		if (tempvalue > 16)
-		{
-			tempvalue = 16;
-		}
-		if (tempvalue < 1)
-		{
-			tempvalue = 1;
-		}
-		
-		stepbeatlength = tempvalue;
-		
-	} else if (activerow == 8) {
+	} else if (optionsrow == 8) {
 	
 		tempvalue = midichannel + amount;
 		
@@ -676,11 +766,12 @@ void midinotetrack::editmidioptions(int amount) {
 		}
 		
 		midichannel = tempvalue;
-	} else if ((activerow > 10) && (activerow < 19)) {
+		
+	} else if ((optionsrow > 10) && (optionsrow < 19)) {
 	
-		if (activecolumn == 0)
+		if (optionscolumn == 0)
 		{
-			tempvalue = midinotes[activerow - 11][0] + amount;
+			tempvalue = midinotes[optionsrow - 11][0] + amount;
 		
 			if (tempvalue > 127)
 			{
@@ -691,10 +782,11 @@ void midinotetrack::editmidioptions(int amount) {
 				tempvalue = 0;
 			}
 			
-			midinotes[activerow - 11][0] = tempvalue;
-		} else if (activecolumn == 1)
+			midinotes[optionsrow - 11][0] = tempvalue;
+			
+		} else if (optionscolumn == 1)
 		{
-			tempvalue = midinotes[activerow - 11][1] + amount;
+			tempvalue = midinotes[optionsrow - 11][1] + amount;
 		
 			if (tempvalue > 127)
 			{
@@ -705,7 +797,8 @@ void midinotetrack::editmidioptions(int amount) {
 				tempvalue = 0;
 			}
 			
-			midinotes[activerow - 11][1] = tempvalue;
+			midinotes[optionsrow - 11][1] = tempvalue;
+			
 		}
 	}
 }
@@ -714,30 +807,6 @@ void midinotetrack::editmidioptions(int amount) {
 
 
 
-// Follow view functions
-
-void midinotetrack::displayactivepattern(void) {
-	
-	int x,y;
-	
-	int activepattern = patternseq[patternseqpos];
-	currenteditpattern = activepattern;
-	
-	for ( x = 0; x < 16; x++ )
-	{
-		for( y = 0; y < 8; y++ )
-		{
-			if (x == stepposition)
-			{
-				drawgridbutton(x,y,((patterns[activepattern][x][y]) + 2));
-			} else
-			{
-				drawgridbutton(x,y,(patterns[activepattern][x][y]));
-			}
-		}	
-	}
-}
-	
 // Note functions
 
 void midinotetrack::triggernotes(void) {
@@ -781,22 +850,5 @@ void midinotetrack::triggernotes(void) {
 }
 
 
-
-
-
-
-// MIDI functions
-
-void midinotetrack::sendmididata(void) {
-
-	for (int i = 0; i < pendinglistpos; i++) {
-	
-		midinote(pendingsenddata[i][0],pendingsenddata[i][1],pendingsenddata[i][2]);
-	
-	}
-	
-	pendinglistpos = 0;
-
-}
-
+// End of Functions
 
