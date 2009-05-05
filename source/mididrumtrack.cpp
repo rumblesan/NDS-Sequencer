@@ -14,6 +14,8 @@
 extern modes_t currentmode;
 extern modes_t previousmode;
 
+// This is a test comment
+
 // Constructor
 
 mididrumtrack::mididrumtrack(int assignedtracknumber) {
