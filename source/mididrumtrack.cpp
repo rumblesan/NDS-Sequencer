@@ -11,6 +11,8 @@
 
 #include "file_browse.h"
 
+extern modes_t currentmode;
+extern modes_t previousmode;
 
 // Constructor
 
@@ -152,13 +154,31 @@ void mididrumtrack::displaypattern(void) {
 	
 void mididrumtrack::editpress(int xval, int yval) {
 	
-	if (patterns[currenteditpattern][xval][yval] == 0)
+	
+	if (yval < 8)
 	{
-		patterns[currenteditpattern][xval][yval] = 1;
-	}
-	else if (patterns[currenteditpattern][xval][yval] == 1)
-	{
-		patterns[currenteditpattern][xval][yval] = 0;
+		if (patterns[currenteditpattern][xval][yval] == 0)
+		{
+			patterns[currenteditpattern][xval][yval] = 1;
+		}
+		else if (patterns[currenteditpattern][xval][yval] == 1)
+		{
+			patterns[currenteditpattern][xval][yval] = 0;
+		}
+	} else if ((yval == 8) || (yval == 9))
+	{	
+		xval = xval / 2;
+		
+		currenteditpattern = xval;
+		
+		if (xval < 7)
+		{
+			currentmode = edit;
+		}
+		else if(xval == 7)
+		{
+			currentmode = seqpatterns;
+		}
 	}
 }
 
@@ -166,30 +186,41 @@ void mididrumtrack::editpress(int xval, int yval) {
 
 // Load and Save Functions
 
-void mididrumtrack::fileload(modes_t currentmode) {
+void mididrumtrack::fileload(void) {
 
-	if ((currentmode == edit) || (currentmode == seqpatterns) || (currentmode == follow)) {
+	previousmode = currentmode;
+	currentmode = loadsave;
+
+	if ((previousmode == edit) || (previousmode == seqpatterns) || (previousmode == follow)) {
 	
 		patternfileloader();
 	
-	} else if (currentmode == options) {
+	} else if (previousmode == options) {
 	
 		settingsfileloader();
 	
 	}
+	
+	currentmode = previousmode;
+
 }
 
-void mididrumtrack::filesave(modes_t currentmode) {
+void mididrumtrack::filesave(void) {
 
-	if ((currentmode == edit) || (currentmode == seqpatterns) || (currentmode == follow)) {
+	previousmode = currentmode;
+	currentmode = loadsave;
+
+	if ((previousmode == edit) || (previousmode == seqpatterns) || (previousmode == follow)) {
 	
 		patternfilesaver();
 	
-	} else if (currentmode == options) {
+	} else if (previousmode == options) {
 	
 		settingsfilesaver();
 	
 	}
+	
+	currentmode = previousmode;
 
 }
 
@@ -402,6 +433,21 @@ void mididrumtrack::patternseqpress(int xval, int yval) {
 			}
 		}
 		patternseqlength = (xval + 1);
+	} 
+	else if ((yval == 8) || (yval == 9))
+	{	
+		xval = xval / 2;
+		
+		currenteditpattern = xval;
+		
+		if (xval < 7)
+		{
+			currentmode = edit;
+		}
+		else if(xval == 7)
+		{
+			currentmode = seqpatterns;
+		}
 	}
 }
 	

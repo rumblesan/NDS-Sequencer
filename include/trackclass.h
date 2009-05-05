@@ -30,8 +30,8 @@ public:
 	
 	virtual void sendmididata(void) =0;
 
-	virtual void fileload(modes_t currentmode) =0;
-	virtual void filesave(modes_t currentmode) =0;
+	virtual void fileload(void) =0;
+	virtual void filesave(void) =0;
 
 };
 
@@ -106,8 +106,8 @@ public:
 	
 	void sendmididata(void);
 
-	void fileload(modes_t currentmode);
-	void filesave(modes_t currentmode);
+	void fileload(void);
+	void filesave(void);
 
 
 };
@@ -179,8 +179,8 @@ public:
 	
 	void sendmididata(void);
 
-	void fileload(modes_t currentmode);
-	void filesave(modes_t currentmode);
+	void fileload(void);
+	void filesave(void);
 
 
 };
@@ -248,8 +248,8 @@ public:
 	
 	void sendmididata(void);
 
-	void fileload(modes_t currentmode);
-	void filesave(modes_t currentmode);
+	void fileload(void);
+	void filesave(void);
 
 };
 

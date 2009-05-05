@@ -43,9 +43,9 @@ int bpmcount = 0;
 
 int tracksynccount = -1;
 
-
 modes_t currentmode;
 modes_t previousmode;
+
 
 
 void incrementglobalval(int amount) {
@@ -220,12 +220,12 @@ void navbuttonpresses (int xval) {
 		currentmode = setup;
 	} else if (xval == 6)
 	{	 
-		tracks[activetracknumber]->filesave(currentmode);
+		tracks[activetracknumber]->filesave();
 	} else if (xval == 7 )
 	{
 		modes_t previousmode = currentmode;
 		currentmode = loadsave;
-		tracks[activetracknumber]->fileload(previousmode);
+		tracks[activetracknumber]->fileload();
 		currentmode = previousmode;
 	}
 
@@ -417,22 +417,10 @@ void patternseqbuttonpresses () {
 		int xval = (xaxispress / 32);
 		int yval = (yaxispress / 32);
 		
-		if (yaxispress < 128)
+		if (yaxispress < 160)
 		{
 			tracks[activetracknumber]->patternseqpress((xaxispress / 16),(yaxispress / 16));
 			
-		} else if (yval == 4)
-		{
-			if (xval < 7)
-			{
-				currentmode = edit;
-				tracks[activetracknumber]->currenteditpattern = xval;
-			}
-			else if(xval == 7)
-			{
-				currentmode = seqpatterns;
-				tracks[activetracknumber]->currenteditpattern = xval;
-			}		
 		} else if (yval == 5)
 		{
 			navbuttonpresses(xval);	
@@ -569,22 +557,11 @@ void editviewbuttonpresses () {
 		int xval = (xaxispress / 32);
 		int yval = (yaxispress / 32);
 
-		if (yaxispress < 128)
+		if (yaxispress < 160)
 		{
 			tracks[activetracknumber]->editpress((xaxispress / 16),(yaxispress / 16));
-		} else if (yval == 4)
-		{	
-			if (xval < 7)
-			{
-				currentmode = edit;
-				tracks[activetracknumber]->currenteditpattern = xval;
-			}
-			else if(xval == 7)
-			{
-				currentmode = seqpatterns;
-				tracks[activetracknumber]->currenteditpattern = xval;
-			}
-		} else if (yval == 5)
+		}
+		else if (yval == 5)
 		{
 			navbuttonpresses(xval);
 		}	
