@@ -188,9 +188,10 @@ u8 optionsscreen[768] =
 	0,6,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,7,0,
 	0,6,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,7,0,
 	0,3,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,4,0,
-
 	
 };
+
+
 
 u8 filebrowsescreen[768] =
 {
@@ -761,32 +762,13 @@ void filebrowsescreenbackground() {
 }
 
 
-
 // Setup Screen
 
-void displaysetuprowvalue(int setuprow, int globalnumber) {
 
-	int activevalue = 0;
-
-	if (setuprow == 4) {activevalue = globalnumber;}
-
-	calcanddispnumber(24,4,activevalue);
-
-}
-
-
-void setupscreenbackground(int setuprow) {
+void setupscreenbackground() {
 
     int x, y;
 	int buttoncycle = 0;
-	int xmin = 0;
-	int xmax = 0;
-
-	if (setuprow == 4)
-	{
-		xmin = 15;
-		xmax = 19;
-	}
 
 
     for( y = 0; y < 20; y++ )
@@ -794,11 +776,7 @@ void setupscreenbackground(int setuprow) {
         for( x = 0; x < 23; x++ )
         {
 			int tile = tile_optionsviewtiles + optionsscreen[buttoncycle];
-			
-			if ((y == setuprow) && (x > xmin) && (x < xmax))
-			{
-				tile += 1;
-			}			
+				
 			buttoncycle++;
 		    bg2map[x + y * 32] = tile | (pal_optionsviewtiles << 12);
         }
@@ -806,12 +784,10 @@ void setupscreenbackground(int setuprow) {
 }
 
 
-void drawsetuptext(int dsmienable, int globalnumber) {
+void drawsetuptext(int dsmienable) {
 
 	iprintf("\x1b[2;3HGlobal  Settings");
-	
-	iprintf("\x1b[4;4HSettings No.");
-	
+
 	if (dsmienable == 0)
 	{
 		iprintf("\x1b[14;9HEnable");
@@ -821,8 +797,6 @@ void drawsetuptext(int dsmienable, int globalnumber) {
 		iprintf("\x1b[14;9H  DSMI");
 		iprintf("\x1b[15;9HActive");
 	}
-
-	iprintf("\x1b[4;16H%i  ",globalnumber);
 	
 }
 

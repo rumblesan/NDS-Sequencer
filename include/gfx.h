@@ -54,9 +54,8 @@ void filebrowsescreenbackground();
 
 // Setup Screen
 
-void displaysetuprowvalue(int setuprow, int globalnumber);
-void setupscreenbackground(int setuprow);
-void drawsetuptext(int dsmienable, int globalnumber);
+void setupscreenbackground();
+void drawsetuptext(int dsmienable);
 
 
 // Options Screen

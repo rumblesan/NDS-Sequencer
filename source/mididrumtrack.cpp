@@ -14,7 +14,6 @@
 extern modes_t currentmode;
 extern modes_t previousmode;
 
-// This is a test comment
 
 // Constructor
 
@@ -559,8 +558,6 @@ void mididrumtrack::patternfileloader() {
 
 	patternbuffer patternloadstruct;
 	
-	filebrowsescreenbackground();
-
 	char filePath[MAXPATHLEN * 2];
 	int pathLen;
 	std::string filename;
@@ -653,8 +650,6 @@ void mididrumtrack::settingsfileloader() {
 
 	settingsbuffer settingsloadstruct;
 	
-	filebrowsescreenbackground();
-
 	char filePath[MAXPATHLEN * 2];
 	int pathLen;
 	std::string filename;

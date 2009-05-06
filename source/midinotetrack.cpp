@@ -553,8 +553,6 @@ void midinotetrack::patternfileloader() {
 
 	patternbuffer patternloadstruct;
 	
-	filebrowsescreenbackground();
-
 	char filePath[MAXPATHLEN * 2];
 	int pathLen;
 	std::string filename;
@@ -645,8 +643,6 @@ void midinotetrack::settingsfileloader() {
 
 	settingsbuffer settingsloadstruct;
 	
-	filebrowsescreenbackground();
-
 	char filePath[MAXPATHLEN * 2];
 	int pathLen;
 	std::string filename;

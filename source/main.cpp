@@ -25,29 +25,25 @@ track* tracks[] =
 
 int playingtracks[4];
 
-int globalnumber = 1;
-
-int bpm = 120;
+int bpm;
 
 int activetracknumber;
 
-int setuprow = -1;
+int midienable;
 
-int midienable = 0;
+int globalplay;
 
-int globalplay = 0;
-
+int fatstatus;
 
 int globalstep = -1;
 int bpmcount = 0;
 
-int tracksynccount = -1;
 
 modes_t currentmode;
 modes_t previousmode;
 
 
-// Edit and Follow View Functions
+// Screen Display Functions
 
 void drawtopscreen() {
 	
@@ -85,9 +81,9 @@ void drawtopscreen() {
 
 void drawsetupscreen () {
 
-	setupscreenbackground(setuprow);
+	setupscreenbackground();
 	navbuttonwords();
-	drawsetuptext(midienable, globalnumber);
+	drawsetuptext(midienable);
 
 	navbuttons(1,5,currentmode);
 	
@@ -160,6 +156,62 @@ void drawpatternseqscreen() {
 	navbuttonwords();
 
 }
+
+void drawloadsavescreen() {
+
+	filebrowsescreenbackground();
+
+}
+
+
+// Display Updater
+
+
+
+void displayupdater () {
+	
+	switch (currentmode) {
+		
+		case home:
+		
+			drawhomescreen();
+			break;
+			
+		case seqpatterns:
+		
+			drawpatternseqscreen();
+			break;
+			
+		case edit:
+		
+			draweditscreen();
+			break;
+			
+		case options:
+		
+			drawoptionsscreen();
+			break;
+			
+		case follow:
+		
+			drawfollowscreen();
+			break;
+		
+		case setup:
+		
+			drawsetupscreen();
+			break;
+			
+		case loadsave:
+			drawloadsavescreen();
+			break;
+	}
+	
+	drawtopscreen();
+
+}
+
+
 // Mode Button Press Functions
 
 
@@ -625,53 +677,6 @@ void homeviewbuttonpresses () {
 
 
 
-void displayupdater () {
-	
-	switch (currentmode) {
-		
-		case home:
-		
-			drawhomescreen();
-			break;
-			
-		case seqpatterns:
-		
-			drawpatternseqscreen();
-			break;
-			
-		case edit:
-		
-			draweditscreen();
-			break;
-			
-		case options:
-		
-			drawoptionsscreen();
-			break;
-			
-		case follow:
-		
-			drawfollowscreen();
-			break;
-		
-		case setup:
-		
-			drawsetupscreen();
-			break;
-			
-		case loadsave:
-		
-			break;
-	}
-	
-	drawtopscreen();
-
-}
-
-
-
-
-
 void setupview () {
 
 	while(currentmode == setup)
@@ -683,7 +688,6 @@ void setupview () {
 	
 	clearbottomscreen();
 	
-	setuprow = -1;
 }
 
 void homeview () {
@@ -830,6 +834,7 @@ void setupbpmtimer() {
 // Main
 
 
+
 int main(void) {
 
 
@@ -842,9 +847,21 @@ int main(void) {
 	consoleInit(&bottomScreen, 0,BgType_Text4bpp, BgSize_T_256x256, 31, 3, true, true);
 	consoleSelect(&bottomScreen);
 
-	fatInitDefault();
+
+	if {fatInitDefault()} {
+		fatstatus = 1;
+	}
+	else
+	{
+		fatstatus = 0;
+	}
 	
 	currentmode = home;
+	bpm = 120;
+	activetracknumber = 0;
+	midienable = 0;
+	globalplay = 0;
+
 
 	while (1)
 	{
