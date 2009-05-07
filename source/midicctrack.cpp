@@ -1,4 +1,4 @@
-/*
+
 
 #include <nds.h>
 #include <stdio.h>
@@ -18,54 +18,47 @@
 // Constructor
 
 midicctrack::midicctrack(int assignedtracknumber) {
+
 	
-	int x,y,z;
-	
-	tracknumber = assignedtracknumber;
-	
-	patternseqpos = 0;
-	currenteditpattern = 0;
-	patternseqlength = 4;
+	int x,y;
 	
 	playing = 0;
 	triggerplay = 0;
 	
-	stepbeatlength = 4;
-	clockcount = 0;
-	stepposition = 0;
-
+	tracknumber = assignedtracknumber;
+	
 	settingsnumber = 0;
 	patternnumber = 0;
 	
-	midichannel = 1;
+	currenteditpattern = 0;
 	
-	for ( z = 0; z < 8; z++ )
+	for( x = 0; x < 8; x++ )
 	{
-		for( x = 0; x < 16; x++ )
+		for( y = 0; y < 256; y++ )
 		{
-			for( y = 0; y < 8; y++ )
-			{
-				patterns[z][x][y] = 0;
-			}
+			patterns[x][y] = 0;
 		}
-		
-		for( x = 0; x < 3; x++ )
-		{
-			currentonnotes[z][x] = -1;
-			midinotes[z][x] = 0;
-		}
+		patternlengths[x] = 0;
+		uint8_t midiccnumbers[x] = 0;
+		patternpositions[x] = 0;
 	}
+	
+	activerow = -1;
+	activecolumn = -1;
+	
 	
 	for( x = 0; x < 16; x++ )
 	{
-		patternseq[x] = 0;
-		patterns[7][x][0] = 1;
+		for( y = 0; y < 3; y++ )
+		{
+			uint8_t pendingsenddata[x][y];
+		}
 	}
+	
 
-	patterns[7][0][7] = 1;
-	patterns[7][1][7] = 1;
-	patterns[7][2][7] = 1;
-	patterns[7][3][7] = 1;	
+	clockcount = 0;
+	midichannel = 0;
+	pendinglistpos = 0;
 	
 }
 
@@ -92,8 +85,10 @@ void midicctrack::resettrack(void) {
 
 	playing = 0;
 	triggerplay = 0;
-	stepposition = 0;
-	patternseqpos = 0;
+	for( x = 0; x < 8; x++ )
+	{
+		patternpositions[x] = 0;
+	}
 	clockcount = 0;
 	
 }
@@ -763,4 +758,3 @@ void midicctrack::sendmididata(void) {
 
 }
 
-*/

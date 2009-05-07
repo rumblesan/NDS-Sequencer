@@ -60,7 +60,7 @@ private:
 
 	int optionsrow;
 	int optionscolumn;
-		
+
 	int stepbeatlength;
 	int clockcount;
 	
@@ -130,9 +130,6 @@ private:
 	int patternseqpos;
 	
 	int stepposition;
-
-	int optionsrow;
-	int optionscolumn;
 	
 	int activerow;
 	int activecolumn;
@@ -185,7 +182,7 @@ public:
 
 };
 
-/*
+
 class midicctrack :public track {
 
 private:
@@ -200,16 +197,12 @@ private:
 
 	int patterns[8][256];
 	int patternlengths[8];
-	
-	int stepposition;
 
-	int optionsrow;
-	int optionscolumn;
+	int patternpositions[8];
 	
 	int activerow;
 	int activecolumn;
 	
-	int stepbeatlength;
 	int clockcount;
 	
 	int pendinglistpos;
@@ -218,7 +211,7 @@ private:
 	uint8_t midichannel;
 	uint8_t midiccnumbers[8];
 	
-	void triggernotes(void);
+	void loadvalues(void);
 	
 	void editmidioptions(int amount);
 	
@@ -232,26 +225,28 @@ public:
 	midicctrack(int assignedtracknumber);
 	
 	void starttrack(int playstatus);
-	void resettrack();
+	void resettrack(void);
+	
 	void sequencerclock(void);
 	
-	void displaypattern(void);
+	void sendmididata(void);
+	
+	void editview(void);
 	void editpress(int xval, int yval);
 	
-	void displaypatternseq(void);
+	void patternseqview(void);
 	void patternseqpress(int xval, int yval);
 	
-	void displayoptions(void);
-	void optionspress(int xval, int yval);
-
-	void displayactivepattern(void);
+	void flowview(void);
+	void flowpress(int xval, int yval);
 	
-	void sendmididata(void);
+	void optionsview(void);
+	void optionspress(int xval, int yval);
 
 	void fileload(void);
 	void filesave(void);
 
 };
 
-*/
+
 #endif //TRACKCLASSES_H
