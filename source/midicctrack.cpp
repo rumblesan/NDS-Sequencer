@@ -1,5 +1,3 @@
-
-
 #include <nds.h>
 #include <stdio.h>
 #include <fat.h>
@@ -13,6 +11,9 @@
 
 #include "file_browse.h"
 
+
+extern modes_t currentmode;
+extern modes_t previousmode;
 
 
 // Constructor
@@ -31,16 +32,22 @@ midicctrack::midicctrack(int assignedtracknumber) {
 	patternnumber = 0;
 	
 	currenteditpattern = 0;
-	
+
+	prevx = 0;
+	prevy = 0;
+
 	for( x = 0; x < 8; x++ )
 	{
 		for( y = 0; y < 256; y++ )
 		{
 			patterns[x][y] = 0;
 		}
-		patternlengths[x] = 0;
-		uint8_t midiccnumbers[x] = 0;
-		patternpositions[x] = 0;
+		patternlengths[x] = 1;
+		
+		patternpositions[0][x] = 0;
+		patternpositions[1][x] = 0;
+		
+		midiccnumbers[x] = 0;
 	}
 	
 	activerow = -1;
@@ -51,7 +58,7 @@ midicctrack::midicctrack(int assignedtracknumber) {
 	{
 		for( y = 0; y < 3; y++ )
 		{
-			uint8_t pendingsenddata[x][y];
+			pendingsenddata[x][y] = 0;
 		}
 	}
 	
@@ -83,11 +90,14 @@ void midicctrack::starttrack(int playstatus) {
 
 void midicctrack::resettrack(void) {
 
+	int x;
+	
 	playing = 0;
 	triggerplay = 0;
-	for( x = 0; x < 8; x++ )
+	for(x = 0; x < 8; x++ )
 	{
-		patternpositions[x] = 0;
+		patternpositions[0][x] = 0;
+		patternpositions[1][x] = 0;
 	}
 	clockcount = 0;
 	
@@ -95,6 +105,7 @@ void midicctrack::resettrack(void) {
 
 void midicctrack::sequencerclock(void) {
 	
+	int x;
 
 	if (clockcount == 0)
 	{
@@ -113,307 +124,126 @@ void midicctrack::sequencerclock(void) {
 	}
 	
 	clockcount++;
-	if (clockcount == stepbeatlength) {
+	if (clockcount == 4) {
 		clockcount = 0;
 		
 		if (playing == 1)
 		{
-			stepposition++;		
-			if (stepposition == 16) {
+			stepposition++;
+			if (stepposition == 16 * 4) {
 				stepposition = 0;
-				patternseqpos++;
-				if (patternseqpos > patternseqlength) { patternseqpos = 0; }
+			}
+			
+			for (x = 0; x < 8; x++) {
+				
+				if (activepatterns[x] == 1) {
+					patternpositions[0][x]++;
+					
+					if (patternpositions[0][x] == patternlengths[x]) {
+						patternpositions[0][x] = 0;
+						
+						patternpositions[1][x]++;
+						
+						if (patternpositions[1][x] == 256) {
+							patternpositions[1][x] = 0;
+						}
+					}
+				} else {
+					patternpositions[1][x] = 0;
+					
+				}
 			}
 		}
 	}
 }
 	
 	
+
+
+void midicctrack::sendmididata(void) {
+
+	for (int i = 0; i < pendinglistpos; i++) {
+	
+		midinote(pendingsenddata[i][0],pendingsenddata[i][1],pendingsenddata[i][2]);
+	
+	}
+	
+	pendinglistpos = 0;
+
+}
 
 
 // Edit view functions
 
-
-void midicctrack::displaypattern(void) {
+void midicctrack::editview(void) {
 	
-	int x,y;
 	
-	for ( x = 0; x < 16; x++ )
-	{
-		for( y = 0; y < 8; y++ )
-		{
-			drawgridbutton(x,y,(patterns[currenteditpattern][x][y]));
-		}
-	}
+	navbuttons(2,4,currenteditpattern);
 }
 	
 	
 void midicctrack::editpress(int xval, int yval) {
-	
-	if (patterns[currenteditpattern][xval][yval] == 0)
-	{
-		patterns[currenteditpattern][xval][yval] = 1;
-	}
-	else if (patterns[currenteditpattern][xval][yval] == 1)
-	{
-		patterns[currenteditpattern][xval][yval] = 2;
-	}
-	else if (patterns[currenteditpattern][xval][yval] == 2)
-	{
-		patterns[currenteditpattern][xval][yval] = 0;
-	}
-}
 
-	
+	if (yval < 128) {
 
-// Load and Save Functions
-
-void midicctrack::fileload(modes_t currentmode) {
-
-	modes_t previousmode = currentmode;
-	currentmode = loadsave;
-
-	if ((currentmode == edit) || (currentmode == seqpatterns) || (currentmode == follow)) {
-	
-		patternfileloader();
-	
-	} else if (currentmode == options) {
-	
-		settingsfileloader();
-	
-	}
-	
-	currentmode = previousmode;
-}
-
-void midicctrack::filesave(modes_t currentmode) {
-
-	if ((currentmode == edit) || (currentmode == seqpatterns) || (currentmode == follow)) {
-	
-		patternfilesaver();
-	
-	} else if (currentmode == options) {
-	
-		settingsfilesaver();
-	
-	}
-
-}
-
-void midicctrack::patternfileloader() {
-
-	patternbuffer patternloadstruct;
-	
-	filebrowsescreenbackground();
-
-	char filePath[MAXPATHLEN * 2];
-	int pathLen;
-	std::string filename;
-	FILE * pFile;
-	
-	filename = browseForFile (".ptr");
-
-	int x, y, z;
-
-	if (filename != "NULL")
-	{
-		// Construct a command line if we weren't supplied with one
-		getcwd (filePath, MAXPATHLEN);
-		pathLen = strlen (filePath);
-		strcpy (filePath + pathLen, filename.c_str());
+		if (keysDown() & KEY_TOUCH) {
 		
-		pFile = fopen ( filePath , "r" );
+			prevx = xval;
+			prevy = yval;
+			
+			patterns[currenteditpattern][xval] = (127 - yval);
 		
-		fread((char *)&patternloadstruct, sizeof(patternbuffer), 1, pFile);
+		} else if (keysHeld() & KEY_TOUCH) {
 		
-		patternnumber = patternloadstruct.patternnumber;
-		
-		patternseqlength = patternloadstruct.patternseqlength;
-		stepbeatlength = patternloadstruct.stepbeatlength;
-		
-		for ( z = 0; z < 8; z++ )
-		{
-			for( x = 0; x < 16; x++ )
-			{
-				for( y = 0; y < 8; y++ )
-				{
-					patterns[z][x][y] = patternloadstruct.patterns[z][x][y];
-				}
+			if ((xval != prevx) && (yval != prevy)) {
+			
+				linealg(prevx, prevy, xval, yval);
+				prevx = xval;
+				prevy = yval;			
 			}
-		}
 		
-		for( x = 0; x < 16; x++ )
-		{
-			patternseq[x] = patternloadstruct.patternseq[x];
-		}
-		
-		
-		fclose (pFile);
-	}
-	
-    clearbottomscreen();
-	
-}
-
-void midicctrack::patternfilesaver() {
-	
-	patternbuffer patternsavestruct;
-	
-	char format[] = "/seqgrid/files/pattern-%d.ptr";
-	char filename[sizeof format+100];
-	sprintf(filename,format,patternnumber);
-	FILE *pFile = fopen(filename,"w");
-
-		patternsavestruct.patternnumber = patternnumber;
-		
-		patternsavestruct.patternseqlength = patternseqlength;
-		patternsavestruct.stepbeatlength = stepbeatlength;
-		
-		int x, y, z;
-		
-		for ( z = 0; z < 8; z++ )
-		{
-			for( x = 0; x < 16; x++ )
-			{
-				for( y = 0; y < 8; y++ )
-				{
-					patternsavestruct.patterns[z][x][y] = patterns[z][x][y];
-				}
-			}
-		}
-		
-		for( x = 0; x < 16; x++ )
-		{
-			patternsavestruct.patternseq[x] = patternseq[x];
-		}
-	
-	fwrite((char *)&patternsavestruct, sizeof(patternbuffer), 1, pFile);
-
-	fclose (pFile);
-
-}
-void midicctrack::settingsfileloader() {
-
-	settingsbuffer settingsloadstruct;
-	
-	filebrowsescreenbackground();
-
-	char filePath[MAXPATHLEN * 2];
-	int pathLen;
-	std::string filename;
-	FILE * pFile;
-	
-	filename = browseForFile (".set");
-
-	if (filename != "NULL")
-	{
-		// Construct a command line if we weren't supplied with one
-		getcwd (filePath, MAXPATHLEN);
-		pathLen = strlen (filePath);
-		strcpy (filePath + pathLen, filename.c_str());
-		
-		pFile = fopen ( filePath , "r" );
-		
-		fread((char *)&settingsloadstruct, sizeof(settingsbuffer), 1, pFile);
-		
-		settingsnumber = settingsloadstruct.settingsnumber;
-		midichannel = settingsloadstruct.midichannel;
-
-		
-		for (int i = 0; i < 8; i ++)
-		{
-			for (int j = 0; j < 2; j ++)
-			{
-				midinotes[i][j] = settingsloadstruct.midinotes[i][j];
-			}
-		}
-		
-		fclose (pFile);
-	}
-	
-	clearbottomscreen();
-	
-}
-
-void midicctrack::settingsfilesaver() {
-	
-	settingsbuffer settingssavestruct;
-	
-	char format[] = "/seqgrid/files/settings-%d.prs";
-	char filename[sizeof format+100];
-	sprintf(filename,format,settingsnumber);
-	FILE *pFile = fopen(filename,"w");
-
-	settingssavestruct.settingsnumber = settingsnumber;
-	settingssavestruct.midichannel = midichannel;
-	
-	for (int i = 0; i < 8; i ++)
-	{
-		for (int j = 0; j < 2; j ++)
-		{
-			settingssavestruct.midinotes[i][j] = midinotes[i][j];
 		}
 	}
-	
-	fwrite((char *)&settingssavestruct, sizeof(settingsbuffer), 1, pFile);
-
-	fclose (pFile);
-
 }
 
-
-
-
-
+	
 
 // Pattern sequencer functions
 
-void midicctrack::displaypatternseq(void) {
+void midicctrack::patternseqview(void) {
 	
-	int x,y;
 	
-	for ( x = 0; x < 16; x++ )
-	{
-		for( y = 0; y < 8; y++ )
-		{
-			drawgridbutton(x,y,(patterns[7][x][y]));
-		}
-	}
+	navbuttons(2,4,currenteditpattern);
+
 }
 void midicctrack::patternseqpress(int xval, int yval) {
 
-	if (yval < 7)
-	{
-		for (int i = 0; i < 7; i++)
-		{
-			patterns[7][xval][i] = 0;
-		}
-		patterns[7][xval][yval] = 1;
-		patternseq[xval] = yval;
 
-	} else if (yval == 7)
-	{
-		for (int i = 0; i < 16; i++)
-		{
-			if (i <= xval)
-			{
-				patterns[7][i][7] = 1;
-			}
-			else if (i > xval)
-			{
-				patterns[7][i][7] = 0;
-			}
-		}
-		patternseqlength = (xval + 1);
-	}
+
 }
 	
 
 
+// Follow view functions
 
-// Midi options menu functions
+void midicctrack::flowview(void) {
+	
+	
+	navbuttons(2,4,currenteditpattern);
 
-void midicctrack::displayoptions() {
+}
+
+	
+void midicctrack::flowpress(int xval, int yval) {
+	
+
+}
+
+
+
+// Options view functions
+
+void midicctrack::optionsview(void) {
 
 	iprintf("\x1b[2;4HTrack");
 	
@@ -426,6 +256,7 @@ void midicctrack::displayoptions() {
 	
 	iprintf("\x1b[10;8HNote");
 	iprintf("\x1b[10;13HVel");
+	iprintf("\x1b[10;18HLen");
 	
 	iprintf("\x1b[11;2HRow 1");
 	iprintf("\x1b[12;2HRow 2");
@@ -443,23 +274,14 @@ void midicctrack::displayoptions() {
 
 	iprintf("\x1b[8;14H%i  ",midichannel);
 	
-	iprintf("\x1b[11;9H%i  ",midinotes[0][0]);
-	iprintf("\x1b[12;9H%i  ",midinotes[1][0]);
-	iprintf("\x1b[13;9H%i  ",midinotes[2][0]);
-	iprintf("\x1b[14;9H%i  ",midinotes[3][0]);
-	iprintf("\x1b[15;9H%i  ",midinotes[4][0]);
-	iprintf("\x1b[16;9H%i  ",midinotes[5][0]);
-	iprintf("\x1b[17;9H%i  ",midinotes[6][0]);
-	iprintf("\x1b[18;9H%i  ",midinotes[7][0]);
-	
-	iprintf("\x1b[11;14H%i  ",midinotes[0][1]);
-	iprintf("\x1b[12;14H%i  ",midinotes[1][1]);
-	iprintf("\x1b[13;14H%i  ",midinotes[2][1]);
-	iprintf("\x1b[14;14H%i  ",midinotes[3][1]);
-	iprintf("\x1b[15;14H%i  ",midinotes[4][1]);
-	iprintf("\x1b[16;14H%i  ",midinotes[5][1]);
-	iprintf("\x1b[17;14H%i  ",midinotes[6][1]);
-	iprintf("\x1b[18;14H%i  ",midinotes[7][1]);
+	iprintf("\x1b[11;9H%i  ",midiccnumbers[0]);
+	iprintf("\x1b[12;9H%i  ",midiccnumbers[1]);
+	iprintf("\x1b[13;9H%i  ",midiccnumbers[2]);
+	iprintf("\x1b[14;9H%i  ",midiccnumbers[3]);
+	iprintf("\x1b[15;9H%i  ",midiccnumbers[4]);
+	iprintf("\x1b[16;9H%i  ",midiccnumbers[5]);
+	iprintf("\x1b[17;9H%i  ",midiccnumbers[6]);
+	iprintf("\x1b[18;9H%i  ",midiccnumbers[7]);
 	
 	optionsscreenbackground(activerow, activecolumn);
 	
@@ -471,22 +293,19 @@ void midicctrack::displayoptions() {
 
 	if (activerow == 4) {activevalue = settingsnumber;}
 	if (activerow == 5) {activevalue = patternnumber;}
-
-	if (activerow == 7) {activevalue = stepbeatlength;}
 	
 	if (activerow == 8) {activevalue = midichannel;}
 
-	if ((activerow > 10) && (activerow < 19) && (activecolumn > -1)) {activevalue = midinotes[activerow - 11][activecolumn];}
+	if ((activerow > 10) && (activerow < 19) && (activecolumn > -1)) {activevalue = midiccnumbers[activerow - 11];}
 
 	calcanddispnumber(24,4,activevalue);
 }
 	
 	
-void midicctrack::optionspress(int xaxispress, int yaxispress) {
+void midicctrack::optionspress(int xval, int yval) {
 	
-	
-	int xval = (xaxispress / 8);
-	int yval = (yaxispress / 8);
+	yval = (yval / 8);
+	xval = (xval / 8);
 
 	if ((xval > 1) && (xval < 23) && (yval > 1) && (yval < 19))
 	{
@@ -535,10 +354,13 @@ void midicctrack::optionspress(int xaxispress, int yaxispress) {
 		if ((xval > 14) && (xval < 18)) {
 			activecolumn = 1;
 		}
+		if ((xval > 19) && (xval < 23)) {
+			activecolumn = 2;
+		}
 	} else  if ((xval > 23) && (xval < 30) && (yval > 1) && (yval < 9))
 	{
-		xval = (xaxispress / 16);
-		yval = (yaxispress / 16);
+		xval = (xval / 2);
+		yval = (yval / 2);
 			
 		if (yval == 1)
 		{
@@ -573,10 +395,313 @@ void midicctrack::optionspress(int xaxispress, int yaxispress) {
 	}
 }
 
+
+
+
+// Load and Save Functions
+
+void midicctrack::fileload(void) {
+/*
+	previousmode = currentmode;
+	currentmode = loadsave;
+
+	if ((previousmode == edit) || (previousmode == seqpatterns) || (previousmode == follow)) {
+	
+		patternfileloader();
+	
+	} else if (previousmode == options) {
+	
+		settingsfileloader();
+	
+	}
+	
+	currentmode = previousmode;
+*/
+}
+
+void midicctrack::filesave(void) {
+/*
+	previousmode = currentmode;
+	currentmode = loadsave;
+
+	if ((previousmode == edit) || (previousmode == seqpatterns) || (previousmode == follow)) {
+	
+		patternfilesaver();
+	
+	} else if (previousmode == options) {
+	
+		settingsfilesaver();
+	
+	}
+	
+	currentmode = previousmode;
+*/
+}
+
+// Private Object Functions
+
+
+// Load and Save Sub Functions
+
+void midicctrack::patternfileloader() {
+/*
+	patternbuffer patternloadstruct;
+	
+	char filePath[MAXPATHLEN * 2];
+	int pathLen;
+	std::string filename;
+	FILE * pFile;
+	
+	iprintf("loading\n");
+	
+	filename = browseForFile (".ptr");
+
+	int x, y, z;
+
+	if (filename != "NULL")
+	{
+		// Construct a command line if we weren't supplied with one
+		getcwd (filePath, MAXPATHLEN);
+		pathLen = strlen (filePath);
+		strcpy (filePath + pathLen, filename.c_str());
+		
+		pFile = fopen ( filePath , "r" );
+		
+		fread((char *)&patternloadstruct, sizeof(patternbuffer), 1, pFile);
+		
+		patternnumber = patternloadstruct.patternnumber;
+		
+		patternseqlength = patternloadstruct.patternseqlength;
+		stepbeatlength = patternloadstruct.stepbeatlength;
+		
+		for ( z = 0; z < 8; z++ )
+		{
+			for( x = 0; x < 16; x++ )
+			{
+				for( y = 0; y < 8; y++ )
+				{
+					patterns[z][x][y] = patternloadstruct.patterns[z][x][y];
+				}
+			}
+		}
+		
+		for( x = 0; x < 16; x++ )
+		{
+			patternseq[x] = patternloadstruct.patternseq[x];
+		}
+		
+		
+		fclose (pFile);
+	}
+	
+    clearbottomscreen();
+*/
+}
+
+void midicctrack::patternfilesaver() {
+/*	
+	patternbuffer patternsavestruct;
+	
+	char format[] = "/seqgrid/files/pattern-%d.ptr";
+	char filename[sizeof format+100];
+	sprintf(filename,format,patternnumber);
+	FILE *pFile = fopen(filename,"w");
+
+		patternsavestruct.patternnumber = patternnumber;
+		
+		patternsavestruct.patternseqlength = patternseqlength;
+		patternsavestruct.stepbeatlength = stepbeatlength;
+		
+		int x, y, z;
+		
+		for ( z = 0; z < 8; z++ )
+		{
+			for( x = 0; x < 16; x++ )
+			{
+				for( y = 0; y < 8; y++ )
+				{
+					patternsavestruct.patterns[z][x][y] = patterns[z][x][y];
+				}
+			}
+		}
+		
+		for( x = 0; x < 16; x++ )
+		{
+			patternsavestruct.patternseq[x] = patternseq[x];
+		}
+	
+	fwrite((char *)&patternsavestruct, sizeof(patternbuffer), 1, pFile);
+
+	fclose (pFile);
+*/
+}
+
+void midicctrack::settingsfileloader() {
+/*
+	settingsbuffer settingsloadstruct;
+	
+	char filePath[MAXPATHLEN * 2];
+	int pathLen;
+	std::string filename;
+	FILE * pFile;
+	
+	filename = browseForFile (".set");
+
+	if (filename != "NULL")
+	{
+		// Construct a command line if we weren't supplied with one
+		getcwd (filePath, MAXPATHLEN);
+		pathLen = strlen (filePath);
+		strcpy (filePath + pathLen, filename.c_str());
+		
+		pFile = fopen ( filePath , "r" );
+		
+		fread((char *)&settingsloadstruct, sizeof(settingsbuffer), 1, pFile);
+		
+		settingsnumber = settingsloadstruct.settingsnumber;
+		midichannel = settingsloadstruct.midichannel;
+		notelength = settingsloadstruct.notelength;
+
+		
+		for (int i = 0; i < 8; i ++)
+		{
+			for (int j = 0; j < 3; j ++)
+			{
+				midinotes[i][j] = settingsloadstruct.midinotes[i][j];
+			}
+		}
+		
+		fclose (pFile);
+	}
+	
+	clearbottomscreen();
+*/
+}
+
+void midicctrack::settingsfilesaver() {
+/*
+	settingsbuffer settingssavestruct;
+	
+	char format[] = "/seqgrid/files/settings-%d.set";
+	char filename[sizeof format+100];
+	sprintf(filename,format,settingsnumber);
+	FILE *pFile = fopen(filename,"w");
+
+	settingssavestruct.settingsnumber = settingsnumber;
+	settingssavestruct.midichannel = midichannel;
+	settingssavestruct.notelength = notelength;
+	
+	for (int i = 0; i < 8; i ++)
+	{
+		for (int j = 0; j < 3; j ++)
+		{
+			settingssavestruct.midinotes[i][j] = midinotes[i][j];
+		}
+	}
+	
+	fwrite((char *)&settingssavestruct, sizeof(settingsbuffer), 1, pFile);
+
+	fclose (pFile);
+*/
+}
+
+
+
+
+
+
+
+// Line Calculation Algorithm
+
+int midicctrack::interpolationalg(int pointone, int pointtwo, int stepdenominator, int steplength) {
+
+	if (stepdenominator == 0) {
+		return pointone;
+	}
+
+	int dif = pointtwo - pointone;
+	
+	int division = stepdenominator / steplength;
+	
+	int interpolatedval = division * dif;
+	
+	return interpolatedval;
+
+}
+
+
+// Screen press line drawing alg
+
+void midicctrack::linealg(int x0, int y0, int x1, int y1) {
+
+   int Dx = x1 - x0; 
+   int Dy = y1 - y0;
+   int steep = (abs(Dy) >= abs(Dx));
+   
+   if (steep) {
+		int temp = y0;
+		y0 = x0;
+		x0 = temp;
+		
+		temp = y1;
+		y1 = x1;
+		x1 = temp;
+
+       // recompute Dx, Dy after swap
+       Dx = x1 - x0;
+       Dy = y1 - y0;
+   }
+   
+   int xstep = 1;
+   if (Dx < 0) {
+       xstep = -1;
+       Dx = -Dx;
+   }
+   
+   int ystep = 1;
+   if (Dy < 0) {
+       ystep = -1;		
+       Dy = -Dy; 
+   }
+   
+   int TwoDy = 2*Dy; 
+   int TwoDyTwoDx = TwoDy - 2*Dx; // 2*Dy - 2*Dx
+   int E = TwoDy - Dx; //2*Dy - Dx
+   int y = y0;
+   int xDraw, yDraw;	
+   for (int x = x0; x != x1; x += xstep) {	
+	
+       if (steep) {			
+           xDraw = y;
+           yDraw = x;
+       } else {			
+           xDraw = x;
+           yDraw = y;
+       }
+       // plot
+	   
+	   	patterns[currenteditpattern][xDraw] = yDraw;
+       
+	   // next
+       if (E > 0) {
+           E += TwoDyTwoDx; //E += 2*Dy - 2*Dx;
+           y = y + ystep;
+       } else {
+           E += TwoDy; //E += 2*Dy;
+       }
+   }
+}
+
+
+
+
+// Midi options menu functions
+
 void midicctrack::editmidioptions(int amount) {
 	
+
 	int tempvalue;
-		
+	
 	if (activerow == 4) {
 	
 		tempvalue = settingsnumber + amount;
@@ -606,20 +731,6 @@ void midicctrack::editmidioptions(int amount) {
 		}
 		
 		patternnumber = tempvalue;
-	} else if (activerow == 7) {
-	
-		tempvalue = stepbeatlength + amount;
-		
-		if (tempvalue > 16)
-		{
-			tempvalue = 16;
-		}
-		if (tempvalue < 1)
-		{
-			tempvalue = 1;
-		}
-		
-		stepbeatlength = tempvalue;
 		
 	} else if (activerow == 8) {
 	
@@ -635,11 +746,12 @@ void midicctrack::editmidioptions(int amount) {
 		}
 		
 		midichannel = tempvalue;
+		
 	} else if ((activerow > 10) && (activerow < 19)) {
 	
 		if (activecolumn == 0)
 		{
-			tempvalue = midinotes[activerow - 11][0] + amount;
+			tempvalue = midiccnumbers[activerow - 11] + amount;
 		
 			if (tempvalue > 127)
 			{
@@ -650,21 +762,8 @@ void midicctrack::editmidioptions(int amount) {
 				tempvalue = 0;
 			}
 			
-			midinotes[activerow - 11][0] = tempvalue;
-		} else if (activecolumn == 1)
-		{
-			tempvalue = midinotes[activerow - 11][1] + amount;
-		
-			if (tempvalue > 127)
-			{
-				tempvalue = 127;
-			}
-			if (tempvalue < 0)
-			{
-				tempvalue = 0;
-			}
+			midiccnumbers[activerow - 11] = tempvalue;
 			
-			midinotes[activerow - 11][1] = tempvalue;
 		}
 	}
 }
@@ -673,88 +772,10 @@ void midicctrack::editmidioptions(int amount) {
 
 
 
-// Follow view functions
-
-void midicctrack::displayactivepattern(void) {
-	
-	int x,y;
-	
-	int activepattern = patternseq[patternseqpos];
-	currenteditpattern = activepattern;
-	
-	for ( x = 0; x < 16; x++ )
-	{
-		for( y = 0; y < 8; y++ )
-		{
-			if (x == stepposition)
-			{
-				drawgridbutton(x,y,((patterns[activepattern][x][y]) + 2));
-			} else
-			{
-				drawgridbutton(x,y,(patterns[activepattern][x][y]));
-			}
-		}	
-	}
-}
-	
 // Note functions
 
 void midicctrack::triggernotes(void) {
 
-	int j;
-	int activetrackpattern = patternseq[patternseqpos];
-
-	for (j = 0 ; j < 8 ; j++)
-	{
-		int stepvalue = patterns[activetrackpattern][stepposition][j];
-		
-		if ((stepvalue == 1) || (stepvalue == 2))
-		{
-			pendingsenddata[pendinglistpos][0] = midichannel;
-			pendingsenddata[pendinglistpos][1] = midinotes[j][0];
-			
-			if (stepvalue == 1) {pendingsenddata[pendinglistpos][2] = midinotes[j][1];}
-			if (stepvalue == 2) {pendingsenddata[pendinglistpos][2] = 0;}
-			
-			pendinglistpos++;
-			
-			if ((currentonnotes[j][0] != midichannel || currentonnotes[j][1] != midinotes[j][0]) && ( currentonnotes[j][2] == 1)) {
-				
-				pendingsenddata[pendinglistpos][0] = midichannel;
-				pendingsenddata[pendinglistpos][1] = midinotes[j][0];
-				pendingsenddata[pendinglistpos][2] = 0;
-				
-				pendinglistpos++;
-				
-			}
-			
-			currentonnotes[j][0] = midichannel;
-			currentonnotes[j][1] = midinotes[j][0];
-			
-			if (stepvalue == 1) {currentonnotes[j][2] = 1;}
-			if (stepvalue == 2) {currentonnotes[j][2] = 0;}
-			
-		}
-	}
 
 }
-
-
-
-
-
-
-// MIDI functions
-
-void midicctrack::sendmididata(void) {
-
-	for (int i = 0; i < pendinglistpos; i++) {
-	
-		midinote(pendingsenddata[i][0],pendingsenddata[i][1],pendingsenddata[i][2]);
-	
-	}
-	
-	pendinglistpos = 0;
-
-}
-
+// End of Functions

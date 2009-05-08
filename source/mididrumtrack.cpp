@@ -119,7 +119,7 @@ void mididrumtrack::sequencerclock(void) {
 	}
 	
 	clockcount++;
-	if (clockcount == stepbeatlength) {
+	if (clockcount == stepbeatlength * 16) {
 		clockcount = 0;
 		
 		if (playing == 1)

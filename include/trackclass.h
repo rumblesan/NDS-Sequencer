@@ -131,8 +131,8 @@ private:
 	
 	int stepposition;
 	
-	int activerow;
-	int activecolumn;
+	int optionsrow;
+	int optionscolumn;
 	
 	int stepbeatlength;
 	int clockcount;
@@ -191,6 +191,8 @@ private:
 	int triggerplay;
 	
 	int tracknumber;
+	
+	int stepposition;
 
 	int settingsnumber;
 	int patternnumber;
@@ -198,7 +200,8 @@ private:
 	int patterns[8][256];
 	int patternlengths[8];
 
-	int patternpositions[8];
+	int patternpositions[2][8];
+	int activepatterns[8];
 	
 	int activerow;
 	int activecolumn;
@@ -210,6 +213,19 @@ private:
 
 	uint8_t midichannel;
 	uint8_t midiccnumbers[8];
+	
+	int prevx;
+	int prevy;
+	
+	
+	
+	
+	void triggernotes(void);
+	
+	int interpolationalg(int pointone, int pointtwo, int stepdenominator, int steplength);
+
+	void linealg(int pointone, int pointtwo, int stepdenominator, int steplength);
+
 	
 	void loadvalues(void);
 	

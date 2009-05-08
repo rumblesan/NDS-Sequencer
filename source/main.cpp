@@ -259,7 +259,7 @@ void changebpm(int changeval) {
 		bpm = 40;
 	}	
 
-	TIMER_DATA(0) = TIMER_FREQ_64(bpm * 16);
+	TIMER_DATA(0) = TIMER_FREQ_64(bpm * 16 * 16);
 }
 
 void changetrack(int changeval) {
@@ -822,7 +822,7 @@ void bpmtimer() {
 
 void setupbpmtimer() {
 
-	TIMER_DATA(0) = TIMER_FREQ_64(bpm*16);
+	TIMER_DATA(0) = TIMER_FREQ_64(bpm * 16 * 16);
 	TIMER_CR(0) = TIMER_DIV_64 | TIMER_ENABLE | TIMER_IRQ_REQ; 
 
 	irqEnable  	(IRQ_TIMER0);
@@ -848,11 +848,9 @@ int main(void) {
 	consoleSelect(&bottomScreen);
 
 
-	if {fatInitDefault()} {
+	if (fatInitDefault()) {
 		fatstatus = 1;
-	}
-	else
-	{
+	} else {
 		fatstatus = 0;
 	}
 	
