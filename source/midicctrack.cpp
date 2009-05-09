@@ -48,10 +48,19 @@ midicctrack::midicctrack(int assignedtracknumber) {
 		patternpositions[1][x] = 0;
 		
 		midiccnumbers[x] = 0;
+		
+	}
+	
+	for( x = 0; x < 8; x++ )
+	{
+		for (y = 0; y < 16; y++)
+		{
+			patternseq[x][y] = 0;
+		}
+		patternseq[x][0] = 1;
 	}
 	
 	activerow = -1;
-	activecolumn = -1;
 	
 	
 	for( x = 0; x < 16; x++ )
@@ -149,8 +158,8 @@ void midicctrack::sequencerclock(void) {
 						}
 					}
 				} else {
+					patternpositions[0][x] = 0;
 					patternpositions[1][x] = 0;
-					
 				}
 			}
 		}
@@ -160,11 +169,13 @@ void midicctrack::sequencerclock(void) {
 	
 
 
+// Midi functions
+
 void midicctrack::sendmididata(void) {
 
 	for (int i = 0; i < pendinglistpos; i++) {
 	
-		midinote(pendingsenddata[i][0],pendingsenddata[i][1],pendingsenddata[i][2]);
+		midicc(pendingsenddata[i][0],pendingsenddata[i][1],pendingsenddata[i][2]);
 	
 	}
 	
@@ -177,6 +188,13 @@ void midicctrack::sendmididata(void) {
 
 void midicctrack::editview(void) {
 	
+	int colour = 100;
+	
+	for (int x = 0; x < 256; x++) {
+	
+		drawpoint(x, patterns[currenteditpattern][x], colour);
+	
+	}
 	
 	navbuttons(2,4,currenteditpattern);
 }
@@ -184,8 +202,8 @@ void midicctrack::editview(void) {
 	
 void midicctrack::editpress(int xval, int yval) {
 
-	if (yval < 128) {
-
+	if (yval < 128)
+	{
 		if (keysDown() & KEY_TOUCH) {
 		
 			prevx = xval;
@@ -203,6 +221,12 @@ void midicctrack::editpress(int xval, int yval) {
 			}
 		
 		}
+	} else if ((xval > 127) && (xval < 160)) {
+		
+		xval = xval / 32;
+		
+		currenteditpattern = xval;
+		
 	}
 }
 
@@ -212,13 +236,42 @@ void midicctrack::editpress(int xval, int yval) {
 
 void midicctrack::patternseqview(void) {
 	
+	for(int x = 0; x < 8; x++) {
+		for(int y = 0; y < 16; y++) {
+			drawgridbutton(x,y,patternseq[x][y]);
+		}
+	}
 	
 	navbuttons(2,4,currenteditpattern);
 
 }
 void midicctrack::patternseqpress(int xval, int yval) {
 
-
+	yval = (yval / 16);
+	xval = (xval / 16);
+	
+	if (yval < 8)
+	{
+		for (int i = 0; i < 16; i++)
+		{
+			if (i <= xval)
+			{
+				patternseq[i][yval] = 1;
+			}
+			else if (i > xval)
+			{
+				patternseq[i][yval] = 0;
+			}
+		}
+		patternlengths[yval] = (xval + 1);
+	} 
+	else if ((yval == 8) || (yval == 9))
+	{	
+		xval = xval / 2;
+		
+		currenteditpattern = xval;
+		
+	}
 
 }
 	
@@ -254,18 +307,16 @@ void midicctrack::optionsview(void) {
 
 	iprintf("\x1b[8;2HChannel");
 	
-	iprintf("\x1b[10;8HNote");
-	iprintf("\x1b[10;13HVel");
-	iprintf("\x1b[10;18HLen");
+	iprintf("\x1b[10;8HCC Numbers");
 	
-	iprintf("\x1b[11;2HRow 1");
-	iprintf("\x1b[12;2HRow 2");
-	iprintf("\x1b[13;2HRow 3");
-	iprintf("\x1b[14;2HRow 4");
-	iprintf("\x1b[15;2HRow 5");
-	iprintf("\x1b[16;2HRow 6");
-	iprintf("\x1b[17;2HRow 7");
-	iprintf("\x1b[18;2HRow 8");
+	iprintf("\x1b[11;2HPattern 1");
+	iprintf("\x1b[12;2HPattern 2");
+	iprintf("\x1b[13;2HPattern 3");
+	iprintf("\x1b[14;2HPattern 4");
+	iprintf("\x1b[15;2HPattern 5");
+	iprintf("\x1b[16;2HPattern 6");
+	iprintf("\x1b[17;2HPattern 7");
+	iprintf("\x1b[18;2HPattern 8");
 	
 	iprintf("\x1b[2;12H%i  ",tracknumber);
 	
@@ -283,7 +334,7 @@ void midicctrack::optionsview(void) {
 	iprintf("\x1b[17;9H%i  ",midiccnumbers[6]);
 	iprintf("\x1b[18;9H%i  ",midiccnumbers[7]);
 	
-	optionsscreenbackground(activerow, activecolumn);
+	optionsscreenbackground(activerow, 0);
 	
 	drawkeypad(24,2);
 	
@@ -296,7 +347,7 @@ void midicctrack::optionsview(void) {
 	
 	if (activerow == 8) {activevalue = midichannel;}
 
-	if ((activerow > 10) && (activerow < 19) && (activecolumn > -1)) {activevalue = midiccnumbers[activerow - 11];}
+	if ((activerow > 10) && (activerow < 19)) {activevalue = midiccnumbers[activerow - 11];}
 
 	calcanddispnumber(24,4,activevalue);
 }
@@ -310,53 +361,49 @@ void midicctrack::optionspress(int xval, int yval) {
 	if ((xval > 1) && (xval < 23) && (yval > 1) && (yval < 19))
 	{
 		if (yval == 4) {
-		activerow = 4;
+			activerow = 4;
 		}
-		if (yval == 5) {
+		else if (yval == 5)
+		{
 			activerow = 5;
 		}
-			
-		if (yval == 7) {
-			activerow = 7;
-		}
-		
-		if (yval == 8) {
+		else if (yval == 8)
+		{
 			activerow = 8;
 		}
-		
-		if (yval == 11) {
+		else if (yval == 11)
+		{
 			activerow = 11;
 		}
-		if (yval == 12) {
+		else if (yval == 12)
+		{
 			activerow = 12;
 		}
-		if (yval == 13) {
+		else if (yval == 13)
+		{
 			activerow = 13;
 		}
-		if (yval == 14) {
+		else if (yval == 14)
+		{
 			activerow = 14;
 		}
-		if (yval == 15) {
+		else if (yval == 15)
+		{
 			activerow = 15;
 		}
-		if (yval == 16) {
+		else if (yval == 16)
+		{
 			activerow = 16;
 		}
-		if (yval == 17) {
+		else if (yval == 17)
+		{
 			activerow = 17;
 		}
-		if (yval == 18) {
+		else if (yval == 18)
+		{
 			activerow = 18;
 		}
-		if ((xval > 9) && (xval < 13)) {
-			activecolumn = 0;
-		}
-		if ((xval > 14) && (xval < 18)) {
-			activecolumn = 1;
-		}
-		if ((xval > 19) && (xval < 23)) {
-			activecolumn = 2;
-		}
+
 	} else  if ((xval > 23) && (xval < 30) && (yval > 1) && (yval < 9))
 	{
 		xval = (xval / 2);
@@ -368,26 +415,26 @@ void midicctrack::optionspress(int xval, int yval) {
 			{
 				editmidioptions(100);
 			}
-			if (xval == 13)
+			else if (xval == 13)
 			{
 				editmidioptions(10);
 			}
-			if (xval == 14)
+			else if (xval == 14)
 			{
 				editmidioptions(1);
 			}
 		}
-		if (yval == 3)
+		else if (yval == 3)
 		{
 			if (xval == 12)
 			{
 				editmidioptions(-100);
 			}
-			if (xval == 13)
+			else if (xval == 13)
 			{
 				editmidioptions(-10);
 			}
-			if (xval == 14)
+			else if (xval == 14)
 			{
 				editmidioptions(-1);
 			}
@@ -749,22 +796,19 @@ void midicctrack::editmidioptions(int amount) {
 		
 	} else if ((activerow > 10) && (activerow < 19)) {
 	
-		if (activecolumn == 0)
-		{
-			tempvalue = midiccnumbers[activerow - 11] + amount;
+		tempvalue = midiccnumbers[activerow - 11] + amount;
 		
-			if (tempvalue > 127)
-			{
-				tempvalue = 127;
-			}
-			if (tempvalue < 0)
-			{
-				tempvalue = 0;
-			}
-			
-			midiccnumbers[activerow - 11] = tempvalue;
-			
+		if (tempvalue > 127)
+		{
+			tempvalue = 127;
 		}
+		if (tempvalue < 0)
+		{
+			tempvalue = 0;
+		}
+		
+		midiccnumbers[activerow - 11] = tempvalue;
+		
 	}
 }
 
@@ -776,6 +820,29 @@ void midicctrack::editmidioptions(int amount) {
 
 void midicctrack::triggernotes(void) {
 
-
+	for (int x = 0; x < 8; x++) {
+		
+		if (activepatterns[x] == 1) {
+			
+			int pointone = patternpositions[1][x];
+			
+			int pointtwo = patternpositions[1][x] + 1;
+			if (pointtwo == 256) {
+				pointtwo = 0;
+			}
+			
+			int stepdenominator = patternpositions[0][x];
+			int steplength = patternlengths[x];
+			
+			int ccvalue = interpolationalg(pointone, pointtwo, stepdenominator, steplength);
+			
+			pendingsenddata[pendinglistpos][0] = midichannel;
+			pendingsenddata[pendinglistpos][1] = midiccnumbers[x];
+			pendingsenddata[pendinglistpos][2] = ccvalue;
+			
+			pendinglistpos++;
+		}	
+	}
+	
 }
 // End of Functions

@@ -15,6 +15,16 @@ void midinote (uint8_t channel, uint8_t note, uint8_t velocity) {
 }
 
 
+void midicc (uint8_t channel, uint8_t ccnumber, uint8_t value) {
+
+	if (dsmienable)
+	{
+		dsmi_write(MIDI_CC|channel, ccnumber, value);
+	}
+
+}
+
+
 bool initmidi () {
 
 	if (dsmi_connect())

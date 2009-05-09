@@ -647,6 +647,20 @@ int pallette;
 
 
 
+// Curve Drawing Functions
+
+void drawpoint(int xval, int yval, int colour) {
+
+/*
+
+
+Functionality to draw points on the screen will go here
+
+*/
+}
+
+
+
 // Text Display Functions
 
 

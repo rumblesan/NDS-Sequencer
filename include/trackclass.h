@@ -200,6 +200,8 @@ private:
 	int patterns[8][256];
 	int patternlengths[8];
 
+	int patternseq[8][16];
+
 	int patternpositions[2][8];
 	int activepatterns[8];
 	
