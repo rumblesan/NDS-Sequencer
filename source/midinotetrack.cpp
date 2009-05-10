@@ -117,7 +117,7 @@ void midinotetrack::sequencerclock(void) {
 	}
 	
 	clockcount++;
-	if (clockcount == stepbeatlength) {
+	if (clockcount == stepbeatlength * 4) {
 		clockcount = 0;
 		
 		if (playing == 1)

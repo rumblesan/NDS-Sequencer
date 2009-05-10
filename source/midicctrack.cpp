@@ -133,7 +133,7 @@ void midicctrack::sequencerclock(void) {
 		triggernotes();
 		
 		stepposition++;
-		if (stepposition == 16 * 4 * 4) {
+		if (stepposition == 16 * 16) {
 			stepposition = 0;
 		}
 		
@@ -758,15 +758,13 @@ void midicctrack::settingsfilesaver() {
 
 int midicctrack::interpolationalg(int valueone, int valuetwo, int stepdenominator, int steplength) {
 
-	if (stepdenominator == 0) {
+	int dif = valuetwo - valueone;
+
+	if ((stepdenominator == 0) || (dif == 0)) {
 		return valueone;
 	}
-
-	int dif = valuetwo - valueone;
 	
-	int division = stepdenominator / steplength;
-	
-	int interpolatedval = division * dif;
+	int interpolatedval = (valueone + (dif * stepdenominator) / steplength);
 	
 	return interpolatedval;
 
@@ -835,8 +833,6 @@ void midicctrack::linealg(int x1, int y1, int x2, int y2) {
         }
     }
 }
-
-
 
 
 // Midi options menu functions
@@ -935,12 +931,8 @@ void midicctrack::triggernotes(void) {
 			
 			int ccvalue = interpolationalg(valone, valtwo, stepdenominator, steplength);
 			
-			if ((midichannel == previousmessage[x][0]) && (midiccnumbers[x] == previousmessage[x][1]) && (ccvalue == previousmessage[x][2]))
+			if (!((midichannel == previousmessage[x][0]) && (midiccnumbers[x] == previousmessage[x][1]) && (ccvalue == previousmessage[x][2])))
 			{
-			}
-			else
-			{
-				
 				pendingsenddata[pendinglistpos][0] = midichannel;
 				pendingsenddata[pendinglistpos][1] = midiccnumbers[x];
 				pendingsenddata[pendinglistpos][2] = ccvalue;

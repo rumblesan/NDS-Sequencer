@@ -17,8 +17,8 @@ track* tracks[] =
 {
 
 	new mididrumtrack(1),
-	new midinotetrack(2),
-	new mididrumtrack(3),
+	new mididrumtrack(2),
+	new midinotetrack(3),
 	new midicctrack(4),
 
 };
@@ -660,7 +660,7 @@ void triggerglobalstep() {
 	
 	globalcount++;
 		
-	if (globalcount > 3) {
+	if (globalcount > 15) {
 		globalcount = 0;
 		globalstep++;
 		if (globalstep > 15) { globalstep = 0; }
@@ -672,20 +672,20 @@ void triggerglobalstep() {
 void bpmtimer() {
 
 	if (globalplay == 1)
-	{	
+	{		
 		if (bpmcount == 0)
 		{			
 			triggerglobalstep();
 			
 			for (int i = 0; i < 4; i++ )
 			{
-				tracks[i]->sequencerclock();
+			tracks[i]->sequencerclock();
 			}
-		}
-		
-		for (int i = 0; i < 4; i++ )
-		{
-			tracks[i]->sendmididata();
+			
+			for (int i = 0; i < 4; i++ )
+			{
+				tracks[i]->sendmididata();
+			}
 		}
 		
 		bpmcount++;
@@ -708,7 +708,7 @@ void bpmtimer() {
 
 void setupbpmtimer() {
 
-	TIMER_DATA(0) = TIMER_FREQ_64(bpm * 4 * 16);
+	TIMER_DATA(0) = TIMER_FREQ_64(bpm * 16 * 16);
 	TIMER_CR(0) = TIMER_DIV_64 | TIMER_ENABLE | TIMER_IRQ_REQ; 
 
 	irqEnable  	(IRQ_TIMER0);
