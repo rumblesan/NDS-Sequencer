@@ -20,16 +20,16 @@ public:
 	virtual void sendmididata(void) =0;
 	
 	virtual void editview(void) =0;
-	virtual void editpress(int xval, int yval) =0;
+	virtual void editpress(void) =0;
 	
 	virtual void patternseqview(void) =0;
-	virtual void patternseqpress(int xval, int yval) =0;
+	virtual void patternseqpress(void) =0;
 	
 	virtual void flowview(void) =0;
-	virtual void flowpress(int xval, int yval) =0;
+	virtual void flowpress(void) =0;
 	
 	virtual void optionsview(void) =0;
-	virtual void optionspress(int xval, int yval) =0;
+	virtual void optionspress(void) =0;
 
 	virtual void fileload(void) =0;
 	virtual void filesave(void) =0;
@@ -94,16 +94,16 @@ public:
 	void sendmididata(void);
 	
 	void editview(void);
-	void editpress(int xval, int yval);
+	void editpress(void);
 	
 	void patternseqview(void);
-	void patternseqpress(int xval, int yval);
+	void patternseqpress(void);
 	
 	void flowview(void);
-	void flowpress(int xval, int yval);
+	void flowpress(void);
 	
 	void optionsview(void);
-	void optionspress(int xval, int yval);
+	void optionspress(void);
 
 	void fileload(void);
 	void filesave(void);
@@ -165,20 +165,19 @@ public:
 	void sendmididata(void);
 	
 	void editview(void);
-	void editpress(int xval, int yval);
+	void editpress(void);
 	
 	void patternseqview(void);
-	void patternseqpress(int xval, int yval);
+	void patternseqpress(void);
 	
 	void flowview(void);
-	void flowpress(int xval, int yval);
+	void flowpress(void);
 	
 	void optionsview(void);
-	void optionspress(int xval, int yval);
+	void optionspress(void);
 
 	void fileload(void);
 	void filesave(void);
-
 
 };
 
@@ -250,16 +249,16 @@ public:
 	void sendmididata(void);
 	
 	void editview(void);
-	void editpress(int xval, int yval);
+	void editpress(void);
 	
 	void patternseqview(void);
-	void patternseqpress(int xval, int yval);
+	void patternseqpress(void);
 	
 	void flowview(void);
-	void flowpress(int xval, int yval);
+	void flowpress(void);
 	
 	void optionsview(void);
-	void optionspress(int xval, int yval);
+	void optionspress(void);
 
 	void fileload(void);
 	void filesave(void);

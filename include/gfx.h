@@ -31,9 +31,12 @@ void navbuttons(int colour, int yoffset, int activebutton);
 void drawgridbutton(int xoffset, int yoffset, int buttonval);
 
 
+
 // Curve Drawing Functions
 
-void drawpoint(int xval, int yval, int colour);
+void drawflowcurve(int x, int y, int flowline);
+void singlepoint(int x, int y);
+void drawpixel(int x, int y, int colour);
 
 
 

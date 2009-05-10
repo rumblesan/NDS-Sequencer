@@ -17,9 +17,9 @@ track* tracks[] =
 {
 
 	new mididrumtrack(1),
-	new mididrumtrack(2),
+	new midinotetrack(2),
 	new mididrumtrack(3),
-	new mididrumtrack(4),
+	new midicctrack(4),
 
 };
 
@@ -35,7 +35,8 @@ int globalplay;
 
 int fatstatus;
 
-int globalstep = -1;
+int globalstep = 0;
+int globalcount = 0;
 int bpmcount = 0;
 
 
@@ -116,7 +117,9 @@ void drawhomescreen () {
 	
 	navbuttons(1,5,currentmode);
 	navbuttonwords();
+
 }
+
 
 void drawoptionsscreen () {
 	
@@ -249,6 +252,8 @@ void navbuttonpresses (int xval) {
 
 }
 
+
+
 void changebpm(int changeval) {
 
 	bpm += changeval;
@@ -274,37 +279,46 @@ void changetrack(int changeval) {
 
 }
 
+
+void standardbuttons () {
+
+	if (keysDown() & KEY_UP)
+	{
+	changebpm(10);
+	}
+	if (keysDown() & KEY_DOWN)
+	{
+	changebpm(-10);
+	}
+	if (keysDown() & KEY_LEFT)
+	{
+	changebpm(-1);
+	}
+	if (keysDown() & KEY_RIGHT)
+	{
+	changebpm(1);
+	}
+	if (keysDown() & KEY_L)
+	{
+	changetrack(-1);
+	}
+	if (keysDown() & KEY_R)
+	{
+	changetrack(1);
+	}
+
+}
+
+
 void setupviewbuttonpresses () {
 
 	touchPosition touch;
 
 	scanKeys();
 	
-	if (keysDown() & KEY_UP)
-	{
-		changebpm(10);
-	}
-	if (keysDown() & KEY_DOWN)
-	{
-		changebpm(-10);
-	}
-	if (keysDown() & KEY_LEFT)
-	{
-		changebpm(-1);
-	}
-	if (keysDown() & KEY_RIGHT)
-	{
-		changebpm(1);
-	}
-	if (keysDown() & KEY_L)
-	{
-		changetrack(-1);
-	}
-	if (keysDown() & KEY_R)
-	{
-		changetrack(1);
-	}
-	
+	standardbuttons();
+
+
 	if (keysDown() & KEY_TOUCH)
 	{
 		touchRead(&touch);
@@ -339,42 +353,17 @@ void optionsviewbuttonpresses () {
 
 	scanKeys();
 	
-	if (keysDown() & KEY_UP)
-	{
-	changebpm(10);
-	}
-	if (keysDown() & KEY_DOWN)
-	{
-	changebpm(-10);
-	}
-	if (keysDown() & KEY_LEFT)
-	{
-	changebpm(-1);
-	}
-	if (keysDown() & KEY_RIGHT)
-	{
-	changebpm(1);
-	}
-	if (keysDown() & KEY_L)
-	{
-	changetrack(-1);
-	}
-	if (keysDown() & KEY_R)
-	{
-	changetrack(1);
-	}
-		
+	standardbuttons();
+	
+	tracks[activetracknumber]->optionspress();
+
 	if (keysDown() & KEY_TOUCH) {
 		touchRead(&touch);
 		
 		int xaxispress = touch.px;
 		int yaxispress = touch.py;
 		
-		if (yaxispress < 160) {
-		
-			tracks[activetracknumber]->optionspress(xaxispress, yaxispress);
-			
-		} else {
+		if (yaxispress > 159) {
 			
 			navbuttonpresses((xaxispress / 32));
 		}
@@ -387,46 +376,18 @@ void patternseqbuttonpresses () {
 	touchPosition touch;
 
 	scanKeys();
-	
-	if (keysDown() & KEY_UP)
-	{
-	changebpm(10);
-	}
-	if (keysDown() & KEY_DOWN)
-	{
-	changebpm(-10);
-	}
-	if (keysDown() & KEY_LEFT)
-	{
-	changebpm(-1);
-	}
-	if (keysDown() & KEY_RIGHT)
-	{
-	changebpm(1);
-	}
-	if (keysDown() & KEY_L)
-	{
-	changetrack(-1);
-	}
-	if (keysDown() & KEY_R)
-	{
-	changetrack(1);
-	}	
-	
+
+	standardbuttons();
+
+	tracks[activetracknumber]->patternseqpress();
+
 	if (keysDown() & KEY_TOUCH) {
 		touchRead(&touch);
 		
-		int xaxispress = touch.px;
-		int yaxispress = touch.py;
+		int xval = (touch.px / 32);
+		int yval = (touch.py / 32);
 		
-		int xval = (xaxispress / 32);
-		int yval = (yaxispress / 32);
-		
-		if (yaxispress < 160)
-		{
-			tracks[activetracknumber]->patternseqpress(xaxispress,yaxispress);
-			
-		} else if (yval == 5)
+		if (yval == 5)
 		{
 			navbuttonpresses(xval);	
 		}	
@@ -441,46 +402,18 @@ void followviewbuttonpresses () {
 	touchPosition touch;
 
 	scanKeys();
+
+	standardbuttons();
 	
-	if (keysDown() & KEY_UP)
-	{
-	changebpm(10);
-	}
-	if (keysDown() & KEY_DOWN)
-	{
-	changebpm(-10);
-	}
-	if (keysDown() & KEY_LEFT)
-	{
-	changebpm(-1);
-	}
-	if (keysDown() & KEY_RIGHT)
-	{
-	changebpm(1);
-	}
-	if (keysDown() & KEY_L)
-	{
-	changetrack(-1);
-	}
-	if (keysDown() & KEY_R)
-	{
-	changetrack(1);
-	}
-	
+	tracks[activetracknumber]->flowpress();
+
 	if (keysDown() & KEY_TOUCH) {
 		touchRead(&touch);
-			
-		int xaxispress = touch.px;
-		int yaxispress = touch.py;
 		
-		int xval = (xaxispress / 32);
-		int yval = (yaxispress / 32);
+		int xval = (touch.px / 32);
+		int yval = (touch.py / 32);
 
-		if (yaxispress < 128)
-		{
-			tracks[activetracknumber]->flowpress(xaxispress,yaxispress);
-		}
-		else if (yval == 5)
+		if (yval == 5)
 		{
 			navbuttonpresses(xval);
 		}	
@@ -493,45 +426,18 @@ void editviewbuttonpresses () {
 
 	scanKeys();
 	
-	if (keysDown() & KEY_UP)
-	{
-	changebpm(10);
-	}
-	if (keysDown() & KEY_DOWN)
-	{
-	changebpm(-10);
-	}
-	if (keysDown() & KEY_LEFT)
-	{
-	changebpm(-1);
-	}
-	if (keysDown() & KEY_RIGHT)
-	{
-	changebpm(1);
-	}
-	if (keysDown() & KEY_L)
-	{
-	changetrack(-1);
-	}
-	if (keysDown() & KEY_R)
-	{
-	changetrack(1);
-	}
+	standardbuttons();
+
+	tracks[activetracknumber]->editpress();
+	
 
 	if (keysDown() & KEY_TOUCH) {
 		touchRead(&touch);
 		
-		int xaxispress = touch.px;
-		int yaxispress = touch.py;
-		
-		int xval = (xaxispress / 32);
-		int yval = (yaxispress / 32);
+		int xval = (touch.px / 32);
+		int yval = (touch.py / 32);
 
-		if (yaxispress < 160)
-		{
-			tracks[activetracknumber]->editpress(xaxispress,yaxispress);
-		}
-		else if (yval == 5)
+		if (yval == 5)
 		{
 			navbuttonpresses(xval);
 		}	
@@ -544,30 +450,7 @@ void homeviewbuttonpresses () {
 
 	scanKeys();
 	
-	if (keysDown() & KEY_UP)
-	{
-	changebpm(10);
-	}
-	if (keysDown() & KEY_DOWN)
-	{
-	changebpm(-10);
-	}
-	if (keysDown() & KEY_LEFT)
-	{
-	changebpm(-1);
-	}
-	if (keysDown() & KEY_RIGHT)
-	{
-	changebpm(1);
-	}
-	if (keysDown() & KEY_L)
-	{
-	changetrack(-1);
-	}
-	if (keysDown() & KEY_R)
-	{
-	changetrack(1);
-	}
+	standardbuttons();
 	
 	if (keysDown() & KEY_START)
 	{
@@ -763,17 +646,26 @@ void optionsview () {
 
 void triggerglobalstep() {
 	
-	if (globalstep == 0)
-	{
-		for (int i = 0; i < 4; i++ )
+	if (globalcount == 0) {
+	
+		if (globalstep == 0)
 		{
-			tracks[i]->starttrack(playingtracks[i]);
-		}
+			for (int i = 0; i < 4; i++ )
+			{
+				
+				tracks[i]->starttrack(playingtracks[i]);
+			}
+		}		
 	}
 	
-	globalstep++;
+	globalcount++;
+		
+	if (globalcount > 15) {
+		globalcount = 0;
+		globalstep++;
+		if (globalstep > 15) { globalstep = 0; }
+	}
 	
-	if (globalstep > 15) { globalstep = 0; }
 }
 
 
@@ -790,17 +682,18 @@ void triggertracks () {
 void bpmtimer() {
 
 	if (globalplay == 1)
-	{		
+	{	
+		
 		if (bpmcount == 0)
-		{
-			bpmcount = 0;
-			
+		{			
 			triggerglobalstep();
 			triggertracks();
 		}
 		
 		bpmcount++;
-		if (bpmcount == 60 * 4) { bpmcount = 0;}
+		if (bpmcount == 60 * 4) {
+			bpmcount = 0;
+		}
 		
 		for (int i = 0; i < 4; i++ )
 		{
@@ -837,6 +730,11 @@ void setupbpmtimer() {
 
 int main(void) {
 
+	currentmode = home;
+	bpm = 120;
+	activetracknumber = 0;
+	midienable = 0;
+	globalplay = 0;
 
 	swiWaitForVBlank();
 	
@@ -853,12 +751,6 @@ int main(void) {
 	} else {
 		fatstatus = 0;
 	}
-	
-	currentmode = home;
-	bpm = 120;
-	activetracknumber = 0;
-	midienable = 0;
-	globalplay = 0;
 
 
 	while (1)

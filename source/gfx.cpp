@@ -110,12 +110,12 @@
 
 
 //background map defines
-#define bg1map       ((u16*)BG_MAP_RAM(5))
-#define bg1mapsub    ((u16*)BG_MAP_RAM_SUB(5))
-#define bg2map       ((u16*)BG_MAP_RAM(6))
-#define bg2mapsub    ((u16*)BG_MAP_RAM_SUB(6))
-#define bg3map       ((u16*)BG_MAP_RAM(7))
+#define bg1map			((u16*)BG_MAP_RAM(5))
+#define bg1mapsub		((u16*)BG_MAP_RAM_SUB(5))
+#define bg2map			((u16*)BG_MAP_RAM(6))
+#define bg2mapsub		((u16*)BG_MAP_RAM_SUB(6))
 
+#define pixelbg			((u16*)BG_BMP_RAM(4))
 
 
 u8 longbutton[36] = 
@@ -339,9 +339,10 @@ void setupVideo() {
     BG_PALETTE[0] = backdrop_colour;
     BG_PALETTE_SUB[0] = subbackdrop_colour;
 
-	REG_BG3CNT = BG_BMP16_256x256 | BG_BMP_BASE(7);
+	REG_BG3CNT = BG_BMP16_256x256 | BG_BMP_BASE(4);
 	
 	REG_BG3PA=1<<8;
+
 	REG_BG3PB=0;
 	REG_BG3PC=0;
 	REG_BG3PD=1<<8;
@@ -649,14 +650,50 @@ int pallette;
 
 // Curve Drawing Functions
 
-void drawpoint(int xval, int yval, int colour) {
 
-/*
+void drawpixel(int x, int y, int colour) {
+
+	pixelbg[x+y*256]= colour | BIT(15);
+
+}
 
 
-Functionality to draw points on the screen will go here
+void drawflowcurve(int x, int y, int flowline) {
+	
+	int white = RGB15(30,30,30);
+	int black = RGB15(0,0,0);
+	int red = RGB15(30,0,0);
 
-*/
+	if (x == flowline) {
+		
+		for (int column = 0; column < 128; column ++) {
+			drawpixel(x,column,red);
+		}
+	}
+	else
+	{
+		for (int column = 0; column < 128; column ++) {
+			drawpixel(x,column,black);
+		}
+		
+		drawpixel(x,y,white);
+	}
+	
+}
+
+void singlepoint(int x, int y) {
+
+	int white = RGB15(30,30,30);
+	int black = RGB15(0,0,0);
+
+	for (int column = 0; column < 128; column ++) {
+	
+		drawpixel(x,column,black);
+
+	}
+	
+	drawpixel(x,y,white);
+
 }
 
 

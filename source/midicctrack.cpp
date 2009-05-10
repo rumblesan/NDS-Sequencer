@@ -51,13 +51,13 @@ midicctrack::midicctrack(int assignedtracknumber) {
 		
 	}
 	
-	for( x = 0; x < 8; x++ )
+	for( y = 0; y < 8; y++ )
 	{
-		for (y = 0; y < 16; y++)
+		for (x = 0; x < 16; x++)
 		{
-			patternseq[x][y] = 0;
+			patternseq[y][x] = 0;
 		}
-		patternseq[x][0] = 1;
+		patternseq[y][0] = 1;
 	}
 	
 	activerow = -1;
@@ -188,45 +188,69 @@ void midicctrack::sendmididata(void) {
 
 void midicctrack::editview(void) {
 	
-	int colour = 100;
-	
 	for (int x = 0; x < 256; x++) {
 	
-		drawpoint(x, patterns[currenteditpattern][x], colour);
-	
+		singlepoint(x, (128 - patterns[currenteditpattern][x]));
+		
 	}
 	
 	navbuttons(2,4,currenteditpattern);
 }
 	
 	
-void midicctrack::editpress(int xval, int yval) {
+void midicctrack::editpress(void) {
 
-	if (yval < 128)
+	if (keysDown() & KEY_START)
 	{
-		if (keysDown() & KEY_TOUCH) {
-		
-			prevx = xval;
-			prevy = yval;
-			
-			patterns[currenteditpattern][xval] = (127 - yval);
-		
-		} else if (keysHeld() & KEY_TOUCH) {
-		
-			if ((xval != prevx) && (yval != prevy)) {
-			
-				linealg(prevx, prevy, xval, yval);
-				prevx = xval;
-				prevy = yval;			
-			}
-		
+		if (activepatterns[currenteditpattern] == 0)
+		{
+			activepatterns[currenteditpattern] = 1;
 		}
-	} else if ((xval > 127) && (xval < 160)) {
+		else if (activepatterns[currenteditpattern] == 1)
+		{
+			activepatterns[currenteditpattern] = 0;
+		}
+	}
+
+
+	touchPosition touch;
+	
+	if ((keysDown() & KEY_TOUCH) || (keysHeld() & KEY_TOUCH)) {
+
+		touchRead(&touch);
 		
-		xval = xval / 32;
-		
-		currenteditpattern = xval;
-		
+		int yval = touch.py;
+		int xval = touch.px;
+
+		if (yval < 128)
+		{
+			if (keysDown() & KEY_TOUCH) {
+			
+				prevx = xval;
+				prevy = yval;
+				
+				patterns[currenteditpattern][xval] = (127 - yval);
+						
+			} else if (keysHeld() & KEY_TOUCH) {
+			
+				if ((xval != prevx) && (yval != prevy))
+				{
+					linealg(prevx, prevy, xval, yval);
+					prevx = xval;
+					prevy = yval;
+				}
+			
+			}
+			
+			
+		} else if ((yval > 127) && (yval < 160)) {
+			
+			
+			xval = xval / 32;
+			
+			currenteditpattern = xval;
+			
+		}
 	}
 }
 
@@ -236,43 +260,61 @@ void midicctrack::editpress(int xval, int yval) {
 
 void midicctrack::patternseqview(void) {
 	
-	for(int x = 0; x < 8; x++) {
-		for(int y = 0; y < 16; y++) {
-			drawgridbutton(x,y,patternseq[x][y]);
+	for(int x = 0; x < 16; x++) {
+		for(int y = 0; y < 8; y++) {
+			drawgridbutton(x,y,patternseq[y][x]);
 		}
 	}
 	
 	navbuttons(2,4,currenteditpattern);
 
 }
-void midicctrack::patternseqpress(int xval, int yval) {
+void midicctrack::patternseqpress(void) {
 
-	yval = (yval / 16);
-	xval = (xval / 16);
-	
-	if (yval < 8)
+	if (keysDown() & KEY_START)
 	{
-		for (int i = 0; i < 16; i++)
+		if (activepatterns[currenteditpattern] == 0)
 		{
-			if (i <= xval)
-			{
-				patternseq[i][yval] = 1;
-			}
-			else if (i > xval)
-			{
-				patternseq[i][yval] = 0;
-			}
+			activepatterns[currenteditpattern] = 1;
 		}
-		patternlengths[yval] = (xval + 1);
-	} 
-	else if ((yval == 8) || (yval == 9))
-	{	
-		xval = xval / 2;
-		
-		currenteditpattern = xval;
-		
+		else if (activepatterns[currenteditpattern] == 1)
+		{
+			activepatterns[currenteditpattern] = 0;
+		}
 	}
 
+	touchPosition touch;
+	
+	if (keysDown() & KEY_TOUCH){
+
+		touchRead(&touch);
+		
+		int yval = (touch.py / 16);
+		int xval = (touch.px / 16);
+	
+		if (yval < 8)
+		{
+			for (int i = 0; i < 16; i++)
+			{
+				if (i <= xval)
+				{
+					patternseq[yval][i] = 1;
+				}
+				else if (i > xval)
+				{
+					patternseq[yval][i] = 0;
+				}
+			}
+			patternlengths[yval] = (xval + 1);
+		} 
+		else if ((yval == 8) || (yval == 9))
+		{	
+			xval = xval / 2;
+			
+			currenteditpattern = xval;
+			
+		}
+	}
 }
 	
 
@@ -281,15 +323,69 @@ void midicctrack::patternseqpress(int xval, int yval) {
 
 void midicctrack::flowview(void) {
 	
+	for (int x = 0; x < 256; x++) {
+		
+		drawflowcurve(x, (128 - patterns[currenteditpattern][x]), patternpositions[1][currenteditpattern]);
+	}
 	
 	navbuttons(2,4,currenteditpattern);
 
 }
 
 	
-void midicctrack::flowpress(int xval, int yval) {
-	
+void midicctrack::flowpress(void) {
 
+	if (keysDown() & KEY_START)
+	{
+		if (activepatterns[currenteditpattern] == 0)
+		{
+			activepatterns[currenteditpattern] = 1;
+		}
+		else if (activepatterns[currenteditpattern] == 1)
+		{
+			activepatterns[currenteditpattern] = 0;
+		}
+	}
+
+	touchPosition touch;
+	
+	if ((keysDown() & KEY_TOUCH) || (keysHeld() & KEY_TOUCH)) {
+
+		touchRead(&touch);
+		
+		int yval = touch.py;
+		int xval = touch.px;
+
+		if (yval < 128)
+		{
+			if (keysDown() & KEY_TOUCH) {
+			
+				prevx = xval;
+				prevy = yval;
+				
+				patterns[currenteditpattern][xval] = (127 - yval);
+						
+			} else if (keysHeld() & KEY_TOUCH) {
+			
+				if ((xval != prevx) && (yval != prevy))
+				{
+					linealg(prevx, prevy, xval, yval);
+					prevx = xval;
+					prevy = yval;
+				}
+			
+			}
+			
+			
+		} else if ((yval > 127) && (yval < 160)) {
+			
+			
+			xval = xval / 32;
+			
+			currenteditpattern = xval;
+			
+		}
+	}
 }
 
 
@@ -353,90 +449,97 @@ void midicctrack::optionsview(void) {
 }
 	
 	
-void midicctrack::optionspress(int xval, int yval) {
+void midicctrack::optionspress(void) {
 	
-	yval = (yval / 8);
-	xval = (xval / 8);
+	touchPosition touch;
+	
+	if (keysDown() & KEY_TOUCH){
 
-	if ((xval > 1) && (xval < 23) && (yval > 1) && (yval < 19))
-	{
-		if (yval == 4) {
-			activerow = 4;
-		}
-		else if (yval == 5)
-		{
-			activerow = 5;
-		}
-		else if (yval == 8)
-		{
-			activerow = 8;
-		}
-		else if (yval == 11)
-		{
-			activerow = 11;
-		}
-		else if (yval == 12)
-		{
-			activerow = 12;
-		}
-		else if (yval == 13)
-		{
-			activerow = 13;
-		}
-		else if (yval == 14)
-		{
-			activerow = 14;
-		}
-		else if (yval == 15)
-		{
-			activerow = 15;
-		}
-		else if (yval == 16)
-		{
-			activerow = 16;
-		}
-		else if (yval == 17)
-		{
-			activerow = 17;
-		}
-		else if (yval == 18)
-		{
-			activerow = 18;
-		}
+		touchRead(&touch);
+		
+		int yval = (touch.py / 8);
+		int xval = (touch.px / 8);
 
-	} else  if ((xval > 23) && (xval < 30) && (yval > 1) && (yval < 9))
-	{
-		xval = (xval / 2);
-		yval = (yval / 2);
-			
-		if (yval == 1)
+		if ((xval > 1) && (xval < 23) && (yval > 1) && (yval < 19))
 		{
-			if (xval == 12)
-			{
-				editmidioptions(100);
+			if (yval == 4) {
+				activerow = 4;
 			}
-			else if (xval == 13)
+			else if (yval == 5)
 			{
-				editmidioptions(10);
+				activerow = 5;
 			}
-			else if (xval == 14)
+			else if (yval == 8)
 			{
-				editmidioptions(1);
+				activerow = 8;
 			}
-		}
-		else if (yval == 3)
+			else if (yval == 11)
+			{
+				activerow = 11;
+			}
+			else if (yval == 12)
+			{
+				activerow = 12;
+			}
+			else if (yval == 13)
+			{
+				activerow = 13;
+			}
+			else if (yval == 14)
+			{
+				activerow = 14;
+			}
+			else if (yval == 15)
+			{
+				activerow = 15;
+			}
+			else if (yval == 16)
+			{
+				activerow = 16;
+			}
+			else if (yval == 17)
+			{
+				activerow = 17;
+			}
+			else if (yval == 18)
+			{
+				activerow = 18;
+			}
+
+		} else  if ((xval > 23) && (xval < 30) && (yval > 1) && (yval < 9))
 		{
-			if (xval == 12)
+			xval = (xval / 2);
+			yval = (yval / 2);
+				
+			if (yval == 1)
 			{
-				editmidioptions(-100);
+				if (xval == 12)
+				{
+					editmidioptions(100);
+				}
+				else if (xval == 13)
+				{
+					editmidioptions(10);
+				}
+				else if (xval == 14)
+				{
+					editmidioptions(1);
+				}
 			}
-			else if (xval == 13)
+			else if (yval == 3)
 			{
-				editmidioptions(-10);
-			}
-			else if (xval == 14)
-			{
-				editmidioptions(-1);
+				if (xval == 12)
+				{
+					editmidioptions(-100);
+				}
+				else if (xval == 13)
+				{
+					editmidioptions(-10);
+				}
+				else if (xval == 14)
+				{
+					editmidioptions(-1);
+				}
 			}
 		}
 	}
@@ -679,64 +782,65 @@ int midicctrack::interpolationalg(int pointone, int pointtwo, int stepdenominato
 
 // Screen press line drawing alg
 
-void midicctrack::linealg(int x0, int y0, int x1, int y1) {
+void midicctrack::linealg(int x1, int y1, int x2, int y2) {
 
-   int Dx = x1 - x0; 
-   int Dy = y1 - y0;
-   int steep = (abs(Dy) >= abs(Dx));
-   
-   if (steep) {
-		int temp = y0;
-		y0 = x0;
-		x0 = temp;
-		
-		temp = y1;
-		y1 = x1;
-		x1 = temp;
+    int delta_x = abs(x2 - x1) << 1;
+    int delta_y = abs(y2 - y1) << 1;
 
-       // recompute Dx, Dy after swap
-       Dx = x1 - x0;
-       Dy = y1 - y0;
-   }
-   
-   int xstep = 1;
-   if (Dx < 0) {
-       xstep = -1;
-       Dx = -Dx;
-   }
-   
-   int ystep = 1;
-   if (Dy < 0) {
-       ystep = -1;		
-       Dy = -Dy; 
-   }
-   
-   int TwoDy = 2*Dy; 
-   int TwoDyTwoDx = TwoDy - 2*Dx; // 2*Dy - 2*Dx
-   int E = TwoDy - Dx; //2*Dy - Dx
-   int y = y0;
-   int xDraw, yDraw;	
-   for (int x = x0; x != x1; x += xstep) {	
-	
-       if (steep) {			
-           xDraw = y;
-           yDraw = x;
-       } else {			
-           xDraw = x;
-           yDraw = y;
-       }
-       // plot
-	   
-	   	patterns[currenteditpattern][xDraw] = yDraw;
-       
-	   // next
-       if (E > 0) {
-           E += TwoDyTwoDx; //E += 2*Dy - 2*Dx;
-           y = y + ystep;
-       } else {
-           E += TwoDy; //E += 2*Dy;
-       }
-   }
+    // if x1 == x2 or y1 == y2, then it does not matter what we set here
+    signed char ix = x2 > x1?1:-1;
+    signed char iy = y2 > y1?1:-1;
+
+    patterns[currenteditpattern][x1] = (128 - y1);
+
+    if (delta_x >= delta_y)
+    {
+        // error may go below zero
+        int error = delta_y - (delta_x >> 1);
+
+        while (x1 != x2)
+        {
+            if (error >= 0)
+            {
+                if (error || (ix > 0))
+                {
+                    y1 += iy;
+                    error -= delta_x;
+                }
+                // else do nothing
+            }
+            // else do nothing
+
+            x1 += ix;
+            error += delta_y;
+
+            patterns[currenteditpattern][x1] = (128 - y1);
+        }
+    }
+    else
+    {
+        // error may go below zero
+        int error = delta_x - (delta_y >> 1);
+
+        while (y1 != y2)
+        {
+            if (error >= 0)
+            {
+                if (error || (iy > 0))
+                {
+                    x1 += ix;
+                    error -= delta_y;
+                }
+                // else do nothing
+            }
+            // else do nothing
+
+            y1 += iy;
+            error += delta_x;
+
+            patterns[currenteditpattern][x1] = (128 - y1);
+        }
+    }
 }
 
 

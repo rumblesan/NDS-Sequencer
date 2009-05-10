@@ -98,10 +98,9 @@ void midinotetrack::resettrack(void) {
 }
 
 void midinotetrack::sequencerclock(void) {
-	
 
 	if (clockcount == 0)
-	{
+	{		
 		if (stepposition == 0)
 		{
 			if (triggerplay == 0)
@@ -118,7 +117,7 @@ void midinotetrack::sequencerclock(void) {
 	}
 	
 	clockcount++;
-	if (clockcount == stepbeatlength) {
+	if (clockcount == stepbeatlength * 4) {
 		clockcount = 0;
 		
 		if (playing == 1)
@@ -171,39 +170,46 @@ void midinotetrack::editview(void) {
 }
 	
 	
-void midinotetrack::editpress(int xval, int yval) {
+void midinotetrack::editpress(void) {
 	
-	yval = (yval / 16);
-	xval = (xval / 16);
+	touchPosition touch;
 	
-	if (yval < 8)
-	{
-		if (patterns[currenteditpattern][xval][yval] == 0)
-		{
-			patterns[currenteditpattern][xval][yval] = 1;
-		}
-		else if (patterns[currenteditpattern][xval][yval] == 1)
-		{
-			patterns[currenteditpattern][xval][yval] = 2;
-		}
-		else if (patterns[currenteditpattern][xval][yval] == 2)
-		{
-			patterns[currenteditpattern][xval][yval] = 0;
-		}
-	}
-	else if ((yval == 8) || (yval == 9))
-	{	
-		xval = xval / 2;
+	if (keysDown() & KEY_TOUCH){
+
+		touchRead(&touch);
 		
-		currenteditpattern = xval;
-		
-		if (xval < 7)
+		int yval = (touch.py / 16);
+		int xval = (touch.px / 16);
+	
+		if (yval < 8)
 		{
-			currentmode = edit;
+			if (patterns[currenteditpattern][xval][yval] == 0)
+			{
+				patterns[currenteditpattern][xval][yval] = 1;
+			}
+			else if (patterns[currenteditpattern][xval][yval] == 1)
+			{
+				patterns[currenteditpattern][xval][yval] = 2;
+			}
+			else if (patterns[currenteditpattern][xval][yval] == 2)
+			{
+				patterns[currenteditpattern][xval][yval] = 0;
+			}
 		}
-		else if(xval == 7)
-		{
-			currentmode = seqpatterns;
+		else if ((yval == 8) || (yval == 9))
+		{	
+			xval = xval / 2;
+			
+			currenteditpattern = xval;
+			
+			if (xval < 7)
+			{
+				currentmode = edit;
+			}
+			else if(xval == 7)
+			{
+				currentmode = seqpatterns;
+			}
 		}
 	}
 }
@@ -227,52 +233,58 @@ void midinotetrack::patternseqview(void) {
 	navbuttons(2,4,currenteditpattern);
 
 }
-void midinotetrack::patternseqpress(int xval, int yval) {
+void midinotetrack::patternseqpress(void) {
 
-	yval = (yval / 16);
-	xval = (xval / 16);
+	touchPosition touch;
 	
-	if (yval < 7)
-	{
-		for (int i = 0; i < 7; i++)
-		{
-			patterns[7][xval][i] = 0;
-		}
-		patterns[7][xval][yval] = 1;
-		patternseq[xval] = yval;
+	if (keysDown() & KEY_TOUCH){
 
-	} else if (yval == 7)
-	{
-		for (int i = 0; i < 16; i++)
-		{
-			if (i <= xval)
-			{
-				patterns[7][i][7] = 1;
-			}
-			else if (i > xval)
-			{
-				patterns[7][i][7] = 0;
-			}
-		}
-		patternseqlength = (xval + 1);
-	} 
-	else if ((yval == 8) || (yval == 9))
-	{	
-		xval = xval / 2;
+		touchRead(&touch);
 		
-		currenteditpattern = xval;
-		
-		if (xval < 7)
+		int yval = (touch.py / 16);
+		int xval = (touch.px / 16);
+	
+		if (yval < 7)
 		{
-			currentmode = edit;
-		}
-		else if(xval == 7)
+			for (int i = 0; i < 7; i++)
+			{
+				patterns[7][xval][i] = 0;
+			}
+			patterns[7][xval][yval] = 1;
+			patternseq[xval] = yval;
+
+		} else if (yval == 7)
 		{
-			currentmode = seqpatterns;
+			for (int i = 0; i < 16; i++)
+			{
+				if (i <= xval)
+				{
+					patterns[7][i][7] = 1;
+				}
+				else if (i > xval)
+				{
+					patterns[7][i][7] = 0;
+				}
+			}
+			patternseqlength = (xval + 1);
+		} 
+		else if ((yval == 8) || (yval == 9))
+		{	
+			xval = xval / 2;
+			
+			currenteditpattern = xval;
+			
+			if (xval < 7)
+			{
+				currentmode = edit;
+			}
+			else if(xval == 7)
+			{
+				currentmode = seqpatterns;
+			}
 		}
 	}
 }
-	
 
 
 // Follow view functions
@@ -303,39 +315,46 @@ void midinotetrack::flowview(void) {
 }
 
 	
-void midinotetrack::flowpress(int xval, int yval) {
+void midinotetrack::flowpress(void) {
 	
-	yval = (yval / 16);
-	xval = (xval / 16);
+	touchPosition touch;
 	
-	if (yval < 8)
-	{
-		if (patterns[currenteditpattern][xval][yval] == 0)
-		{
-			patterns[currenteditpattern][xval][yval] = 1;
-		}
-		else if (patterns[currenteditpattern][xval][yval] == 1)
-		{
-			patterns[currenteditpattern][xval][yval] = 2;
-		}
-		else if (patterns[currenteditpattern][xval][yval] == 2)
-		{
-			patterns[currenteditpattern][xval][yval] = 0;
-		}
-	}
-	else if ((yval == 8) || (yval == 9))
-	{	
-		xval = xval / 2;
+	if (keysDown() & KEY_TOUCH){
+
+		touchRead(&touch);
 		
-		currenteditpattern = xval;
-		
-		if (xval < 7)
+		int yval = (touch.py / 16);
+		int xval = (touch.px / 16);
+	
+		if (yval < 8)
 		{
-			currentmode = edit;
+			if (patterns[currenteditpattern][xval][yval] == 0)
+			{
+				patterns[currenteditpattern][xval][yval] = 1;
+			}
+			else if (patterns[currenteditpattern][xval][yval] == 1)
+			{
+				patterns[currenteditpattern][xval][yval] = 2;
+			}
+			else if (patterns[currenteditpattern][xval][yval] == 2)
+			{
+				patterns[currenteditpattern][xval][yval] = 0;
+			}
 		}
-		else if(xval == 7)
-		{
-			currentmode = seqpatterns;
+		else if ((yval == 8) || (yval == 9))
+		{	
+			xval = xval / 2;
+			
+			currenteditpattern = xval;
+			
+			if (xval < 7)
+			{
+				currentmode = edit;
+			}
+			else if(xval == 7)
+			{
+				currentmode = seqpatterns;
+			}
 		}
 	}
 }
@@ -411,96 +430,102 @@ void midinotetrack::optionsview(void) {
 }
 	
 	
-void midinotetrack::optionspress(int xval, int yval) {
+void midinotetrack::optionspress(void) {
 	
-	yval = (yval / 8);
-	xval = (xval / 8);
+	touchPosition touch;
+	
+	if (keysDown() & KEY_TOUCH){
 
-	if ((xval > 1) && (xval < 23) && (yval > 1) && (yval < 19))
-	{
-		if (yval == 4) {
-		optionsrow = 4;
-		}
-		if (yval == 5) {
-			optionsrow = 5;
-		}
-			
-		if (yval == 7) {
-			optionsrow = 7;
-		}
+		touchRead(&touch);
 		
-		if (yval == 8) {
-			optionsrow = 8;
-		}
-		
-		if (yval == 11) {
-			optionsrow = 11;
-		}
-		if (yval == 12) {
-			optionsrow = 12;
-		}
-		if (yval == 13) {
-			optionsrow = 13;
-		}
-		if (yval == 14) {
-			optionsrow = 14;
-		}
-		if (yval == 15) {
-			optionsrow = 15;
-		}
-		if (yval == 16) {
-			optionsrow = 16;
-		}
-		if (yval == 17) {
-			optionsrow = 17;
-		}
-		if (yval == 18) {
-			optionsrow = 18;
-		}
-		if ((xval > 9) && (xval < 13)) {
-			optionscolumn = 0;
-		}
-		if ((xval > 14) && (xval < 18)) {
-			optionscolumn = 1;
-		}
-	} else  if ((xval > 23) && (xval < 30) && (yval > 1) && (yval < 9))
-	{
-		xval = (xval / 2);
-		yval = (yval / 2);
+		int yval = (touch.py / 8);
+		int xval = (touch.px / 8);
+
+		if ((xval > 1) && (xval < 23) && (yval > 1) && (yval < 19))
+		{
+			if (yval == 4) {
+			optionsrow = 4;
+			}
+			if (yval == 5) {
+				optionsrow = 5;
+			}
+				
+			if (yval == 7) {
+				optionsrow = 7;
+			}
 			
-		if (yval == 1)
+			if (yval == 8) {
+				optionsrow = 8;
+			}
+			
+			if (yval == 11) {
+				optionsrow = 11;
+			}
+			if (yval == 12) {
+				optionsrow = 12;
+			}
+			if (yval == 13) {
+				optionsrow = 13;
+			}
+			if (yval == 14) {
+				optionsrow = 14;
+			}
+			if (yval == 15) {
+				optionsrow = 15;
+			}
+			if (yval == 16) {
+				optionsrow = 16;
+			}
+			if (yval == 17) {
+				optionsrow = 17;
+			}
+			if (yval == 18) {
+				optionsrow = 18;
+			}
+			if ((xval > 9) && (xval < 13)) {
+				optionscolumn = 0;
+			}
+			if ((xval > 14) && (xval < 18)) {
+				optionscolumn = 1;
+			}
+		} else  if ((xval > 23) && (xval < 30) && (yval > 1) && (yval < 9))
 		{
-			if (xval == 12)
+			xval = (xval / 2);
+			yval = (yval / 2);
+				
+			if (yval == 1)
 			{
-				editmidioptions(100);
+				if (xval == 12)
+				{
+					editmidioptions(100);
+				}
+				if (xval == 13)
+				{
+					editmidioptions(10);
+				}
+				if (xval == 14)
+				{
+					editmidioptions(1);
+				}
 			}
-			if (xval == 13)
+			if (yval == 3)
 			{
-				editmidioptions(10);
-			}
-			if (xval == 14)
-			{
-				editmidioptions(1);
-			}
-		}
-		if (yval == 3)
-		{
-			if (xval == 12)
-			{
-				editmidioptions(-100);
-			}
-			if (xval == 13)
-			{
-				editmidioptions(-10);
-			}
-			if (xval == 14)
-			{
-				editmidioptions(-1);
+				if (xval == 12)
+				{
+					editmidioptions(-100);
+				}
+				if (xval == 13)
+				{
+					editmidioptions(-10);
+				}
+				if (xval == 14)
+				{
+					editmidioptions(-1);
+				}
 			}
 		}
 	}
 }
-
 
 
 
