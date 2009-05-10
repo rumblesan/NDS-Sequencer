@@ -44,8 +44,12 @@ midicctrack::midicctrack(int assignedtracknumber) {
 		}
 		patternlengths[x] = 1;
 		
-		patternpositions[0][x] = 0;
-		patternpositions[1][x] = 0;
+		patternpositions[x][0] = 0;
+		patternpositions[x][1] = 0;
+
+		previousmessage[x][0] = 0;
+		previousmessage[x][1] = 0;
+		previousmessage[x][2] = 0;
 		
 		midiccnumbers[x] = 0;
 		
@@ -105,8 +109,8 @@ void midicctrack::resettrack(void) {
 	triggerplay = 0;
 	for(x = 0; x < 8; x++ )
 	{
-		patternpositions[0][x] = 0;
-		patternpositions[1][x] = 0;
+		patternpositions[x][0] = 0;
+		patternpositions[x][1] = 0;
 	}
 	clockcount = 0;
 	
@@ -116,51 +120,40 @@ void midicctrack::sequencerclock(void) {
 	
 	int x;
 
-	if (clockcount == 0)
+	if (stepposition == 0)
 	{
-		if (stepposition == 0)
+		if (triggerplay == 0)
 		{
-			if (triggerplay == 0)
-			{
-				resettrack();
-			}
-		}
-
-		if (playing == 1)
-		{
-			triggernotes();
+			resettrack();
 		}
 	}
-	
-	clockcount++;
-	if (clockcount == 4) {
-		clockcount = 0;
+
+	if (playing == 1)
+	{
+		triggernotes();
 		
-		if (playing == 1)
-		{
-			stepposition++;
-			if (stepposition == 16 * 4) {
-				stepposition = 0;
-			}
+		stepposition++;
+		if (stepposition == 16 * 4 * 4) {
+			stepposition = 0;
+		}
+		
+		for (x = 0; x < 8; x++) {
 			
-			for (x = 0; x < 8; x++) {
+			if (activepatterns[x] == 1) {
+				patternpositions[x][0]++;
 				
-				if (activepatterns[x] == 1) {
-					patternpositions[0][x]++;
+				if (patternpositions[x][0] == patternlengths[x]) {
+					patternpositions[x][0] = 0;
 					
-					if (patternpositions[0][x] == patternlengths[x]) {
-						patternpositions[0][x] = 0;
-						
-						patternpositions[1][x]++;
-						
-						if (patternpositions[1][x] == 256) {
-							patternpositions[1][x] = 0;
-						}
+					patternpositions[x][1]++;
+					
+					if (patternpositions[x][1] == 256) {
+						patternpositions[x][1] = 0;
 					}
-				} else {
-					patternpositions[0][x] = 0;
-					patternpositions[1][x] = 0;
 				}
+			} else {
+				patternpositions[x][0] = 0;
+				patternpositions[x][1] = 0;
 			}
 		}
 	}
@@ -325,7 +318,7 @@ void midicctrack::flowview(void) {
 	
 	for (int x = 0; x < 256; x++) {
 		
-		drawflowcurve(x, (128 - patterns[currenteditpattern][x]), patternpositions[1][currenteditpattern]);
+		drawflowcurve(x, (128 - patterns[currenteditpattern][x]), patternpositions[currenteditpattern][1]);
 	}
 	
 	navbuttons(2,4,currenteditpattern);
@@ -763,13 +756,13 @@ void midicctrack::settingsfilesaver() {
 
 // Line Calculation Algorithm
 
-int midicctrack::interpolationalg(int pointone, int pointtwo, int stepdenominator, int steplength) {
+int midicctrack::interpolationalg(int valueone, int valuetwo, int stepdenominator, int steplength) {
 
 	if (stepdenominator == 0) {
-		return pointone;
+		return valueone;
 	}
 
-	int dif = pointtwo - pointone;
+	int dif = valuetwo - valueone;
 	
 	int division = stepdenominator / steplength;
 	
@@ -928,23 +921,36 @@ void midicctrack::triggernotes(void) {
 		
 		if (activepatterns[x] == 1) {
 			
-			int pointone = patternpositions[1][x];
+			int valone = patterns[x][patternpositions[x][1]];
 			
-			int pointtwo = patternpositions[1][x] + 1;
-			if (pointtwo == 256) {
-				pointtwo = 0;
+			int postwo = patternpositions[x][1] + 1;
+			if (postwo == 256) {
+				postwo = 0;
 			}
 			
-			int stepdenominator = patternpositions[0][x];
+			int valtwo = patterns[x][postwo];
+			
+			int stepdenominator = patternpositions[x][0];
 			int steplength = patternlengths[x];
 			
-			int ccvalue = interpolationalg(pointone, pointtwo, stepdenominator, steplength);
+			int ccvalue = interpolationalg(valone, valtwo, stepdenominator, steplength);
 			
-			pendingsenddata[pendinglistpos][0] = midichannel;
-			pendingsenddata[pendinglistpos][1] = midiccnumbers[x];
-			pendingsenddata[pendinglistpos][2] = ccvalue;
-			
-			pendinglistpos++;
+			if ((midichannel == previousmessage[x][0]) && (midiccnumbers[x] == previousmessage[x][1]) && (ccvalue == previousmessage[x][2]))
+			{
+			}
+			else
+			{
+				
+				pendingsenddata[pendinglistpos][0] = midichannel;
+				pendingsenddata[pendinglistpos][1] = midiccnumbers[x];
+				pendingsenddata[pendinglistpos][2] = ccvalue;
+				
+				pendinglistpos++;
+				
+				previousmessage[x][0] = midichannel;
+				previousmessage[x][1] = midiccnumbers[x];
+				previousmessage[x][2] = ccvalue;
+			}
 		}	
 	}
 	

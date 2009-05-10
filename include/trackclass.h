@@ -199,9 +199,11 @@ private:
 	int patterns[8][256];
 	int patternlengths[8];
 
+	int previousmessage[8][3];
+	
 	int patternseq[8][16];
 
-	int patternpositions[2][8];
+	int patternpositions[8][2];
 	int activepatterns[8];
 	
 	int activerow;

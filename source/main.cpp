@@ -264,7 +264,7 @@ void changebpm(int changeval) {
 		bpm = 40;
 	}	
 
-	TIMER_DATA(0) = TIMER_FREQ_64(bpm * 16 * 16);
+	TIMER_DATA(0) = TIMER_FREQ_64(bpm * 4 * 16);
 }
 
 void changetrack(int changeval) {
@@ -660,7 +660,7 @@ void triggerglobalstep() {
 	
 	globalcount++;
 		
-	if (globalcount > 15) {
+	if (globalcount > 3) {
 		globalcount = 0;
 		globalstep++;
 		if (globalstep > 15) { globalstep = 0; }
@@ -669,35 +669,28 @@ void triggerglobalstep() {
 }
 
 
-void triggertracks () {
-
-	for (int i = 0; i < 4; i++ )
-	{
-		tracks[i]->sequencerclock();
-	}
-
-}
-
-
 void bpmtimer() {
 
 	if (globalplay == 1)
 	{	
-		
 		if (bpmcount == 0)
 		{			
 			triggerglobalstep();
-			triggertracks();
-		}
-		
-		bpmcount++;
-		if (bpmcount == 60 * 4) {
-			bpmcount = 0;
+			
+			for (int i = 0; i < 4; i++ )
+			{
+				tracks[i]->sequencerclock();
+			}
 		}
 		
 		for (int i = 0; i < 4; i++ )
 		{
 			tracks[i]->sendmididata();
+		}
+		
+		bpmcount++;
+		if (bpmcount == 60 * 4) {
+			bpmcount = 0;
 		}
 		
 	} else {
@@ -715,7 +708,7 @@ void bpmtimer() {
 
 void setupbpmtimer() {
 
-	TIMER_DATA(0) = TIMER_FREQ_64(bpm * 16 * 16);
+	TIMER_DATA(0) = TIMER_FREQ_64(bpm * 4 * 16);
 	TIMER_CR(0) = TIMER_DIV_64 | TIMER_ENABLE | TIMER_IRQ_REQ; 
 
 	irqEnable  	(IRQ_TIMER0);
