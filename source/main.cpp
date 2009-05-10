@@ -19,11 +19,13 @@ track* tracks[] =
 	new mididrumtrack(1),
 	new mididrumtrack(2),
 	new midinotetrack(3),
-	new midicctrack(4),
+	new midinotetrack(4),
+	new midicctrack(5),
+	new midicctrack(6),
 
 };
 
-int playingtracks[4];
+int playingtracks[6];
 
 int bpm;
 
@@ -94,26 +96,37 @@ void drawsetupscreen () {
 
 void drawhomescreen () {
 
+int x, y;
 	
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 6; i++)
 	{
-		drawbigbutton((i * 8),0,playingtracks[i]);
+		if ( i < 4) {
+			x = i;
+			y = 0;
+		}
+		else
+		{
+			x = (i - 4);
+			y = 10;
+		}
+		
+		drawbigbutton((x * 8),y,playingtracks[i]);
 		
 		if (i == activetracknumber)
 		{
-			drawbiglongbutton((i * 8),6,3);
+			drawbiglongbutton((x * 8),(y + 6),3);
 		} else {
-			drawbiglongbutton((i * 8),6,2);
+			drawbiglongbutton((x * 8),(y + 6),2);
 		}
 		
-		mainnumbers(((i * 8) + 3),1,(i + 1));
+		mainnumbers(((x * 8) + 3),(y + 1),(i + 1));
 	}
 	
-	drawbigbutton(12,12,globalplay);
+	drawbigbutton(24,10,globalplay);
 	
-	drawkeypad(4,12);
+	drawkeypad(17,11);
 	
-	calcanddispnumber(4,14,bpm);
+	calcanddispnumber(17,13,bpm);
 	
 	navbuttons(1,5,currentmode);
 	navbuttonwords();
@@ -466,10 +479,10 @@ void homeviewbuttonpresses () {
 	if (keysDown() & KEY_TOUCH) {
 		touchRead(&touch);
 		
-		int xval = (touch.px / 8);
-		int yval = (touch.py / 8);
+		int xval = (touch.px / 16);
+		int yval = (touch.py / 16);
 		
-		if (yval < 6)
+		if ((yval == 0) || (yval == 1) || (yval == 2))
 		{
 			xval = (touch.px / 64);
 			
@@ -481,21 +494,33 @@ void homeviewbuttonpresses () {
 			{
 				playingtracks[xval] = 0;
 			}
-		} else if ((yval > 5) && (yval < 10))
+		}
+		else if (((yval == 5) || (yval == 6) || (yval == 7)) && (xval < 8))
 		{
-			if (xval < 8) {
-			activetracknumber = 0;
+			xval = (touch.px / 64);
+			
+			if(playingtracks[xval + 4] == 0)
+			{
+				playingtracks[xval + 4] = 1;
 			}
-			if ((xval > 7) && (xval < 16)) {
-			activetracknumber = 1;
+			else if(playingtracks[xval + 4] == 1)
+			{
+				playingtracks[xval + 4] = 0;
 			}
-			if ((xval > 15) && (xval < 24)) {
-			activetracknumber = 2;
-			}
-			if ((xval > 23)) {
-			activetracknumber = 3;
-			}
-		} else if ((xval > 11) && (xval < 20) && (yval > 11) && (yval < 18))
+		}
+		else if ((yval == 3) || (yval == 4))
+		{
+			xval = (touch.px / 64);
+			
+			activetracknumber = xval;
+		}
+		else if (((yval == 8) || (yval == 9)) && (xval < 8))
+		{
+			xval = (touch.px / 64);
+			
+			activetracknumber = xval + 4;
+		}
+		else if ((xval > 11) && (xval < 16) && (yval > 6) && (yval < 10))
 		{
 			if (globalplay == 0) {
 				globalplay = 1;
@@ -504,22 +529,23 @@ void homeviewbuttonpresses () {
 			}
 			
 			
-		} else if ((xval > 3) && (xval < 12) && (yval > 11) && (yval < 20))
-		{
-			xval = (touch.px / 16);
-			yval = (touch.py / 16);
-			
+		}
+		else if ((xval > 7) && (xval < 12) && (yval > 4) && (yval < 9))
+		{	
+			xval = ((touch.px + 8) / 16);
+			yval = ((touch.py + 8) / 16);
+		
 			if (yval == 6)
 			{
-				if (xval == 2)
+				if (xval == 9)
 				{
 					changebpm(100);
 				}
-				if (xval == 3)
+				if (xval == 10)
 				{
 					changebpm(10);
 				}
-				if (xval == 4)
+				if (xval == 11)
 				{
 					changebpm(1);
 				}
@@ -527,20 +553,22 @@ void homeviewbuttonpresses () {
 			
 			if (yval == 8)
 			{
-				if (xval == 2)
+				if (xval == 9)
 				{
 					changebpm(-100);
 				}
-				if (xval == 3)
+				if (xval == 10)
 				{
 					changebpm(-10);
 				}
-				if (xval == 4)
+				if (xval == 11)
 				{
 					changebpm(-1);
 				}
 			}
-		} else {
+		}
+		else
+		{
 			
 			int xval = (touch.px / 32);
 			int yval = (touch.py  / 32);
