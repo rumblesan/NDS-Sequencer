@@ -37,7 +37,6 @@ mididrumtrack::mididrumtrack(int assignedtracknumber) {
 	settingsnumber = 0;
 	patternnumber = 0;
 	
-	
 	midichannel = 1;
 	
 	for ( z = 0; z < 8; z++ )
@@ -60,13 +59,7 @@ mididrumtrack::mididrumtrack(int assignedtracknumber) {
 	for( x = 0; x < 16; x++ )
 	{
 		patternseq[x] = 0;
-		patterns[7][x][0] = 1;
 	}
-
-	patterns[7][0][7] = 1;
-	patterns[7][1][7] = 1;
-	patterns[7][2][7] = 1;
-	patterns[7][3][7] = 1;	
 	
 }
 
@@ -195,15 +188,6 @@ void mididrumtrack::editpress(void) {
 			xval = xval / 2;
 			
 			currenteditpattern = xval;
-			
-			if (xval < 7)
-			{
-				currentmode = edit;
-			}
-			else if(xval == 7)
-			{
-				currentmode = seqpatterns;
-			}
 		}
 	}
 }
@@ -220,11 +204,25 @@ void mididrumtrack::patternseqview(void) {
 	{
 		for( y = 0; y < 8; y++ )
 		{
-			drawgridbutton(x,y,(patterns[7][x][y]));
+			if (patternseq[x] == y) {
+				drawgridbutton(x,y,1);
+			} else {
+				drawgridbutton(x,y,0);
+			}
 		}
 	}
 	
-	navbuttons(2,4,currenteditpattern);
+	for (int x = 0; x < 16; x++)
+	{
+		if (x < patternseqlength)
+		{
+			drawgridbutton(x,9,1);
+		}
+		else if (x >= patternseqlength)
+		{
+			drawgridbutton(x,9,0);
+		}
+	}
 
 }
 void mididrumtrack::patternseqpress(void) {
@@ -238,44 +236,13 @@ void mididrumtrack::patternseqpress(void) {
 		int yval = (touch.py / 16);
 		int xval = (touch.px / 16);
 	
-		if (yval < 7)
+		if (yval < 8)
 		{
-			for (int i = 0; i < 7; i++)
-			{
-				patterns[7][xval][i] = 0;
-			}
-			patterns[7][xval][yval] = 1;
 			patternseq[xval] = yval;
 
-		} else if (yval == 7)
+		} else if (yval == 9)
 		{
-			for (int i = 0; i < 16; i++)
-			{
-				if (i <= xval)
-				{
-					patterns[7][i][7] = 1;
-				}
-				else if (i > xval)
-				{
-					patterns[7][i][7] = 0;
-				}
-			}
 			patternseqlength = (xval + 1);
-		} 
-		else if ((yval == 8) || (yval == 9))
-		{	
-			xval = xval / 2;
-			
-			currenteditpattern = xval;
-			
-			if (xval < 7)
-			{
-				currentmode = edit;
-			}
-			else if(xval == 7)
-			{
-				currentmode = seqpatterns;
-			}
 		}
 	}
 }

@@ -123,6 +123,7 @@ int x, y;
 	}
 	
 	drawbigbutton(24,10,globalplay);
+	drawbiglongbutton(24,16,2);
 	
 	drawkeypad(17,11);
 	
@@ -253,7 +254,7 @@ void navbuttonpresses (int xval) {
 		currentmode = options;
 	} else if (xval == 5)
 	{
-		currentmode = setup;
+
 	} else if (xval == 6)
 	{	 
 		tracks[activetracknumber]->filesave();
@@ -277,19 +278,20 @@ void changebpm(int changeval) {
 		bpm = 40;
 	}	
 
-	TIMER_DATA(0) = TIMER_FREQ_64(bpm * 4 * 16);
+	TIMER_DATA(0) = TIMER_FREQ_64(bpm * 16 * 16);
 }
 
 void changetrack(int changeval) {
 
 	activetracknumber += changeval;
 
-	if (activetracknumber > 3) {
+	if (activetracknumber > 5) {
 		activetracknumber = 0;
 	} else if (activetracknumber < 0) {
-		activetracknumber = 3;
-	}	
+		activetracknumber = 5;
+	}
 
+	clearbottomscreen();
 }
 
 
@@ -520,15 +522,17 @@ void homeviewbuttonpresses () {
 			
 			activetracknumber = xval + 4;
 		}
-		else if ((xval > 11) && (xval < 16) && (yval > 6) && (yval < 10))
+		else if ((xval > 11) && (xval < 16) && (yval > 4) && (yval < 8))
 		{
 			if (globalplay == 0) {
 				globalplay = 1;
 			} else if (globalplay == 1) {
 				globalplay = 0;
 			}
-			
-			
+		}
+		else if ((xval > 11) && (xval < 16) && (yval > 7) && (yval < 10))
+		{
+			currentmode = setup;
 		}
 		else if ((xval > 7) && (xval < 12) && (yval > 4) && (yval < 9))
 		{	

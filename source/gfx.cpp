@@ -152,15 +152,18 @@ u8 midbuttonmap[16] =
 	2,6,6,3,
 };
 
-u8 keypadmap[36] = 
+u8 keypadmap[64] = 
 {
 
-	9,9,9,9,9,9,
-	9,9,9,9,9,9,
-	9,9,9,9,9,9,
-	9,9,9,9,9,9,
-	9,9,9,9,9,9,
-	9,9,9,9,9,9,
+	1,5,5,5,5,5,5,2,
+	6,9,9,9,9,9,9,7,
+	6,9,9,9,9,9,9,7,
+	6,9,9,9,9,9,9,7,
+	6,9,9,9,9,9,9,7,
+	6,9,9,9,9,9,9,7,
+	6,9,9,9,9,9,9,7,
+	3,8,8,8,8,8,8,4,
+	
 	
 };
 
@@ -918,14 +921,14 @@ void drawkeypad(int xoffset, int yoffset) {
 	
 	int buttoncycle = 0;
 	int tile;
-	for( int y = 0; y < 6; y++ )
+	for( int y = 0; y < 8; y++ )
     {
-        for( int x = 0; x < 6; x++ )
+        for( int x = 0; x < 8; x++ )
         {
 			tile = tile_optionsviewtiles + keypadmap[buttoncycle];
 			
 			buttoncycle++;
-		    bg2map[(x + xoffset) + (y + yoffset) * 32] = tile | (pal_optionsviewtiles << 12);
+		    bg2map[(x + xoffset -1) + (y + yoffset -1) * 32] = tile | (pal_optionsviewtiles << 12);
         }
     }
 

@@ -258,8 +258,6 @@ void midicctrack::patternseqview(void) {
 			drawgridbutton(x,y,patternseq[y][x]);
 		}
 	}
-	
-	navbuttons(2,4,currenteditpattern);
 
 }
 void midicctrack::patternseqpress(void) {
@@ -299,13 +297,6 @@ void midicctrack::patternseqpress(void) {
 				}
 			}
 			patternlengths[yval] = (xval + 1);
-		} 
-		else if ((yval == 8) || (yval == 9))
-		{	
-			xval = xval / 2;
-			
-			currenteditpattern = xval;
-			
 		}
 	}
 }
@@ -414,16 +405,16 @@ void midicctrack::optionsview(void) {
 
 	iprintf("\x1b[8;14H%i  ",midichannel);
 	
-	iprintf("\x1b[11;9H%i  ",midiccnumbers[0]);
-	iprintf("\x1b[12;9H%i  ",midiccnumbers[1]);
-	iprintf("\x1b[13;9H%i  ",midiccnumbers[2]);
-	iprintf("\x1b[14;9H%i  ",midiccnumbers[3]);
-	iprintf("\x1b[15;9H%i  ",midiccnumbers[4]);
-	iprintf("\x1b[16;9H%i  ",midiccnumbers[5]);
-	iprintf("\x1b[17;9H%i  ",midiccnumbers[6]);
-	iprintf("\x1b[18;9H%i  ",midiccnumbers[7]);
+	iprintf("\x1b[11;14H%i  ",midiccnumbers[0]);
+	iprintf("\x1b[12;14H%i  ",midiccnumbers[1]);
+	iprintf("\x1b[13;14H%i  ",midiccnumbers[2]);
+	iprintf("\x1b[14;14H%i  ",midiccnumbers[3]);
+	iprintf("\x1b[15;14H%i  ",midiccnumbers[4]);
+	iprintf("\x1b[16;14H%i  ",midiccnumbers[5]);
+	iprintf("\x1b[17;14H%i  ",midiccnumbers[6]);
+	iprintf("\x1b[18;14H%i  ",midiccnumbers[7]);
 	
-	optionsscreenbackground(activerow, 0);
+	optionsscreenbackground(activerow, 1);
 	
 	drawkeypad(24,2);
 	
