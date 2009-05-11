@@ -25,6 +25,7 @@ void drawbiglongbuttonSUB(int xoffset, int yoffset, int colour);
 void navbuttonwords();
 void navbuttons(int colour, int yoffset, int activebutton);
 
+void modebuttons(int activebutton);
 
 // Grid Button Function
 

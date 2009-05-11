@@ -496,29 +496,22 @@ int pallette;
 
 void navbuttonwords() {
 
-	iprintf("\x1b[21;1HHo");
-	iprintf("\x1b[22;1Hme");
+	iprintf("\x1b[21;2HHome");
 
-	iprintf("\x1b[21;5HEd");
-	iprintf("\x1b[22;5Hit");
+	iprintf("\x1b[21;9HEd");
+	iprintf("\x1b[22;9Hit");
 
-	iprintf("\x1b[21;9HSe");
-	iprintf("\x1b[22;9Hq.");
+	iprintf("\x1b[21;13HSe");
+	iprintf("\x1b[22;13Hq.");
 
-	iprintf("\x1b[21;13HFl");
-	iprintf("\x1b[22;13How");
-
-	iprintf("\x1b[21;17HOp");
-	iprintf("\x1b[22;17Hts");
+	iprintf("\x1b[21;17HFl");
+	iprintf("\x1b[22;17How");
 	
 	iprintf("\x1b[21;21HSe");
 	iprintf("\x1b[22;21Ht.");
 
-	iprintf("\x1b[21;25HSa");
-	iprintf("\x1b[22;25Hve");
-
-	iprintf("\x1b[21;29HLo");
-	iprintf("\x1b[22;29Had");
+	iprintf("\x1b[21;26HLoad");
+	iprintf("\x1b[22;26HSave");
 
 }
 
@@ -649,6 +642,58 @@ int pallette;
     }
 }
 
+
+void drawmidbutton(int xoffset, int yoffset, int colour) {
+
+int pallette;
+
+	if(colour == 0) {pallette = pal_lrgredbutton;}
+	if(colour == 1) {pallette = pal_lrggreenbutton;}
+	if(colour == 2) {pallette = pal_lrgbluebutton;}
+	if(colour == 3) {pallette = pal_lrgyellowbutton;}
+
+    int x, y;
+	int tile;
+	int buttoncycle = 0;
+    for( y = 0; y < 4; y++ )
+    {
+        for( x = 0; x < 4; x++ )
+        {
+			tile = tile_buttontiles + midbuttonmap[buttoncycle];
+			buttoncycle++;
+		    bg2map[(x + xoffset) + (y + yoffset) * 32] = tile | (pallette << 12);
+        }
+    }
+}
+
+
+
+// Nav Buttons
+
+
+void modebuttons(int activmode) {
+
+	int modebutton[8];
+
+	for (int i = 0 ; i < 8 ; i++)
+	{
+		if (i == activmode) {
+			modebutton[i] = 1;
+		}
+		else
+		{
+			modebutton[i] = 0;
+		}
+	}
+
+	drawbiglongbutton(0,20,modebutton[0]);
+	drawmidbutton(8,20,modebutton[1]);
+	drawmidbutton(12,20,modebutton[2]);
+	drawmidbutton(16,20,modebutton[3]);
+	drawmidbutton(20,20,modebutton[4]);
+	drawbiglongbutton(24,20,modebutton[5]);
+
+}
 
 
 // Curve Drawing Functions

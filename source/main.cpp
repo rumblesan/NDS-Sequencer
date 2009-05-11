@@ -88,9 +88,19 @@ void drawsetupscreen () {
 	navbuttonwords();
 	drawsetuptext(midienable);
 
-	navbuttons(1,5,currentmode);
+	modebuttons(currentmode);
 	
 	drawbigbutton(8,12,midienable);
+
+}
+
+void drawloadsavescreen () {
+
+	setupscreenbackground();
+	navbuttonwords();
+
+	modebuttons(currentmode);
+	
 
 }
 
@@ -129,7 +139,7 @@ int x, y;
 	
 	calcanddispnumber(17,13,bpm);
 	
-	navbuttons(1,5,currentmode);
+	modebuttons(currentmode);
 	navbuttonwords();
 
 }
@@ -140,7 +150,7 @@ void drawoptionsscreen () {
 	tracks[activetracknumber]->optionsview();
 	
 	navbuttonwords();
-	navbuttons(1,5,currentmode);
+	modebuttons(currentmode);
 
 }
 
@@ -149,7 +159,7 @@ void drawfollowscreen() {
 
 	tracks[activetracknumber]->flowview();
 	
-	navbuttons(1,5,currentmode);
+	modebuttons(currentmode);
 	navbuttonwords();
 
 }
@@ -160,7 +170,7 @@ void draweditscreen() {
 
 	tracks[activetracknumber]->editview();
 	
-	navbuttons(1,5,currentmode);
+	modebuttons(currentmode);
 	navbuttonwords();
 
 }
@@ -169,16 +179,11 @@ void drawpatternseqscreen() {
 
 	tracks[activetracknumber]->patternseqview();
 	
-	navbuttons(1,5,currentmode);
+	modebuttons(currentmode);
 	navbuttonwords();
 
 }
 
-void drawloadsavescreen() {
-
-	filebrowsescreenbackground();
-
-}
 
 
 // Display Updater
@@ -220,7 +225,12 @@ void displayupdater () {
 			break;
 			
 		case loadsave:
+		
 			drawloadsavescreen();
+			break;
+			
+		case misc:
+		
 			break;
 	}
 	
@@ -235,32 +245,32 @@ void displayupdater () {
 
 void navbuttonpresses (int xval) {
 
-	if (xval == 0)
+	if ((xval == 0) || (xval == 1))
 	{
 		currentmode = home;
-	} else if (xval == 1)
+	}
+	else if (xval == 2)
 	{
 		currentmode = edit;
-		tracks[activetracknumber]->currenteditpattern = 0;
-	} else if (xval == 2)
+	}
+	else if (xval == 3)
 	{
 		currentmode = seqpatterns;
-		tracks[activetracknumber]->currenteditpattern = 7;
-	} else if (xval == 3)
+	}
+	else if (xval == 4)
 	{	
 		currentmode = follow;
-	} else if (xval == 4)
+	}
+	else if (xval == 5)
 	{
 		currentmode = options;
-	} else if (xval == 5)
+	}
+	else if (xval == 5)
 	{
 
-	} else if (xval == 6)
+	} else if ((xval == 6) || (xval == 7))
 	{	 
-		tracks[activetracknumber]->filesave();
-	} else if (xval == 7 )
-	{
-		tracks[activetracknumber]->fileload();
+		currentmode = loadsave;
 	}
 
 
@@ -435,6 +445,34 @@ void followviewbuttonpresses () {
 	}
 }
 
+void loadsaveviewbuttonpresses () {
+
+
+	touchPosition touch;
+
+	scanKeys();
+	
+	standardbuttons();
+
+	if (keysDown() & KEY_TOUCH)
+	{
+		touchRead(&touch);
+		
+		int xaxispress = touch.px;
+		int yaxispress = touch.py;
+		
+		int yval = (yaxispress / 8);
+		
+		if (yval > 19)
+		{
+			int xval = (xaxispress / 32);
+			
+			navbuttonpresses(xval);
+		}
+	}
+
+}
+
 void editviewbuttonpresses () {
 
 	touchPosition touch;
@@ -599,6 +637,19 @@ void setupview () {
 		swiWaitForVBlank();
 		
 		setupviewbuttonpresses();
+    }
+	
+	clearbottomscreen();
+	
+}
+
+void loadsaveview () {
+
+	while(currentmode == loadsave)
+    {
+		swiWaitForVBlank();
+		
+		loadsaveviewbuttonpresses();
     }
 	
 	clearbottomscreen();
@@ -806,16 +857,21 @@ int main(void) {
 			
 				followview();
 				break;
-			
+				
 			case setup:
 			
 				setupview();
 				break;
 				
-			
 			case loadsave:
 			
+				loadsaveview();
 				break;
+				
+			case misc:
+			
+				break;
+				
 		}
 	}
 
