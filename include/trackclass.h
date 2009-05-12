@@ -10,14 +10,15 @@ protected:
 
 public:
 	
-	int currenteditpattern;
-	
 	virtual void starttrack(int playstatus) =0;
 	virtual void resettrack(void) =0;
 	
 	virtual void sequencerclock(void) =0;
 	
 	virtual void sendmididata(void) =0;
+	
+	virtual void modebuttondisplay(void) =0;
+	virtual void modebuttonpress(int xval) =0;
 	
 	virtual void editview(void) =0;
 	virtual void editpress(void) =0;
@@ -31,8 +32,8 @@ public:
 	virtual void optionsview(void) =0;
 	virtual void optionspress(void) =0;
 
-	virtual void fileload(void) =0;
-	virtual void filesave(void) =0;
+	virtual void loadsaveview(void) =0;
+	virtual void loadsavepress(void) =0;
 
 };
 
@@ -45,6 +46,8 @@ private:
 	int playing;
 	int triggerplay;
 
+	int currenteditpattern;
+	
 	int tracknumber;
 
 	int settingsnumber;
@@ -58,8 +61,8 @@ private:
 	
 	int stepposition;
 
-	int optionsrow;
-	int optionscolumn;
+	int activerow;
+	int activecolumn;
 
 	int stepbeatlength;
 	int clockcount;
@@ -93,6 +96,9 @@ public:
 	
 	void sendmididata(void);
 	
+	void modebuttondisplay(void);
+	void modebuttonpress(int xval);
+	
 	void editview(void);
 	void editpress(void);
 	
@@ -105,8 +111,8 @@ public:
 	void optionsview(void);
 	void optionspress(void);
 
-	void fileload(void);
-	void filesave(void);
+	void loadsaveview(void);
+	void loadsavepress(void);
 
 };
 
@@ -117,6 +123,8 @@ private:
 
 	int playing;
 	int triggerplay;
+	
+	int currenteditpattern;
 	
 	int tracknumber;
 
@@ -131,8 +139,8 @@ private:
 	
 	int stepposition;
 	
-	int optionsrow;
-	int optionscolumn;
+	int activerow;
+	int activecolumn;
 	
 	int stepbeatlength;
 	int clockcount;
@@ -164,6 +172,9 @@ public:
 	
 	void sendmididata(void);
 	
+	void modebuttondisplay(void);
+	void modebuttonpress(int xval);
+	
 	void editview(void);
 	void editpress(void);
 	
@@ -176,8 +187,8 @@ public:
 	void optionsview(void);
 	void optionspress(void);
 
-	void fileload(void);
-	void filesave(void);
+	void loadsaveview(void);
+	void loadsavepress(void);
 
 };
 
@@ -189,6 +200,8 @@ private:
 	int playing;
 	int triggerplay;
 	
+	int currenteditpattern;
+
 	int tracknumber;
 	
 	int stepposition;
@@ -250,6 +263,9 @@ public:
 	
 	void sendmididata(void);
 	
+	void modebuttondisplay(void);
+	void modebuttonpress(int xval);
+	
 	void editview(void);
 	void editpress(void);
 	
@@ -262,8 +278,8 @@ public:
 	void optionsview(void);
 	void optionspress(void);
 
-	void fileload(void);
-	void filesave(void);
+	void loadsaveview(void);
+	void loadsavepress(void);
 
 };
 

@@ -462,7 +462,7 @@ int pallette;
         {
 			int tile = tile_buttontiles + bigbuttonmap[buttoncycle];
 			buttoncycle++;
-		    bg2mapsub[(x + (xoffset * 8)) + (y + (yoffset * 6)) * 32] = tile | (pallette << 12);
+		    bg2mapsub[(x + (xoffset)) + (y + (yoffset)) * 32] = tile | (pallette << 12);
         }
     }
 }
@@ -493,27 +493,6 @@ int pallette;
 
 // Nav Buttons
 
-
-void navbuttonwords() {
-
-	iprintf("\x1b[21;2HHome");
-
-	iprintf("\x1b[21;9HEd");
-	iprintf("\x1b[22;9Hit");
-
-	iprintf("\x1b[21;13HSe");
-	iprintf("\x1b[22;13Hq.");
-
-	iprintf("\x1b[21;17HFl");
-	iprintf("\x1b[22;17How");
-	
-	iprintf("\x1b[21;21HSe");
-	iprintf("\x1b[22;21Ht.");
-
-	iprintf("\x1b[21;26HLoad");
-	iprintf("\x1b[22;26HSave");
-
-}
 
 void navbuttons(int colour, int yoffset, int activebutton) {
 

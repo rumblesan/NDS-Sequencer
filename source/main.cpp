@@ -43,39 +43,48 @@ int bpmcount = 0;
 
 
 modes_t currentmode;
-modes_t previousmode;
-
 
 // Screen Display Functions
 
 void drawtopscreen() {
-	
-	for (int i = 0; i < 4; i++)
+
+int x, y;
+	for (int i = 0; i < 6; i++)
 	{
 	
-		drawbigbuttonSUB(i, 0, playingtracks[i]);
+		if ( i < 4) {
+			x = i;
+			y = 0;
+		}
+		else
+		{
+			x = (i - 4);
+			y = 10;
+		}
+		
+		drawbigbuttonSUB((x * 8),y,playingtracks[i]);
 		
 		if (i == activetracknumber)
 		{
-			drawbiglongbuttonSUB((i * 8), 6, 3);
+			drawbiglongbuttonSUB((x * 8),(y + 6),3);
 		} else {
-			drawbiglongbuttonSUB((i * 8), 6, 2);
+			drawbiglongbuttonSUB((x * 8),(y + 6),2);
 		}
 		
-		drawbignumberSUB(((i * 8) + 3),1,(i + 1));
+		drawbignumberSUB(((x * 8) + 3),(y + 1),(i + 1));
 		
 	}
 	
 	if (((globalstep % 4) == 0) || ((globalstep % 4) == 1))
 	{
-		drawbiglongbuttonSUB(22,18,1);
+		drawbiglongbuttonSUB(24,18,1);
 	} else {
 		drawbiglongbuttonSUB(22,18,0);
 	}
 	
-	drawbpmtextSUB(2,18);
+
 	
-	displaybpm(bpm,12,18);
+	displaybpm(bpm,15,18);
 
 	drawstepdisplaySUB(globalstep, 11);
 	
@@ -85,22 +94,18 @@ void drawtopscreen() {
 void drawsetupscreen () {
 
 	setupscreenbackground();
-	navbuttonwords();
 	drawsetuptext(midienable);
-
-	modebuttons(currentmode);
 	
 	drawbigbutton(8,12,midienable);
 
+	tracks[activetracknumber]->modebuttondisplay();
 }
 
 void drawloadsavescreen () {
 
-	setupscreenbackground();
-	navbuttonwords();
-
-	modebuttons(currentmode);
+	tracks[activetracknumber]->loadsaveview();
 	
+	tracks[activetracknumber]->modebuttondisplay();
 
 }
 
@@ -139,8 +144,7 @@ int x, y;
 	
 	calcanddispnumber(17,13,bpm);
 	
-	modebuttons(currentmode);
-	navbuttonwords();
+	tracks[activetracknumber]->modebuttondisplay();
 
 }
 
@@ -149,8 +153,7 @@ void drawoptionsscreen () {
 	
 	tracks[activetracknumber]->optionsview();
 	
-	navbuttonwords();
-	modebuttons(currentmode);
+	tracks[activetracknumber]->modebuttondisplay();
 
 }
 
@@ -159,8 +162,7 @@ void drawfollowscreen() {
 
 	tracks[activetracknumber]->flowview();
 	
-	modebuttons(currentmode);
-	navbuttonwords();
+	tracks[activetracknumber]->modebuttondisplay();
 
 }
 
@@ -170,8 +172,7 @@ void draweditscreen() {
 
 	tracks[activetracknumber]->editview();
 	
-	modebuttons(currentmode);
-	navbuttonwords();
+	tracks[activetracknumber]->modebuttondisplay();
 
 }
 
@@ -179,8 +180,7 @@ void drawpatternseqscreen() {
 
 	tracks[activetracknumber]->patternseqview();
 	
-	modebuttons(currentmode);
-	navbuttonwords();
+	tracks[activetracknumber]->modebuttondisplay();
 
 }
 
@@ -239,43 +239,7 @@ void displayupdater () {
 }
 
 
-// Mode Button Press Functions
-
-
-
-void navbuttonpresses (int xval) {
-
-	if ((xval == 0) || (xval == 1))
-	{
-		currentmode = home;
-	}
-	else if (xval == 2)
-	{
-		currentmode = edit;
-	}
-	else if (xval == 3)
-	{
-		currentmode = seqpatterns;
-	}
-	else if (xval == 4)
-	{	
-		currentmode = follow;
-	}
-	else if (xval == 5)
-	{
-		currentmode = options;
-	}
-	else if (xval == 5)
-	{
-
-	} else if ((xval == 6) || (xval == 7))
-	{	 
-		currentmode = loadsave;
-	}
-
-
-}
-
+// General Button Press Functions
 
 
 void changebpm(int changeval) {
@@ -335,6 +299,9 @@ void standardbuttons () {
 }
 
 
+// View specific button press functions
+
+
 void setupviewbuttonpresses () {
 
 	touchPosition touch;
@@ -365,9 +332,7 @@ void setupviewbuttonpresses () {
 			
 		} else if (yval > 19)
 		{
-			int xval = (xaxispress / 32);
-			
-			navbuttonpresses(xval);
+			tracks[activetracknumber]->modebuttonpress(xaxispress);
 		}
 	}
 }
@@ -390,7 +355,7 @@ void optionsviewbuttonpresses () {
 		
 		if (yaxispress > 159) {
 			
-			navbuttonpresses((xaxispress / 32));
+			tracks[activetracknumber]->modebuttonpress(xaxispress);
 		}
 	}
 }
@@ -409,12 +374,12 @@ void patternseqbuttonpresses () {
 	if (keysDown() & KEY_TOUCH) {
 		touchRead(&touch);
 		
-		int xval = (touch.px / 32);
-		int yval = (touch.py / 32);
+		int xaxispress = touch.px;
+		int yaxispress = touch.py;
 		
-		if (yval == 5)
+		if (yaxispress > 159)
 		{
-			navbuttonpresses(xval);	
+			tracks[activetracknumber]->modebuttonpress(xaxispress);	
 		}	
 	}
 }
@@ -435,12 +400,12 @@ void followviewbuttonpresses () {
 	if (keysDown() & KEY_TOUCH) {
 		touchRead(&touch);
 		
-		int xval = (touch.px / 32);
-		int yval = (touch.py / 32);
-
-		if (yval == 5)
+		int xaxispress = touch.px;
+		int yaxispress = touch.py;
+		
+		if (yaxispress > 159)
 		{
-			navbuttonpresses(xval);
+			tracks[activetracknumber]->modebuttonpress(xaxispress);
 		}	
 	}
 }
@@ -461,13 +426,9 @@ void loadsaveviewbuttonpresses () {
 		int xaxispress = touch.px;
 		int yaxispress = touch.py;
 		
-		int yval = (yaxispress / 8);
-		
-		if (yval > 19)
-		{
-			int xval = (xaxispress / 32);
-			
-			navbuttonpresses(xval);
+		if (yaxispress > 159)
+		{			
+			tracks[activetracknumber]->modebuttonpress(xaxispress);
 		}
 	}
 
@@ -487,12 +448,12 @@ void editviewbuttonpresses () {
 	if (keysDown() & KEY_TOUCH) {
 		touchRead(&touch);
 		
-		int xval = (touch.px / 32);
-		int yval = (touch.py / 32);
-
-		if (yval == 5)
+		int xaxispress = touch.px;
+		int yaxispress = touch.py;
+		
+		if (yaxispress > 159)
 		{
-			navbuttonpresses(xval);
+			tracks[activetracknumber]->modebuttonpress(xaxispress);
 		}	
 	}
 }
@@ -612,12 +573,12 @@ void homeviewbuttonpresses () {
 		else
 		{
 			
-			int xval = (touch.px / 32);
-			int yval = (touch.py  / 32);
+			int xaxispress = touch.px;
+			int yaxispress = touch.py;
 			
-			if (yval == 5)
+			if (yaxispress > 159)
 			{
-				navbuttonpresses(xval);
+				tracks[activetracknumber]->modebuttonpress(xaxispress);
 			}
 		}
 		

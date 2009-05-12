@@ -13,7 +13,6 @@
 
 
 extern modes_t currentmode;
-extern modes_t previousmode;
 
 
 // Constructor
@@ -177,6 +176,86 @@ void midicctrack::sendmididata(void) {
 }
 
 
+// Mode button functions
+
+void midicctrack::modebuttondisplay(void) {
+
+	int modebutton[6];
+
+	for (int i = 0 ; i < 6 ; i++)
+	{
+		if (i == currentmode) {
+			modebutton[i] = 1;
+		}
+		else
+		{
+			modebutton[i] = 0;
+		}
+	}
+
+	drawbiglongbutton(0,20,modebutton[0]);
+	drawmidbutton(8,20,modebutton[1]);
+	drawmidbutton(12,20,modebutton[2]);
+	drawmidbutton(16,20,modebutton[3]);
+	drawmidbutton(20,20,modebutton[4]);
+	drawbiglongbutton(24,20,modebutton[5]);
+	
+	iprintf("\x1b[21;2HHome");
+
+	iprintf("\x1b[21;9HEd");
+	iprintf("\x1b[22;9Hit");
+
+	iprintf("\x1b[21;13HSe");
+	iprintf("\x1b[22;13Hq.");
+
+	iprintf("\x1b[21;17HFl");
+	iprintf("\x1b[22;17How");
+	
+	iprintf("\x1b[21;21HSe");
+	iprintf("\x1b[22;21Ht.");
+
+	iprintf("\x1b[21;26HLoad");
+	iprintf("\x1b[22;26HSave");
+
+}
+	
+	
+void midicctrack::modebuttonpress(int xval) {
+
+	xval = (xval / 32);
+	
+	if ((xval == 0) || (xval == 1))
+	{
+		currentmode = home;
+	}
+	else if (xval == 2)
+	{
+		currentmode = edit;
+	}
+	else if (xval == 3)
+	{
+		currentmode = seqpatterns;
+	}
+	else if (xval == 4)
+	{	
+		currentmode = follow;
+	}
+	else if (xval == 5)
+	{
+		currentmode = options;
+	}
+	else if (xval == 5)
+	{
+
+	} else if ((xval == 6) || (xval == 7))
+	{	 
+		currentmode = loadsave;
+	}
+
+
+}
+
+	
 // Edit view functions
 
 void midicctrack::editview(void) {
@@ -534,42 +613,44 @@ void midicctrack::optionspress(void) {
 
 // Load and Save Functions
 
-void midicctrack::fileload(void) {
-/*
-	previousmode = currentmode;
-	currentmode = loadsave;
+void midicctrack::loadsaveview(void) {
 
-	if ((previousmode == edit) || (previousmode == seqpatterns) || (previousmode == follow)) {
+	iprintf("\x1b[2;4HTrack");
 	
-		patternfileloader();
+	iprintf("\x1b[4;2Hsettings No.");
+	iprintf("\x1b[5;2HPattern No.");
 	
-	} else if (previousmode == options) {
+
 	
-		settingsfileloader();
+	iprintf("\x1b[2;12H%i  ",tracknumber);
 	
-	}
+	iprintf("\x1b[4;14H%i  ",settingsnumber);
+	iprintf("\x1b[5;14H%i  ",patternnumber);
 	
-	currentmode = previousmode;
-*/
+	optionsscreenbackground(activerow, activecolumn);
+	
+	drawbigbutton(3,7,1);
+	drawbigbutton(3,13,1);
+	drawbigbutton(12,7,1);
+	drawbigbutton(12,13,1);
+	
+	drawkeypad(24,2);
+	
+	int activevalue = 0;
+
+	if (activerow == -1) {activevalue = 0;}
+
+	if (activerow == 4) {activevalue = settingsnumber;}
+	if (activerow == 5) {activevalue = patternnumber;}
+
+	calcanddispnumber(24,4,activevalue);
+	
 }
 
-void midicctrack::filesave(void) {
-/*
-	previousmode = currentmode;
-	currentmode = loadsave;
+void midicctrack::loadsavepress(void) {
 
-	if ((previousmode == edit) || (previousmode == seqpatterns) || (previousmode == follow)) {
-	
-		patternfilesaver();
-	
-	} else if (previousmode == options) {
-	
-		settingsfilesaver();
-	
-	}
-	
-	currentmode = previousmode;
-*/
+
+
 }
 
 // Private Object Functions

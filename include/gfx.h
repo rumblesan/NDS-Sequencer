@@ -22,10 +22,7 @@ void drawbiglongbuttonSUB(int xoffset, int yoffset, int colour);
 
 // Nav Buttons
 
-void navbuttonwords();
 void navbuttons(int colour, int yoffset, int activebutton);
-
-void modebuttons(int activebutton);
 
 // Grid Button Function
 
@@ -45,6 +42,7 @@ void drawpixel(int x, int y, int colour);
 
 void drawbigbutton(int xoffset, int yoffset, int colour);
 void drawbiglongbutton(int xoffset, int yoffset, int colour);
+void drawmidbutton(int xoffset, int yoffset, int colour);
 
 
 // Text Display Functions
