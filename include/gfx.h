@@ -67,7 +67,7 @@ void drawsetuptext(int dsmienable);
 
 // Options Screen
 
-void optionsscreenbackground(int activerow, int activecolumn);
+void optionsscreenbackground(int xval, int yval, int length);
 void drawkeypad(int xoffset, int yoffset);
 
 

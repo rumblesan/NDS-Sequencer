@@ -169,17 +169,17 @@ void mididrumtrack::modebuttondisplay(void) {
 	
 	iprintf("\x1b[21;2HHome");
 
-	iprintf("\x1b[21;9HEd");
-	iprintf("\x1b[22;9Hit");
+	iprintf("\x1b[21;9HEd   ");
+	iprintf("\x1b[22;9Hit   ");
 
-	iprintf("\x1b[21;13HSe");
-	iprintf("\x1b[22;13Hq.");
+	iprintf("\x1b[21;13HSe   ");
+	iprintf("\x1b[22;13Hq.   ");
 
-	iprintf("\x1b[21;17HFl");
-	iprintf("\x1b[22;17How");
+	iprintf("\x1b[21;17HFl   ");
+	iprintf("\x1b[22;17How   ");
 	
-	iprintf("\x1b[21;21HSe");
-	iprintf("\x1b[22;21Ht.");
+	iprintf("\x1b[21;21HSe   ");
+	iprintf("\x1b[22;21Ht.   ");
 
 	iprintf("\x1b[21;26HLoad");
 	iprintf("\x1b[22;26HSave");
@@ -403,12 +403,9 @@ void mididrumtrack::optionsview(void) {
 
 	iprintf("\x1b[2;4HTrack");
 	
-	iprintf("\x1b[4;2Hsettings No.");
-	iprintf("\x1b[5;2HPattern No.");
-	
-	iprintf("\x1b[7;2HStep Length");
+	iprintf("\x1b[5;2HStep Length");
 
-	iprintf("\x1b[8;2HChannel");
+	iprintf("\x1b[7;2HChannel");
 	
 	iprintf("\x1b[10;8HNote");
 	iprintf("\x1b[10;13HVel");
@@ -424,13 +421,10 @@ void mididrumtrack::optionsview(void) {
 	iprintf("\x1b[18;2HRow 8");
 	
 	iprintf("\x1b[2;12H%i  ",tracknumber);
-	
-	iprintf("\x1b[4;14H%i  ",settingsnumber);
-	iprintf("\x1b[5;14H%i  ",patternnumber);
 
-	iprintf("\x1b[7;14H%i  ",stepbeatlength);
+	iprintf("\x1b[5;14H%i  ",stepbeatlength);
 
-	iprintf("\x1b[8;14H%i  ",midichannel);
+	iprintf("\x1b[7;14H%i  ",midichannel);
 	
 	iprintf("\x1b[11;9H%i  ",midinotes[0][0]);
 	iprintf("\x1b[12;9H%i  ",midinotes[1][0]);
@@ -459,24 +453,33 @@ void mididrumtrack::optionsview(void) {
 	iprintf("\x1b[17;19H%i ",midinotes[6][2]);
 	iprintf("\x1b[18;19H%i ",midinotes[7][2]);
 	
-	optionsscreenbackground(activerow, activecolumn);
-	
 	drawkeypad(24,2);
 	
 	int activevalue = 0;
+	int xval = -1;
+	int yval = -1;
+	int length = 0;
 
-	if (activerow == -1) {activevalue = 0;}
-
-	if (activerow == 4) {activevalue = settingsnumber;}
-	if (activerow == 5) {activevalue = patternnumber;}
-
-	if (activerow == 7) {activevalue = stepbeatlength;}
-	
-	if (activerow == 8) {activevalue = midichannel;}
-
-	if ((activerow > 10) && (activerow < 19) && (activecolumn > -1)) {activevalue = midinotes[activerow - 11][activecolumn];}
+	if (activerow == 1)
+	{
+		activevalue = stepbeatlength;
+		
+		xval = -1;
+		yval = -1;
+		length = 0;
+	}
+	else if (activerow == 2)
+	{
+		activevalue = midichannel;
+	}
+	else if ((activerow > 2) && (activerow < 11) && (activecolumn > -1))
+	{
+		activevalue = midinotes[activerow - 11][activecolumn];
+	}
 
 	calcanddispnumber(24,4,activevalue);
+	
+	optionsscreenbackground(activerow, activecolumn);
 }
 	
 	
@@ -501,9 +504,6 @@ void mididrumtrack::optionspress(void) {
 			}
 			else if (yval == 7) {
 				activerow = 7;
-			}
-			else if (yval == 8) {
-				activerow = 8;
 			}
 			else if (yval == 11) {
 				activerow = 11;
@@ -589,8 +589,6 @@ void mididrumtrack::loadsaveview(void) {
 	iprintf("\x1b[4;2Hsettings No.");
 	iprintf("\x1b[5;2HPattern No.");
 	
-
-	
 	iprintf("\x1b[2;12H%i  ",tracknumber);
 	
 	iprintf("\x1b[4;14H%i  ",settingsnumber);
@@ -598,10 +596,10 @@ void mididrumtrack::loadsaveview(void) {
 	
 	optionsscreenbackground(activerow, activecolumn);
 	
-	drawbigbutton(3,7,1);
-	drawbigbutton(3,13,1);
-	drawbigbutton(12,7,1);
-	drawbigbutton(12,13,1);
+	drawbiglongbutton(3,7,1);
+	drawbiglongbutton(3,13,1);
+	drawbiglongbutton(12,7,1);
+	drawbiglongbutton(12,13,1);
 	
 	drawkeypad(24,2);
 	
@@ -618,9 +616,87 @@ void mididrumtrack::loadsaveview(void) {
 
 void mididrumtrack::loadsavepress(void) {
 
+	touchPosition touch;
+	
+	if (keysDown() & KEY_TOUCH){
 
+		touchRead(&touch);
+		
+		int yval = (touch.py / 8);
+		int xval = (touch.px / 8);
 
+		if ((xval > 1) && (xval < 23) && (yval > 1) && (yval < 19))
+		{
+			if (yval == 4)
+			{
+			activerow = 4;
+			}
+			else if (yval == 5)
+			{
+				activerow = 5;
+			}
+	
+		}
+		else if ((xval > 2) && (xval < 11) && (yval > 6) && (yval < 11))
+		{
+
+	
+		}
+		else if ((xval > 2) && (xval < 11) && (yval > 12) && (yval < 17))
+		{
+
+	
+		}
+		else if ((xval > 11) && (xval < 20) && (yval > 6) && (yval < 11))
+		{
+
+	
+		}
+		else if ((xval > 11) && (xval < 20) && (yval > 12) && (yval < 17))
+		{
+
+	
+		}
+		else if ((xval > 23) && (xval < 30) && (yval > 1) && (yval < 9))
+		{
+			xval = (xval / 2);
+			yval = (yval / 2);
+				
+			if (yval == 1)
+			{
+				if (xval == 12)
+				{
+					editmidioptions(100);
+				}
+				else if (xval == 13)
+				{
+					editmidioptions(10);
+				}
+				else if (xval == 14)
+				{
+					editmidioptions(1);
+				}
+			}
+			else if (yval == 3)
+			{
+				if (xval == 12)
+				{
+					editmidioptions(-100);
+				}
+				else if (xval == 13)
+				{
+					editmidioptions(-10);
+				}
+				else if (xval == 14)
+				{
+					editmidioptions(-1);
+				}
+			}
+		}
+	}
 }
+
+
 
 // Private Object Functions
 

@@ -884,37 +884,12 @@ void drawsetuptext(int dsmienable) {
 // Options Screen
 
 
-void optionsscreenbackground(int activerow, int activecolumn) {
+void optionsscreenbackground(int xval, int yval, int length) {
 
     int x, y;
 	int buttoncycle = 0;
-	int xmin = 0;
-	int xmax = 0;
-
-	if ((activerow == 4) || (activerow == 5) || (activerow == 8))
-	{
-		xmin = 13;
-		xmax = 17;
-	} else if (activerow == 7)
-	{
-		xmin = 13;
-		xmax = 16;
-	} else if ((activerow > 9) && (activerow < 19))
-	{
-		if (activecolumn == 0)
-		{
-			xmin = 8;
-			xmax = 12;
-		} else if (activecolumn == 1)
-		{
-			xmin = 13;
-			xmax = 17;
-		} else if (activecolumn == 2)
-		{
-			xmin = 18;
-			xmax = 21;
-		}
-	}
+	int xmin = xval;
+	int xmax = (xval + column);
 
 
     for( y = 0; y < 20; y++ )
@@ -923,7 +898,7 @@ void optionsscreenbackground(int activerow, int activecolumn) {
         {
 			int tile = tile_optionsviewtiles + optionsscreen[buttoncycle];
 			
-			if ((y == activerow) && (x > xmin) && (x < xmax))
+			if ((y == yval) && (x > xmin) && (x < xmax))
 			{
 				tile += 1;
 			}			

@@ -210,11 +210,8 @@ private:
 	int patternnumber;
 
 	int patterns[8][256];
-	int patternlengths[8];
 
 	int previousmessage[8][3];
-	
-	int patternseq[8][16];
 
 	int patternpositions[8][2];
 	int activepatterns[8];
@@ -225,10 +222,12 @@ private:
 	int clockcount;
 	
 	int pendinglistpos;
+	
 	uint8_t pendingsenddata[32][3];
 
 	uint8_t midichannel;
 	uint8_t midiccnumbers[8];
+	int patternlengths[8];
 	
 	int prevx;
 	int prevy;

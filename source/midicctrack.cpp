@@ -54,15 +54,6 @@ midicctrack::midicctrack(int assignedtracknumber) {
 		
 	}
 	
-	for( y = 0; y < 8; y++ )
-	{
-		for (x = 0; x < 16; x++)
-		{
-			patternseq[y][x] = 0;
-		}
-		patternseq[y][0] = 1;
-	}
-	
 	activerow = -1;
 	
 	
@@ -180,9 +171,9 @@ void midicctrack::sendmididata(void) {
 
 void midicctrack::modebuttondisplay(void) {
 
-	int modebutton[6];
+	int modebutton[8];
 
-	for (int i = 0 ; i < 6 ; i++)
+	for (int i = 0 ; i < 8 ; i++)
 	{
 		if (i == currentmode) {
 			modebutton[i] = 1;
@@ -194,25 +185,18 @@ void midicctrack::modebuttondisplay(void) {
 	}
 
 	drawbiglongbutton(0,20,modebutton[0]);
-	drawmidbutton(8,20,modebutton[1]);
-	drawmidbutton(12,20,modebutton[2]);
-	drawmidbutton(16,20,modebutton[3]);
-	drawmidbutton(20,20,modebutton[4]);
+	drawbiglongbutton(8,20,(modebutton[1] + modebutton[3]));
+	drawbiglongbutton(16,20,(modebutton[2] + modebutton[4]));
 	drawbiglongbutton(24,20,modebutton[5]);
 	
 	iprintf("\x1b[21;2HHome");
 
-	iprintf("\x1b[21;9HEd");
-	iprintf("\x1b[22;9Hit");
+	iprintf("\x1b[21;8H  Edit  ");
+	iprintf("\x1b[22;8H  Flow  ");
 
-	iprintf("\x1b[21;13HSe");
-	iprintf("\x1b[22;13Hq.");
-
-	iprintf("\x1b[21;17HFl");
-	iprintf("\x1b[22;17How");
 	
-	iprintf("\x1b[21;21HSe");
-	iprintf("\x1b[22;21Ht.");
+	iprintf("\x1b[21;16H  MIDI  ");
+	iprintf("\x1b[22;16H  Opts  ");
 
 	iprintf("\x1b[21;26HLoad");
 	iprintf("\x1b[22;26HSave");
@@ -228,26 +212,15 @@ void midicctrack::modebuttonpress(int xval) {
 	{
 		currentmode = home;
 	}
-	else if (xval == 2)
+	else if ((xval == 2) || (xval == 3))
 	{
-		currentmode = edit;
-	}
-	else if (xval == 3)
-	{
-		currentmode = seqpatterns;
-	}
-	else if (xval == 4)
-	{	
 		currentmode = follow;
 	}
-	else if (xval == 5)
+	else if ((xval == 4) || (xval == 5))
 	{
 		currentmode = options;
 	}
-	else if (xval == 5)
-	{
-
-	} else if ((xval == 6) || (xval == 7))
+	else if ((xval == 6) || (xval == 7))
 	{	 
 		currentmode = loadsave;
 	}
@@ -259,71 +232,16 @@ void midicctrack::modebuttonpress(int xval) {
 // Edit view functions
 
 void midicctrack::editview(void) {
-	
-	for (int x = 0; x < 256; x++) {
-	
-		singlepoint(x, (128 - patterns[currenteditpattern][x]));
-		
-	}
-	
-	navbuttons(2,4,currenteditpattern);
+
+	flowview();
+
 }
 	
 	
 void midicctrack::editpress(void) {
 
-	if (keysDown() & KEY_START)
-	{
-		if (activepatterns[currenteditpattern] == 0)
-		{
-			activepatterns[currenteditpattern] = 1;
-		}
-		else if (activepatterns[currenteditpattern] == 1)
-		{
-			activepatterns[currenteditpattern] = 0;
-		}
-	}
+	flowpress();
 
-
-	touchPosition touch;
-	
-	if ((keysDown() & KEY_TOUCH) || (keysHeld() & KEY_TOUCH)) {
-
-		touchRead(&touch);
-		
-		int yval = touch.py;
-		int xval = touch.px;
-
-		if (yval < 128)
-		{
-			if (keysDown() & KEY_TOUCH) {
-			
-				prevx = xval;
-				prevy = yval;
-				
-				patterns[currenteditpattern][xval] = (127 - yval);
-						
-			} else if (keysHeld() & KEY_TOUCH) {
-			
-				if ((xval != prevx) && (yval != prevy))
-				{
-					linealg(prevx, prevy, xval, yval);
-					prevx = xval;
-					prevy = yval;
-				}
-			
-			}
-			
-			
-		} else if ((yval > 127) && (yval < 160)) {
-			
-			
-			xval = xval / 32;
-			
-			currenteditpattern = xval;
-			
-		}
-	}
 }
 
 	
@@ -332,52 +250,13 @@ void midicctrack::editpress(void) {
 
 void midicctrack::patternseqview(void) {
 	
-	for(int x = 0; x < 16; x++) {
-		for(int y = 0; y < 8; y++) {
-			drawgridbutton(x,y,patternseq[y][x]);
-		}
-	}
+	optionsview();
 
 }
 void midicctrack::patternseqpress(void) {
 
-	if (keysDown() & KEY_START)
-	{
-		if (activepatterns[currenteditpattern] == 0)
-		{
-			activepatterns[currenteditpattern] = 1;
-		}
-		else if (activepatterns[currenteditpattern] == 1)
-		{
-			activepatterns[currenteditpattern] = 0;
-		}
-	}
+	optionspress();
 
-	touchPosition touch;
-	
-	if (keysDown() & KEY_TOUCH){
-
-		touchRead(&touch);
-		
-		int yval = (touch.py / 16);
-		int xval = (touch.px / 16);
-	
-		if (yval < 8)
-		{
-			for (int i = 0; i < 16; i++)
-			{
-				if (i <= xval)
-				{
-					patternseq[yval][i] = 1;
-				}
-				else if (i > xval)
-				{
-					patternseq[yval][i] = 0;
-				}
-			}
-			patternlengths[yval] = (xval + 1);
-		}
-	}
 }
 	
 
@@ -458,15 +337,11 @@ void midicctrack::flowpress(void) {
 void midicctrack::optionsview(void) {
 
 	iprintf("\x1b[2;4HTrack");
-	
-	iprintf("\x1b[4;2Hsettings No.");
-	iprintf("\x1b[5;2HPattern No.");
-	
-	iprintf("\x1b[7;2HStep Length");
 
-	iprintf("\x1b[8;2HChannel");
+	iprintf("\x1b[7;2HChannel");
 	
-	iprintf("\x1b[10;8HCC Numbers");
+	iprintf("\x1b[9;14HCC");
+	iprintf("\x1b[9;17HLen");
 	
 	iprintf("\x1b[11;2HPattern 1");
 	iprintf("\x1b[12;2HPattern 2");
@@ -478,11 +353,8 @@ void midicctrack::optionsview(void) {
 	iprintf("\x1b[18;2HPattern 8");
 	
 	iprintf("\x1b[2;12H%i  ",tracknumber);
-	
-	iprintf("\x1b[4;14H%i  ",settingsnumber);
-	iprintf("\x1b[5;14H%i  ",patternnumber);
 
-	iprintf("\x1b[8;14H%i  ",midichannel);
+	iprintf("\x1b[7;14H%i  ",midichannel);
 	
 	iprintf("\x1b[11;14H%i  ",midiccnumbers[0]);
 	iprintf("\x1b[12;14H%i  ",midiccnumbers[1]);
@@ -493,22 +365,31 @@ void midicctrack::optionsview(void) {
 	iprintf("\x1b[17;14H%i  ",midiccnumbers[6]);
 	iprintf("\x1b[18;14H%i  ",midiccnumbers[7]);
 	
-	optionsscreenbackground(activerow, 1);
+	iprintf("\x1b[11;19H%i  ",patternlengths[0]);
+	iprintf("\x1b[12;19H%i  ",patternlengths[1]);
+	iprintf("\x1b[13;19H%i  ",patternlengths[2]);
+	iprintf("\x1b[14;19H%i  ",patternlengths[3]);
+	iprintf("\x1b[15;19H%i  ",patternlengths[4]);
+	iprintf("\x1b[16;19H%i  ",patternlengths[5]);
+	iprintf("\x1b[17;19H%i  ",patternlengths[6]);
+	iprintf("\x1b[18;19H%i  ",patternlengths[7]);
+	
+	optionsscreenbackground(activerow, activecolumn);
 	
 	drawkeypad(24,2);
 	
 	int activevalue = 0;
 
 	if (activerow == -1) {activevalue = 0;}
-
-	if (activerow == 4) {activevalue = settingsnumber;}
-	if (activerow == 5) {activevalue = patternnumber;}
 	
-	if (activerow == 8) {activevalue = midichannel;}
+	if (activerow == 7) {activevalue = midichannel;}
 
-	if ((activerow > 10) && (activerow < 19)) {activevalue = midiccnumbers[activerow - 11];}
+	if ((activerow > 10) && (activerow < 19) && (activecolumn == 1)) {activevalue = midiccnumbers[activerow - 11];}
+
+	if ((activerow > 10) && (activerow < 19) && (activecolumn == 2)) {activevalue = patternlengths[activerow - 11];}
 
 	calcanddispnumber(24,4,activevalue);
+
 }
 	
 	
@@ -525,16 +406,9 @@ void midicctrack::optionspress(void) {
 
 		if ((xval > 1) && (xval < 23) && (yval > 1) && (yval < 19))
 		{
-			if (yval == 4) {
-				activerow = 4;
-			}
-			else if (yval == 5)
+			if (yval == 7)
 			{
-				activerow = 5;
-			}
-			else if (yval == 8)
-			{
-				activerow = 8;
+				activerow = 7;
 			}
 			else if (yval == 11)
 			{
@@ -567,6 +441,12 @@ void midicctrack::optionspress(void) {
 			else if (yval == 18)
 			{
 				activerow = 18;
+			}
+			else if ((xval > 13) && (xval < 17)) {
+				activecolumn = 1;
+			}
+			if ((xval > 18) && (xval < 21)) {
+				activecolumn = 2;
 			}
 
 		} else  if ((xval > 23) && (xval < 30) && (yval > 1) && (yval < 9))
@@ -961,19 +841,37 @@ void midicctrack::editmidioptions(int amount) {
 		
 	} else if ((activerow > 10) && (activerow < 19)) {
 	
-		tempvalue = midiccnumbers[activerow - 11] + amount;
-		
-		if (tempvalue > 127)
+		if (activecolumn == 1)
 		{
-			tempvalue = 127;
-		}
-		if (tempvalue < 0)
+			tempvalue = midiccnumbers[activerow - 11] + amount;
+		
+			if (tempvalue > 127)
+			{
+				tempvalue = 127;
+			}
+			if (tempvalue < 0)
+			{
+				tempvalue = 0;
+			}
+			
+			midiccnumbers[activerow - 11] = tempvalue;
+			
+		} else if (activecolumn == 2)
 		{
-			tempvalue = 0;
+			tempvalue = patternlengths[activerow - 11] + amount;
+		
+			if (tempvalue > 16)
+			{
+				tempvalue = 16;
+			}
+			if (tempvalue < 1)
+			{
+				tempvalue = 1;
+			}
+			
+			patternlengths[activerow - 11] = tempvalue;
+			
 		}
-		
-		midiccnumbers[activerow - 11] = tempvalue;
-		
 	}
 }
 

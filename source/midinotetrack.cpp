@@ -171,17 +171,17 @@ void midinotetrack::modebuttondisplay(void) {
 	
 	iprintf("\x1b[21;2HHome");
 
-	iprintf("\x1b[21;9HEd");
-	iprintf("\x1b[22;9Hit");
+	iprintf("\x1b[21;9HEd   ");
+	iprintf("\x1b[22;9Hit   ");
 
-	iprintf("\x1b[21;13HSe");
-	iprintf("\x1b[22;13Hq.");
+	iprintf("\x1b[21;13HSe   ");
+	iprintf("\x1b[22;13Hq.   ");
 
-	iprintf("\x1b[21;17HFl");
-	iprintf("\x1b[22;17How");
+	iprintf("\x1b[21;17HFl   ");
+	iprintf("\x1b[22;17How   ");
 	
-	iprintf("\x1b[21;21HSe");
-	iprintf("\x1b[22;21Ht.");
+	iprintf("\x1b[21;21HSe   ");
+	iprintf("\x1b[22;21Ht.   ");
 
 	iprintf("\x1b[21;26HLoad");
 	iprintf("\x1b[22;26HSave");

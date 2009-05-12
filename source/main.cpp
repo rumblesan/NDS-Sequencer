@@ -77,14 +77,14 @@ int x, y;
 	
 	if (((globalstep % 4) == 0) || ((globalstep % 4) == 1))
 	{
-		drawbiglongbuttonSUB(24,18,1);
+		drawbiglongbuttonSUB(20,16,1);
 	} else {
-		drawbiglongbuttonSUB(22,18,0);
+		drawbiglongbuttonSUB(20,16,0);
 	}
 	
 
 	
-	displaybpm(bpm,15,18);
+	displaybpm(bpm,20,12);
 
 	drawstepdisplaySUB(globalstep, 11);
 	
