@@ -109,6 +109,12 @@ void drawloadsavescreen () {
 
 }
 
+void drawfilebrowser () {
+
+	filebrowsescreenbackground();
+
+}
+
 void drawhomescreen () {
 
 int x, y;
@@ -228,9 +234,13 @@ void displayupdater () {
 		
 			drawloadsavescreen();
 			break;
+		
+		case filebrowse:
+		
+			drawloadsavescreen();
+			break;
 			
 		case misc:
-		
 			break;
 	}
 	
@@ -419,6 +429,8 @@ void loadsaveviewbuttonpresses () {
 	
 	standardbuttons();
 
+	tracks[activetracknumber]->loadsavepress();
+	
 	if (keysDown() & KEY_TOUCH)
 	{
 		touchRead(&touch);
@@ -591,6 +603,17 @@ void homeviewbuttonpresses () {
 
 
 
+void filebrowseview () {
+
+	while(currentmode == filebrowse)
+    {
+
+    }
+	
+	clearbottomscreen();
+	
+}
+
 void setupview () {
 
 	while(currentmode == setup)
@@ -694,7 +717,7 @@ void triggerglobalstep() {
 	
 		if (globalstep == 0)
 		{
-			for (int i = 0; i < 4; i++ )
+			for (int i = 0; i < 6; i++ )
 			{
 				
 				tracks[i]->starttrack(playingtracks[i]);
@@ -721,15 +744,15 @@ void bpmtimer() {
 		{			
 			triggerglobalstep();
 			
-			for (int i = 0; i < 4; i++ )
+			for (int i = 0; i < 6; i++ )
 			{
 			tracks[i]->sequencerclock();
 			}
 			
-			for (int i = 0; i < 4; i++ )
-			{
-				tracks[i]->sendmididata();
-			}
+//			for (int i = 0; i < 4; i++ )
+//			{
+//				tracks[i]->sendmididata();
+//			}
 		}
 		
 		bpmcount++;
@@ -741,8 +764,9 @@ void bpmtimer() {
 
 		bpmcount = 0;
 		globalstep = 0;
+		globalcount = 0;
 		
-		for (int i = 0; i < 4; i++ )
+		for (int i = 0; i < 6; i++ )
 		{
 			tracks[i]->resettrack();
 		}
@@ -827,6 +851,11 @@ int main(void) {
 			case loadsave:
 			
 				loadsaveview();
+				break;
+				
+			case filebrowse:
+			
+				filebrowseview();
 				break;
 				
 			case misc:

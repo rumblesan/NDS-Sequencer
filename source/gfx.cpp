@@ -700,7 +700,7 @@ void drawflowcurve(int x, int y, int flowline) {
 	else
 	{
 		for (int column = 0; column < 128; column ++) {
-			drawpixel(x,column,black);
+//			drawpixel(x,column,black);
 		}
 		
 		drawpixel(x,y,white);

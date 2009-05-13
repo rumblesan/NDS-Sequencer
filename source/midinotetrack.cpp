@@ -481,7 +481,7 @@ void midinotetrack::optionsview(void) {
 	{
 		activevalue = midinotes[activerow - 3][activecolumn];
 		
-		xval = (14 + (activecolumn * 5));
+		xval = (9 + (activecolumn * 5));
 		yval = (11 + activerow - 3);
 		length = 3;
 	}
@@ -536,15 +536,13 @@ void midinotetrack::optionspress(void) {
 			else if (yval == 18) {
 				activerow = 10;
 			}
-			else if ((xval > 8) && (xval < 12)) {
+			if ((xval > 8) && (xval < 12)) {
 				activecolumn = 0;
 			}
 			if ((xval > 13) && (xval < 17)) {
 				activecolumn = 1;
 			}
-			else if ((xval > 18) && (xval < 21)) {
-				activecolumn = 2;
-			}
+
 			
 			
 		} else  if ((xval > 23) && (xval < 30) && (yval > 1) && (yval < 9))
@@ -592,23 +590,6 @@ void midinotetrack::optionspress(void) {
 // Load and Save Functions
 
 void midinotetrack::loadsaveview(void) {
-
-	iprintf("\x1b[2;4HTrack");
-	
-	iprintf("\x1b[4;2Hsettings No.");
-	iprintf("\x1b[5;2HPattern No.");
-	
-	iprintf("\x1b[2;12H%i  ",tracknumber);
-	
-	iprintf("\x1b[4;14H%i  ",settingsnumber);
-	iprintf("\x1b[5;14H%i  ",patternnumber);
-	
-	drawbiglongbutton(3,7,1);
-	drawbiglongbutton(3,13,1);
-	drawbiglongbutton(12,7,1);
-	drawbiglongbutton(12,13,1);
-	
-	drawkeypad(24,2);
 	
 	int activevalue = 0;
 	int xval = -1;
@@ -619,7 +600,7 @@ void midinotetrack::loadsaveview(void) {
 	{
 		activevalue = settingsnumber;
 		
-		xval = 14;
+		xval = 7;
 		yval = 5;
 		length = 3;
 	}
@@ -627,14 +608,37 @@ void midinotetrack::loadsaveview(void) {
 	{
 		activevalue = patternnumber;
 		
-		xval = 14;
-		yval = 7;
+		xval = 16;
+		yval = 5;
 		length = 3;
 	}
 
 	calcanddispnumber(24,4,activevalue);
 	
 	optionsscreenbackground(xval, yval, length);
+	
+	iprintf("\x1b[2;4HTrack");
+	
+	iprintf("\x1b[4;3HSettings");
+	iprintf("\x1b[4;12HPatterns");
+	
+	iprintf("\x1b[2;12H%i  ",tracknumber);
+	
+	iprintf("\x1b[5;3HNo. %i  ",settingsnumber);
+	iprintf("\x1b[5;12HNo. %i  ",patternnumber);
+	
+	iprintf("\x1b[8;5HLoad");
+	iprintf("\x1b[14;5HSave");
+	
+	iprintf("\x1b[8;14HLoad");
+	iprintf("\x1b[14;14HSave");
+	
+	drawbiglongbutton(3,7,1);
+	drawbiglongbutton(3,13,1);
+	drawbiglongbutton(12,7,1);
+	drawbiglongbutton(12,13,1);
+	
+	drawkeypad(24,2);
 
 }
 
@@ -649,13 +653,13 @@ void midinotetrack::loadsavepress(void) {
 		int yval = (touch.py / 8);
 		int xval = (touch.px / 8);
 
-		if ((xval > 1) && (xval < 23) && (yval > 1) && (yval < 19))
+		if ((yval == 5) && (xval < 23))
 		{
-			if (yval == 4)
+			if ((xval > 6) && (xval < 10))
 			{
-			activerow = 11;
+				activerow = 11;
 			}
-			else if (yval == 5)
+			else if ((xval > 15) && (xval < 19))
 			{
 				activerow = 12;
 			}
@@ -663,23 +667,19 @@ void midinotetrack::loadsavepress(void) {
 		}
 		else if ((xval > 2) && (xval < 11) && (yval > 6) && (yval < 11))
 		{
-
-	
+			settingsfileloader();
 		}
 		else if ((xval > 2) && (xval < 11) && (yval > 12) && (yval < 17))
 		{
-
-	
+			settingsfilesaver();
 		}
 		else if ((xval > 11) && (xval < 20) && (yval > 6) && (yval < 11))
 		{
-
-	
+			patternfileloader();
 		}
 		else if ((xval > 11) && (xval < 20) && (yval > 12) && (yval < 17))
 		{
-
-	
+			patternfilesaver();
 		}
 		else if ((xval > 23) && (xval < 30) && (yval > 1) && (yval < 9))
 		{
@@ -719,6 +719,8 @@ void midinotetrack::loadsavepress(void) {
 		}
 	}
 }
+
+
 
 // Private Object Functions
 

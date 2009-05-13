@@ -2,7 +2,7 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
-enum modes_t {home, edit, seqpatterns, follow, options, loadsave, setup, misc};
+enum modes_t {home, edit, seqpatterns, follow, options, loadsave, setup, filebrowse, misc};
 
 
 struct settingsbuffer {
