@@ -11,9 +11,7 @@
 
 #include "file_browse.h"
 
-
 extern modes_t currentmode;
-
 
 // Constructor
 
@@ -32,6 +30,8 @@ midicctrack::midicctrack(int assignedtracknumber) {
 	
 	currenteditpattern = 0;
 
+	miditrigger = 0;
+	
 	prevx = 0;
 	prevy = 0;
 
@@ -61,19 +61,9 @@ midicctrack::midicctrack(int assignedtracknumber) {
 	
 	activerow = -1;
 	
-	
-	for( x = 0; x < 16; x++ )
-	{
-		for( y = 0; y < 3; y++ )
-		{
-			pendingsenddata[x][y] = 0;
-		}
-	}
-	
 
 	clockcount = 0;
 	midichannel = 0;
-	pendinglistpos = 0;
 	
 }
 
@@ -109,6 +99,7 @@ void midicctrack::resettrack(void) {
 		patternpositions[x][1] = 0;
 	}
 	clockcount = 0;
+	miditrigger = 0;
 	
 }
 
@@ -126,7 +117,7 @@ void midicctrack::sequencerclock(void) {
 
 	if (playing == 1)
 	{
-		//triggernotes();
+		miditrigger = 1;
 		
 		stepposition++;
 		if (stepposition >= 16 * 16) {
@@ -162,14 +153,40 @@ void midicctrack::sequencerclock(void) {
 
 void midicctrack::sendmididata(void) {
 
-	for (int i = 0; i < pendinglistpos; i++) {
-	
-		midicc(pendingsenddata[i][0],pendingsenddata[i][1],pendingsenddata[i][2]);
-	
+	if (miditrigger)
+	{
+		miditrigger = 0;
+		
+		for (int x = 0; x < 8; x++) {
+			
+			if (activepatterns[x] == 1)
+			{
+				
+				int valone = patterns[x][patternpositions[x][1]];
+				
+				int postwo = patternpositions[x][1] + 1;
+				if (postwo == 256) {
+					postwo = 0;
+				}
+				
+				int valtwo = patterns[x][postwo];
+				
+				int stepdenominator = patternpositions[x][0];
+				int steplength = patternlengths[x];
+				
+				int ccvalue = interpolationalg(valone, valtwo, stepdenominator, steplength);
+				
+				if (!((midichannel == previousmessage[x][0]) && (midiccnumbers[x] == previousmessage[x][1]) && (ccvalue == previousmessage[x][2])))
+				{
+					midicc(midichannel,midiccnumbers[x],ccvalue);
+					
+					previousmessage[x][0] = midichannel;
+					previousmessage[x][1] = midiccnumbers[x];
+					previousmessage[x][2] = ccvalue;
+				}
+			}	
+		}
 	}
-	
-	pendinglistpos = 0;
-
 }
 
 
@@ -981,43 +998,4 @@ void midicctrack::editoption(int amount) {
 
 
 
-
-// Note functions
-
-void midicctrack::triggernotes(void) {
-
-	for (int x = 0; x < 8; x++) {
-		
-		if (activepatterns[x] == 1) {
-			
-			int valone = patterns[x][patternpositions[x][1]];
-			
-			int postwo = patternpositions[x][1] + 1;
-			if (postwo == 256) {
-				postwo = 0;
-			}
-			
-			int valtwo = patterns[x][postwo];
-			
-			int stepdenominator = patternpositions[x][0];
-			int steplength = patternlengths[x];
-			
-			int ccvalue = interpolationalg(valone, valtwo, stepdenominator, steplength);
-			
-			if (!((midichannel == previousmessage[x][0]) && (midiccnumbers[x] == previousmessage[x][1]) && (ccvalue == previousmessage[x][2])))
-			{
-				pendingsenddata[pendinglistpos][0] = midichannel;
-				pendingsenddata[pendinglistpos][1] = midiccnumbers[x];
-				pendingsenddata[pendinglistpos][2] = ccvalue;
-				
-				pendinglistpos++;
-				
-				previousmessage[x][0] = midichannel;
-				previousmessage[x][1] = midiccnumbers[x];
-				previousmessage[x][2] = ccvalue;
-			}
-		}	
-	}
-	
-}
 // End of Functions

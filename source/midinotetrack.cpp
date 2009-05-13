@@ -25,6 +25,8 @@ midinotetrack::midinotetrack(int assignedtracknumber) {
 	currenteditpattern = 0;
 	patternseqlength = 4;
 	
+	miditrigger = 0;
+	
 	playing = 0;
 	triggerplay = 0;
 	
@@ -87,6 +89,7 @@ void midinotetrack::resettrack(void) {
 	stepposition = 0;
 	patternseqpos = 0;
 	clockcount = 0;
+	miditrigger = 0;
 	
 }
 
@@ -104,7 +107,7 @@ void midinotetrack::sequencerclock(void) {
 
 		if (playing == 1)
 		{
-			triggernotes();
+			miditrigger = 1;
 		}
 		
 	}
@@ -131,14 +134,44 @@ void midinotetrack::sequencerclock(void) {
 
 void midinotetrack::sendmididata(void) {
 
-	for (int i = 0; i < pendinglistpos; i++) {
-	
-		midinote(pendingsenddata[i][0],pendingsenddata[i][1],pendingsenddata[i][2]);
-	
-	}
-	
-	pendinglistpos = 0;
+	if (miditrigger)
+	{
+		int j;
+		int activetrackpattern = patternseq[patternseqpos];
 
+		for (j = 0 ; j < 8 ; j++)
+		{
+			int stepvalue = patterns[activetrackpattern][stepposition][j];
+			
+			if (stepvalue == 1)
+			{
+				midinote(midichannel,midinotes[j][0],midinotes[j][1]);
+				
+				if ((currentonnotes[j][0] != midichannel || currentonnotes[j][1] != midinotes[j][0]) && (currentonnotes[j][2] == 1))
+				{				
+					midinote(currentonnotes[j][0],currentonnotes[j][1],0);				
+				}
+				
+				currentonnotes[j][0] = midichannel;
+				currentonnotes[j][1] = midinotes[j][0];
+				currentonnotes[j][2] = 1;
+			}
+			else if (stepvalue == 2)
+			{
+				midinote(midichannel,midinotes[j][0],0);
+				
+				if ((currentonnotes[j][0] != midichannel || currentonnotes[j][1] != midinotes[j][0]) && (currentonnotes[j][2] == 1))
+				{				
+					midinote(currentonnotes[j][0],currentonnotes[j][1],0);				
+				}
+				
+				currentonnotes[j][0] = midichannel;
+				currentonnotes[j][1] = midinotes[j][0];
+				currentonnotes[j][2] = 0;
+				
+			}
+		}
+	}
 }
 
 
@@ -997,50 +1030,6 @@ void midinotetrack::editoption(int amount) {
 }
 
 
-
-
-
-// Note functions
-
-void midinotetrack::triggernotes(void) {
-
-	int j;
-	int activetrackpattern = patternseq[patternseqpos];
-
-	for (j = 0 ; j < 8 ; j++)
-	{
-		int stepvalue = patterns[activetrackpattern][stepposition][j];
-		
-		if ((stepvalue == 1) || (stepvalue == 2))
-		{
-			pendingsenddata[pendinglistpos][0] = midichannel;
-			pendingsenddata[pendinglistpos][1] = midinotes[j][0];
-			
-			if (stepvalue == 1) {pendingsenddata[pendinglistpos][2] = midinotes[j][1];}
-			if (stepvalue == 2) {pendingsenddata[pendinglistpos][2] = 0;}
-			
-			pendinglistpos++;
-			
-			if ((currentonnotes[j][0] != midichannel || currentonnotes[j][1] != midinotes[j][0]) && ( currentonnotes[j][2] == 1)) {
-				
-				pendingsenddata[pendinglistpos][0] = midichannel;
-				pendingsenddata[pendinglistpos][1] = midinotes[j][0];
-				pendingsenddata[pendinglistpos][2] = 0;
-				
-				pendinglistpos++;
-				
-			}
-			
-			currentonnotes[j][0] = midichannel;
-			currentonnotes[j][1] = midinotes[j][0];
-			
-			if (stepvalue == 1) {currentonnotes[j][2] = 1;}
-			if (stepvalue == 2) {currentonnotes[j][2] = 0;}
-			
-		}
-	}
-
-}
 
 
 // End of Functions

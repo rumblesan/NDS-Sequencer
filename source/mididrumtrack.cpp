@@ -13,7 +13,6 @@
 
 extern modes_t currentmode;
 
-
 // Constructor
 
 mididrumtrack::mididrumtrack(int assignedtracknumber) {
@@ -35,6 +34,8 @@ mididrumtrack::mididrumtrack(int assignedtracknumber) {
 
 	settingsnumber = 0;
 	patternnumber = 0;
+	
+	miditrigger = 0;
 	
 	midichannel = 1;
 	
@@ -86,6 +87,7 @@ void mididrumtrack::resettrack(void) {
 	stepposition = 0;
 	patternseqpos = 0;
 	clockcount = 0;
+	miditrigger = 0;
 	
 }
 
@@ -104,10 +106,8 @@ void mididrumtrack::sequencerclock(void) {
 
 		if (playing == 1)
 		{
-			triggernoteson();
+			miditrigger = 1;
 		}
-		
-		triggernotesoff();
 	}
 	
 	clockcount++;
@@ -131,15 +131,14 @@ void mididrumtrack::sequencerclock(void) {
 // MIDI functions
 
 void mididrumtrack::sendmididata(void) {
-
-	for (int i = 0; i < pendinglistpos; i++) {
 	
-		midinote(pendingsenddata[i][0],pendingsenddata[i][1],pendingsenddata[i][2]);
-	
+	if (miditrigger)
+	{
+		miditrigger = 0;
+		triggernoteson();
+		triggernotesoff();
 	}
 	
-	pendinglistpos = 0;
-
 }
 
 
@@ -1029,22 +1028,14 @@ void mididrumtrack::triggernoteson(void) {
 	for (j = 0 ; j < 8 ; j++)
 	{
 		if (patterns[activetrackpattern][stepposition][j] == 1)
-		{				
-			pendingsenddata[pendinglistpos][0] = midichannel;
-			pendingsenddata[pendinglistpos][1] = midinotes[j][0];
-			pendingsenddata[pendinglistpos][2] = midinotes[j][1];
+		{	
+			midinote(midichannel,midinotes[j][0],midinotes[j][1]);
 			
-			pendinglistpos++;
-			
-			if (currentonnotes[j][0] != midichannel || currentonnotes[j][1] != midinotes[j][0]) {
-				
-				pendingsenddata[pendinglistpos][0] = midichannel;
-				pendingsenddata[pendinglistpos][1] = midinotes[j][0];
-				pendingsenddata[pendinglistpos][2] = 0;
-				
-				pendinglistpos++;
-				
+			if (currentonnotes[j][0] != midichannel || currentonnotes[j][1] != midinotes[j][0])
+			{
+				midinote(currentonnotes[j][0],currentonnotes[j][1],0);
 			}
+			
 			currentonnotes[j][0] = midichannel;
 			currentonnotes[j][1] = midinotes[j][0];
 			currentonnotes[j][2] = midinotes[j][2];
@@ -1060,11 +1051,7 @@ void mididrumtrack::triggernotesoff(void) {
 	{
 		if (currentonnotes[j][2] == 0)
 		{
-			pendingsenddata[pendinglistpos][0] = currentonnotes[j][0];
-			pendingsenddata[pendinglistpos][1] = currentonnotes[j][1];
-			pendingsenddata[pendinglistpos][2] = 0;
-			
-			pendinglistpos++;
+			midinote(midichannel,midinotes[j][0],0);
 			
 			currentonnotes[j][2] = -1;
 		}

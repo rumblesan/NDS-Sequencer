@@ -43,6 +43,8 @@ class mididrumtrack :public track {
 
 private:
 
+	int miditrigger;
+	
 	int playing;
 	int triggerplay;
 
@@ -67,8 +69,6 @@ private:
 	int stepbeatlength;
 	int clockcount;
 	
-	int pendinglistpos;
-	uint8_t pendingsenddata[32][3];
 	uint8_t currentonnotes[8][3];
 
 	uint8_t midichannel;
@@ -121,6 +121,8 @@ class midinotetrack :public track {
 
 private:
 
+	int miditrigger;
+	
 	int playing;
 	int triggerplay;
 	
@@ -145,14 +147,10 @@ private:
 	int stepbeatlength;
 	int clockcount;
 	
-	int pendinglistpos;
-	uint8_t pendingsenddata[32][3];
 	uint8_t currentonnotes[8][3];
 
 	uint8_t midichannel;
 	uint8_t midinotes[8][2];
-	
-	void triggernotes(void);
 	
 	void editoption(int amount);
 	
@@ -197,6 +195,8 @@ class midicctrack :public track {
 
 private:
 
+	int miditrigger;
+	
 	int playing;
 	int triggerplay;
 	
@@ -222,10 +222,6 @@ private:
 	int clockcount;
 	
 	int currentpatternview[256];
-	
-	int pendinglistpos;
-	
-	uint8_t pendingsenddata[32][3];
 
 	uint8_t midichannel;
 	uint8_t midiccnumbers[8];
@@ -234,9 +230,6 @@ private:
 	
 	int prevx;
 	int prevy;
-	
-	
-	void triggernotes(void);
 	
 	int interpolationalg(int pointone, int pointtwo, int stepdenominator, int steplength);
 
