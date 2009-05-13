@@ -685,42 +685,27 @@ void drawpixel(int x, int y, int colour) {
 }
 
 
-void drawflowcurve(int x, int y, int flowline) {
+void drawcolumn(int x, int y) {
 	
-	int white = RGB15(30,30,30);
-	int black = RGB15(0,0,0);
-	int red = RGB15(30,0,0);
+	int line = RGB15(30,30,30);
+	int bg = RGB15(0,0,0);
 
-	if (x == flowline) {
-		
-		for (int column = 0; column < 128; column ++) {
-			drawpixel(x,column,red);
-		}
+	for (int column = 0; column < 128; column ++) {
+		drawpixel(x,column,bg);
 	}
-	else
-	{
-		for (int column = 0; column < 128; column ++) {
-//			drawpixel(x,column,black);
-		}
-		
-		drawpixel(x,y,white);
-	}
+	
+	drawpixel(x,y,line);
 	
 }
 
-void singlepoint(int x, int y) {
-
-	int white = RGB15(30,30,30);
-	int black = RGB15(0,0,0);
+void drawline(int x) {
+	
+	int colour = RGB15(30,0,0);
 
 	for (int column = 0; column < 128; column ++) {
-	
-		drawpixel(x,column,black);
-
+		drawpixel(x,column,colour);
 	}
 	
-	drawpixel(x,y,white);
-
 }
 
 

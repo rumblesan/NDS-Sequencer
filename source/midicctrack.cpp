@@ -35,6 +35,11 @@ midicctrack::midicctrack(int assignedtracknumber) {
 	prevx = 0;
 	prevy = 0;
 
+	for( x = 0; x < 256; x++ )
+	{
+		currentpatternview[x] = -1;
+	}
+
 	for( x = 0; x < 8; x++ )
 	{
 		for( y = 0; y < 256; y++ )
@@ -268,7 +273,21 @@ void midicctrack::flowview(void) {
 	
 	for (int x = 0; x < 256; x++) {
 		
-		drawflowcurve(x, (128 - patterns[currenteditpattern][x]), patternpositions[currenteditpattern][1]);
+		if (currentpatternview[x] != patterns[currenteditpattern][x])
+		{
+			currentpatternview[x] = patterns[currenteditpattern][x];
+			drawcolumn(x,(128 - currentpatternview[x]));		
+		}
+		
+		if ( x == patternpositions[currenteditpattern][1])
+		{
+			int columnfix = (x - 1);
+			if (columnfix < 0) { columnfix = 255;}
+			
+			drawline(x);
+			drawcolumn((x - 2),(128 - currentpatternview[x]));
+			drawcolumn((x - 1),(128 - currentpatternview[x]));
+		}
 	}
 	
 	navbuttons(2,4,currenteditpattern);
@@ -586,7 +605,9 @@ void midicctrack::loadsavepress(void) {
 		}
 		else if ((xval > 2) && (xval < 11) && (yval > 6) && (yval < 11))
 		{
+			currentmode = filebrowse;
 			settingsfileloader();
+			currentmode = loadsave;
 		}
 		else if ((xval > 2) && (xval < 11) && (yval > 12) && (yval < 17))
 		{
@@ -594,7 +615,9 @@ void midicctrack::loadsavepress(void) {
 		}
 		else if ((xval > 11) && (xval < 20) && (yval > 6) && (yval < 11))
 		{
+			currentmode = filebrowse;
 			patternfileloader();
+			currentmode = loadsave;
 		}
 		else if ((xval > 11) && (xval < 20) && (yval > 12) && (yval < 17))
 		{
@@ -647,19 +670,15 @@ void midicctrack::loadsavepress(void) {
 // Load and Save Sub Functions
 
 void midicctrack::patternfileloader() {
-/*
-	patternbuffer patternloadstruct;
+
+	ccpatternbuffer patternloadstruct;
 	
 	char filePath[MAXPATHLEN * 2];
 	int pathLen;
 	std::string filename;
 	FILE * pFile;
 	
-	iprintf("loading\n");
-	
-	filename = browseForFile (".ptr");
-
-	int x, y, z;
+	filename = browseForFile (".cpt");
 
 	if (filename != "NULL")
 	{
@@ -670,27 +689,20 @@ void midicctrack::patternfileloader() {
 		
 		pFile = fopen ( filePath , "r" );
 		
-		fread((char *)&patternloadstruct, sizeof(patternbuffer), 1, pFile);
+		fread((char *)&patternloadstruct, sizeof(ccpatternbuffer), 1, pFile);
 		
 		patternnumber = patternloadstruct.patternnumber;
 		
-		patternseqlength = patternloadstruct.patternseqlength;
-		stepbeatlength = patternloadstruct.stepbeatlength;
+		int x, y;
 		
-		for ( z = 0; z < 8; z++ )
+		for ( x = 0; x < 8; x++ )
 		{
-			for( x = 0; x < 16; x++ )
+			for( y = 0; y < 256; y++ )
 			{
-				for( y = 0; y < 8; y++ )
-				{
-					patterns[z][x][y] = patternloadstruct.patterns[z][x][y];
-				}
+				patterns[x][y] = patternloadstruct.patterns[x][y];
 			}
-		}
-		
-		for( x = 0; x < 16; x++ )
-		{
-			patternseq[x] = patternloadstruct.patternseq[x];
+			
+			patternlengths[x] = patternloadstruct.patternlengths[x];
 		}
 		
 		
@@ -698,57 +710,49 @@ void midicctrack::patternfileloader() {
 	}
 	
     clearbottomscreen();
-*/
+
 }
 
 void midicctrack::patternfilesaver() {
-/*	
-	patternbuffer patternsavestruct;
 	
-	char format[] = "/seqgrid/files/pattern-%d.ptr";
+	ccpatternbuffer patternsavestruct;
+	
+	char format[] = "/seqgrid/files/ccpattern-%d.cpt";
 	char filename[sizeof format+100];
 	sprintf(filename,format,patternnumber);
 	FILE *pFile = fopen(filename,"w");
 
 		patternsavestruct.patternnumber = patternnumber;
 		
-		patternsavestruct.patternseqlength = patternseqlength;
-		patternsavestruct.stepbeatlength = stepbeatlength;
+		int x, y;
 		
-		int x, y, z;
-		
-		for ( z = 0; z < 8; z++ )
+		for ( x = 0; x < 8; x++ )
 		{
-			for( x = 0; x < 16; x++ )
+			for( y = 0; y < 256; y++ )
 			{
-				for( y = 0; y < 8; y++ )
-				{
-					patternsavestruct.patterns[z][x][y] = patterns[z][x][y];
-				}
+				patternsavestruct.patterns[x][y] = patterns[x][y];
 			}
+			
+			patternsavestruct.patternlengths[x] = patternlengths[x];
 		}
 		
-		for( x = 0; x < 16; x++ )
-		{
-			patternsavestruct.patternseq[x] = patternseq[x];
-		}
 	
-	fwrite((char *)&patternsavestruct, sizeof(patternbuffer), 1, pFile);
+	fwrite((char *)&patternsavestruct, sizeof(ccpatternbuffer), 1, pFile);
 
 	fclose (pFile);
-*/
+
 }
 
 void midicctrack::settingsfileloader() {
-/*
-	settingsbuffer settingsloadstruct;
+
+	ccsettingsbuffer settingsloadstruct;
 	
 	char filePath[MAXPATHLEN * 2];
 	int pathLen;
 	std::string filename;
 	FILE * pFile;
 	
-	filename = browseForFile (".set");
+	filename = browseForFile (".cst");
 
 	if (filename != "NULL")
 	{
@@ -759,53 +763,44 @@ void midicctrack::settingsfileloader() {
 		
 		pFile = fopen ( filePath , "r" );
 		
-		fread((char *)&settingsloadstruct, sizeof(settingsbuffer), 1, pFile);
+		fread((char *)&settingsloadstruct, sizeof(ccsettingsbuffer), 1, pFile);
 		
 		settingsnumber = settingsloadstruct.settingsnumber;
 		midichannel = settingsloadstruct.midichannel;
-		notelength = settingsloadstruct.notelength;
-
 		
 		for (int i = 0; i < 8; i ++)
 		{
-			for (int j = 0; j < 3; j ++)
-			{
-				midinotes[i][j] = settingsloadstruct.midinotes[i][j];
-			}
+			midiccnumbers[i] = settingsloadstruct.midiccnumbers[i];
 		}
 		
 		fclose (pFile);
 	}
 	
 	clearbottomscreen();
-*/
+
 }
 
 void midicctrack::settingsfilesaver() {
-/*
-	settingsbuffer settingssavestruct;
+
+	ccsettingsbuffer settingssavestruct;
 	
-	char format[] = "/seqgrid/files/settings-%d.set";
+	char format[] = "/seqgrid/files/ccsettings-%d.cst";
 	char filename[sizeof format+100];
 	sprintf(filename,format,settingsnumber);
 	FILE *pFile = fopen(filename,"w");
 
 	settingssavestruct.settingsnumber = settingsnumber;
 	settingssavestruct.midichannel = midichannel;
-	settingssavestruct.notelength = notelength;
 	
 	for (int i = 0; i < 8; i ++)
 	{
-		for (int j = 0; j < 3; j ++)
-		{
-			settingssavestruct.midinotes[i][j] = midinotes[i][j];
-		}
+		settingssavestruct.midiccnumbers[i] = midiccnumbers[i];
 	}
 	
-	fwrite((char *)&settingssavestruct, sizeof(settingsbuffer), 1, pFile);
+	fwrite((char *)&settingssavestruct, sizeof(ccsettingsbuffer), 1, pFile);
 
 	fclose (pFile);
-*/
+
 }
 
 

@@ -221,12 +221,15 @@ private:
 	
 	int clockcount;
 	
+	int currentpatternview[256];
+	
 	int pendinglistpos;
 	
 	uint8_t pendingsenddata[32][3];
 
 	uint8_t midichannel;
 	uint8_t midiccnumbers[8];
+	
 	int patternlengths[8];
 	
 	int prevx;

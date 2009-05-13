@@ -668,7 +668,9 @@ void mididrumtrack::loadsavepress(void) {
 		}
 		else if ((xval > 2) && (xval < 11) && (yval > 6) && (yval < 11))
 		{
+			currentmode = filebrowse;
 			settingsfileloader();
+			currentmode = loadsave;
 		}
 		else if ((xval > 2) && (xval < 11) && (yval > 12) && (yval < 17))
 		{
@@ -676,7 +678,9 @@ void mididrumtrack::loadsavepress(void) {
 		}
 		else if ((xval > 11) && (xval < 20) && (yval > 6) && (yval < 11))
 		{
+			currentmode = filebrowse;
 			patternfileloader();
+			currentmode = loadsave;
 		}
 		else if ((xval > 11) && (xval < 20) && (yval > 12) && (yval < 17))
 		{
@@ -730,16 +734,14 @@ void mididrumtrack::loadsavepress(void) {
 
 void mididrumtrack::patternfileloader() {
 
-	patternbuffer patternloadstruct;
+	gridpatternbuffer patternloadstruct;
 	
 	char filePath[MAXPATHLEN * 2];
 	int pathLen;
 	std::string filename;
 	FILE * pFile;
 	
-	iprintf("loading\n");
-	
-	filename = browseForFile (".ptr");
+	filename = browseForFile (".ptn");
 
 	int x, y, z;
 
@@ -752,7 +754,7 @@ void mididrumtrack::patternfileloader() {
 		
 		pFile = fopen ( filePath , "r" );
 		
-		fread((char *)&patternloadstruct, sizeof(patternbuffer), 1, pFile);
+		fread((char *)&patternloadstruct, sizeof(gridpatternbuffer), 1, pFile);
 		
 		patternnumber = patternloadstruct.patternnumber;
 		
@@ -766,6 +768,7 @@ void mididrumtrack::patternfileloader() {
 				for( y = 0; y < 8; y++ )
 				{
 					patterns[z][x][y] = patternloadstruct.patterns[z][x][y];
+					if (patterns[z][x][y] == 2) {patterns[z][x][y] = 0;}
 				}
 			}
 		}
@@ -785,9 +788,9 @@ void mididrumtrack::patternfileloader() {
 
 void mididrumtrack::patternfilesaver() {
 	
-	patternbuffer patternsavestruct;
+	gridpatternbuffer patternsavestruct;
 	
-	char format[] = "/seqgrid/files/pattern-%d.ptr";
+	char format[] = "/seqgrid/files/pattern-%d.ptn";
 	char filename[sizeof format+100];
 	sprintf(filename,format,patternnumber);
 	FILE *pFile = fopen(filename,"w");
@@ -815,7 +818,7 @@ void mididrumtrack::patternfilesaver() {
 			patternsavestruct.patternseq[x] = patternseq[x];
 		}
 	
-	fwrite((char *)&patternsavestruct, sizeof(patternbuffer), 1, pFile);
+	fwrite((char *)&patternsavestruct, sizeof(gridpatternbuffer), 1, pFile);
 
 	fclose (pFile);
 
@@ -829,7 +832,7 @@ void mididrumtrack::settingsfileloader() {
 	std::string filename;
 	FILE * pFile;
 	
-	filename = browseForFile (".set");
+	filename = browseForFile (".dst");
 
 	if (filename != "NULL")
 	{
@@ -866,7 +869,7 @@ void mididrumtrack::settingsfilesaver() {
 	
 	settingsbuffer settingssavestruct;
 	
-	char format[] = "/seqgrid/files/settings-%d.set";
+	char format[] = "/seqgrid/files/settings-%d.dst";
 	char filename[sizeof format+100];
 	sprintf(filename,format,settingsnumber);
 	FILE *pFile = fopen(filename,"w");

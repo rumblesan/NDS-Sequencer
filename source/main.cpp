@@ -109,7 +109,7 @@ void drawloadsavescreen () {
 
 }
 
-void drawfilebrowser () {
+void drawfilebrowsescreen () {
 
 	filebrowsescreenbackground();
 
@@ -237,7 +237,7 @@ void displayupdater () {
 		
 		case filebrowse:
 		
-			drawloadsavescreen();
+			drawfilebrowsescreen();
 			break;
 			
 		case misc:

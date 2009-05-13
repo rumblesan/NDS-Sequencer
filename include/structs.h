@@ -15,7 +15,7 @@ uint8_t notelength;
 
 };
 
-struct patternbuffer {
+struct gridpatternbuffer {
 
 int patternnumber;
 
@@ -26,17 +26,21 @@ int stepbeatlength;
 
 };
 
-struct trackbuffer {
+struct ccpatternbuffer {
 
-int patternnumber[4];
-int presetnumber[4];
+int patternnumber;
 
-int patterns[4][8][16][8];
-int patternseq[4][16];
-int patternseqlength[4];
+int patterns[8][256];
+int patternlengths[8];
 
-uint8_t midichannel[4];
-uint8_t midinotes[4][8][3];
+};
+
+struct ccsettingsbuffer {
+
+int settingsnumber;
+
+uint8_t midichannel;
+uint8_t midiccnumbers[8];
 
 };
 

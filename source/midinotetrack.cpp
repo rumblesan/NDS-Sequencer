@@ -667,7 +667,9 @@ void midinotetrack::loadsavepress(void) {
 		}
 		else if ((xval > 2) && (xval < 11) && (yval > 6) && (yval < 11))
 		{
+			currentmode = filebrowse;
 			settingsfileloader();
+			currentmode = loadsave;
 		}
 		else if ((xval > 2) && (xval < 11) && (yval > 12) && (yval < 17))
 		{
@@ -675,7 +677,9 @@ void midinotetrack::loadsavepress(void) {
 		}
 		else if ((xval > 11) && (xval < 20) && (yval > 6) && (yval < 11))
 		{
+			currentmode = filebrowse;
 			patternfileloader();
+			currentmode = loadsave;
 		}
 		else if ((xval > 11) && (xval < 20) && (yval > 12) && (yval < 17))
 		{
@@ -729,14 +733,14 @@ void midinotetrack::loadsavepress(void) {
 
 void midinotetrack::patternfileloader() {
 
-	patternbuffer patternloadstruct;
+	gridpatternbuffer patternloadstruct;
 	
 	char filePath[MAXPATHLEN * 2];
 	int pathLen;
 	std::string filename;
 	FILE * pFile;
 	
-	filename = browseForFile (".ptr");
+	filename = browseForFile (".ptn");
 
 	int x, y, z;
 
@@ -749,7 +753,7 @@ void midinotetrack::patternfileloader() {
 		
 		pFile = fopen ( filePath , "r" );
 		
-		fread((char *)&patternloadstruct, sizeof(patternbuffer), 1, pFile);
+		fread((char *)&patternloadstruct, sizeof(gridpatternbuffer), 1, pFile);
 		
 		patternnumber = patternloadstruct.patternnumber;
 		
@@ -782,9 +786,9 @@ void midinotetrack::patternfileloader() {
 
 void midinotetrack::patternfilesaver() {
 	
-	patternbuffer patternsavestruct;
+	gridpatternbuffer patternsavestruct;
 	
-	char format[] = "/seqgrid/files/pattern-%d.ptr";
+	char format[] = "/seqgrid/files/notepattern-%d.ptn";
 	char filename[sizeof format+100];
 	sprintf(filename,format,patternnumber);
 	FILE *pFile = fopen(filename,"w");
@@ -812,7 +816,7 @@ void midinotetrack::patternfilesaver() {
 			patternsavestruct.patternseq[x] = patternseq[x];
 		}
 	
-	fwrite((char *)&patternsavestruct, sizeof(patternbuffer), 1, pFile);
+	fwrite((char *)&patternsavestruct, sizeof(gridpatternbuffer), 1, pFile);
 
 	fclose (pFile);
 
@@ -826,7 +830,7 @@ void midinotetrack::settingsfileloader() {
 	std::string filename;
 	FILE * pFile;
 	
-	filename = browseForFile (".set");
+	filename = browseForFile (".nst");
 
 	if (filename != "NULL")
 	{
@@ -862,7 +866,7 @@ void midinotetrack::settingsfilesaver() {
 	
 	settingsbuffer settingssavestruct;
 	
-	char format[] = "/seqgrid/files/settings-%d.prs";
+	char format[] = "/seqgrid/files/notesettings-%d.nst";
 	char filename[sizeof format+100];
 	sprintf(filename,format,settingsnumber);
 	FILE *pFile = fopen(filename,"w");
