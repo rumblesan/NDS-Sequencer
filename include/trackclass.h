@@ -78,7 +78,7 @@ private:
 	void triggernoteson(void);
 	void triggernotesoff(void);
 	
-	void editmidioptions(int amount);
+	void editoption(int amount);
 	
 	void patternfileloader(void);
 	void patternfilesaver(void);
@@ -154,7 +154,7 @@ private:
 	
 	void triggernotes(void);
 	
-	void editmidioptions(int amount);
+	void editoption(int amount);
 	
 	void patternfileloader(void);
 	void patternfilesaver(void);
@@ -233,8 +233,6 @@ private:
 	int prevy;
 	
 	
-	
-	
 	void triggernotes(void);
 	
 	int interpolationalg(int pointone, int pointtwo, int stepdenominator, int steplength);
@@ -244,7 +242,7 @@ private:
 	
 	void loadvalues(void);
 	
-	void editmidioptions(int amount);
+	void editoption(int amount);
 	
 	void patternfileloader(void);
 	void patternfilesaver(void);

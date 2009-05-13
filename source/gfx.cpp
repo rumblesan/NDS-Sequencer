@@ -889,7 +889,7 @@ void optionsscreenbackground(int xval, int yval, int length) {
     int x, y;
 	int buttoncycle = 0;
 	int xmin = xval;
-	int xmax = (xval + column);
+	int xmax = (xval + length);
 
 
     for( y = 0; y < 20; y++ )
@@ -898,7 +898,7 @@ void optionsscreenbackground(int xval, int yval, int length) {
         {
 			int tile = tile_optionsviewtiles + optionsscreen[buttoncycle];
 			
-			if ((y == yval) && (x > xmin) && (x < xmax))
+			if ((y == yval) && (x >= xmin) && (x < xmax))
 			{
 				tile += 1;
 			}			

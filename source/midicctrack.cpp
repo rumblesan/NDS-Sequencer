@@ -343,52 +343,72 @@ void midicctrack::optionsview(void) {
 	iprintf("\x1b[9;14HCC");
 	iprintf("\x1b[9;17HLen");
 	
-	iprintf("\x1b[11;2HPattern 1");
-	iprintf("\x1b[12;2HPattern 2");
-	iprintf("\x1b[13;2HPattern 3");
-	iprintf("\x1b[14;2HPattern 4");
-	iprintf("\x1b[15;2HPattern 5");
-	iprintf("\x1b[16;2HPattern 6");
-	iprintf("\x1b[17;2HPattern 7");
-	iprintf("\x1b[18;2HPattern 8");
+	iprintf("\x1b[8;2HPattern 1");
+	iprintf("\x1b[9;2HPattern 2");
+	iprintf("\x1b[10;2HPattern 3");
+	iprintf("\x1b[11;2HPattern 4");
+	iprintf("\x1b[12;2HPattern 5");
+	iprintf("\x1b[13;2HPattern 6");
+	iprintf("\x1b[14;2HPattern 7");
+	iprintf("\x1b[15;2HPattern 8");
 	
 	iprintf("\x1b[2;12H%i  ",tracknumber);
 
-	iprintf("\x1b[7;14H%i  ",midichannel);
+	iprintf("\x1b[5;14H%i  ",midichannel);
 	
-	iprintf("\x1b[11;14H%i  ",midiccnumbers[0]);
-	iprintf("\x1b[12;14H%i  ",midiccnumbers[1]);
-	iprintf("\x1b[13;14H%i  ",midiccnumbers[2]);
-	iprintf("\x1b[14;14H%i  ",midiccnumbers[3]);
-	iprintf("\x1b[15;14H%i  ",midiccnumbers[4]);
-	iprintf("\x1b[16;14H%i  ",midiccnumbers[5]);
-	iprintf("\x1b[17;14H%i  ",midiccnumbers[6]);
-	iprintf("\x1b[18;14H%i  ",midiccnumbers[7]);
+	iprintf("\x1b[8;14H%i  ",midiccnumbers[0]);
+	iprintf("\x1b[9;14H%i  ",midiccnumbers[1]);
+	iprintf("\x1b[10;14H%i  ",midiccnumbers[2]);
+	iprintf("\x1b[11;14H%i  ",midiccnumbers[3]);
+	iprintf("\x1b[12;14H%i  ",midiccnumbers[4]);
+	iprintf("\x1b[13;14H%i  ",midiccnumbers[5]);
+	iprintf("\x1b[14;14H%i  ",midiccnumbers[6]);
+	iprintf("\x1b[15;14H%i  ",midiccnumbers[7]);
 	
-	iprintf("\x1b[11;19H%i  ",patternlengths[0]);
-	iprintf("\x1b[12;19H%i  ",patternlengths[1]);
-	iprintf("\x1b[13;19H%i  ",patternlengths[2]);
-	iprintf("\x1b[14;19H%i  ",patternlengths[3]);
-	iprintf("\x1b[15;19H%i  ",patternlengths[4]);
-	iprintf("\x1b[16;19H%i  ",patternlengths[5]);
-	iprintf("\x1b[17;19H%i  ",patternlengths[6]);
-	iprintf("\x1b[18;19H%i  ",patternlengths[7]);
-	
-	optionsscreenbackground(activerow, activecolumn);
+	iprintf("\x1b[8;19H%i  ",patternlengths[0]);
+	iprintf("\x1b[9;19H%i  ",patternlengths[1]);
+	iprintf("\x1b[10;19H%i  ",patternlengths[2]);
+	iprintf("\x1b[11;19H%i  ",patternlengths[3]);
+	iprintf("\x1b[12;19H%i  ",patternlengths[4]);
+	iprintf("\x1b[13;19H%i  ",patternlengths[5]);
+	iprintf("\x1b[14;19H%i  ",patternlengths[6]);
+	iprintf("\x1b[15;19H%i  ",patternlengths[7]);
 	
 	drawkeypad(24,2);
 	
 	int activevalue = 0;
+	int xval = -1;
+	int yval = -1;
+	int length = 0;
 
-	if (activerow == -1) {activevalue = 0;}
-	
-	if (activerow == 7) {activevalue = midichannel;}
-
-	if ((activerow > 10) && (activerow < 19) && (activecolumn == 1)) {activevalue = midiccnumbers[activerow - 11];}
-
-	if ((activerow > 10) && (activerow < 19) && (activecolumn == 2)) {activevalue = patternlengths[activerow - 11];}
+	if (activerow == 1)
+	{
+		activevalue = midichannel;
+		
+		xval = 14;
+		yval = 5;
+		length = 3;
+	}
+	else if ((activerow > 1) && (activerow < 10) && (activecolumn == 0))
+	{
+		activevalue = midiccnumbers[activerow - 1];
+		
+		xval = (14 + (activecolumn * 5));
+		yval = (11 + activerow - 3);
+		length = 3;
+	}
+	else if ((activerow > 1) && (activerow < 10) && (activecolumn == 1))
+	{
+		activevalue = patternlengths[activerow - 1];
+		
+		xval = (14 + (activecolumn * 5));
+		yval = (11 + activerow - 3);
+		length = 2;
+	}
 
 	calcanddispnumber(24,4,activevalue);
+	
+	optionsscreenbackground(xval, yval, length);
 
 }
 	
@@ -406,49 +426,42 @@ void midicctrack::optionspress(void) {
 
 		if ((xval > 1) && (xval < 23) && (yval > 1) && (yval < 19))
 		{
-			if (yval == 7)
-			{
+			
+			if (yval == 7) {
+				activerow = 1;
+			}
+			else if (yval == 8) {
+				activerow = 2;
+			}
+			else if (yval == 9) {
+				activerow = 3;
+			}
+			else if (yval == 10) {
+				activerow = 4;
+			}
+			else if (yval == 11) {
+				activerow = 5;
+			}
+			else if (yval == 12) {
+				activerow = 6;
+			}
+			else if (yval == 13) {
 				activerow = 7;
 			}
-			else if (yval == 11)
-			{
-				activerow = 11;
+			else if (yval == 14) {
+				activerow = 8;
 			}
-			else if (yval == 12)
-			{
-				activerow = 12;
-			}
-			else if (yval == 13)
-			{
-				activerow = 13;
-			}
-			else if (yval == 14)
-			{
-				activerow = 14;
-			}
-			else if (yval == 15)
-			{
-				activerow = 15;
-			}
-			else if (yval == 16)
-			{
-				activerow = 16;
-			}
-			else if (yval == 17)
-			{
-				activerow = 17;
-			}
-			else if (yval == 18)
-			{
-				activerow = 18;
+			else if (yval == 15) {
+				activerow = 9;
 			}
 			else if ((xval > 13) && (xval < 17)) {
+				activecolumn = 0;
+			}
+			else if ((xval > 18) && (xval < 21)) {
 				activecolumn = 1;
 			}
-			if ((xval > 18) && (xval < 21)) {
-				activecolumn = 2;
-			}
-
+			
+			
 		} else  if ((xval > 23) && (xval < 30) && (yval > 1) && (yval < 9))
 		{
 			xval = (xval / 2);
@@ -458,30 +471,30 @@ void midicctrack::optionspress(void) {
 			{
 				if (xval == 12)
 				{
-					editmidioptions(100);
+					editoption(100);
 				}
 				else if (xval == 13)
 				{
-					editmidioptions(10);
+					editoption(10);
 				}
 				else if (xval == 14)
 				{
-					editmidioptions(1);
+					editoption(1);
 				}
 			}
 			else if (yval == 3)
 			{
 				if (xval == 12)
 				{
-					editmidioptions(-100);
+					editoption(-100);
 				}
 				else if (xval == 13)
 				{
-					editmidioptions(-10);
+					editoption(-10);
 				}
 				else if (xval == 14)
 				{
-					editmidioptions(-1);
+					editoption(-1);
 				}
 			}
 		}
@@ -500,37 +513,126 @@ void midicctrack::loadsaveview(void) {
 	iprintf("\x1b[4;2Hsettings No.");
 	iprintf("\x1b[5;2HPattern No.");
 	
-
-	
 	iprintf("\x1b[2;12H%i  ",tracknumber);
 	
 	iprintf("\x1b[4;14H%i  ",settingsnumber);
 	iprintf("\x1b[5;14H%i  ",patternnumber);
 	
-	optionsscreenbackground(activerow, activecolumn);
-	
-	drawbigbutton(3,7,1);
-	drawbigbutton(3,13,1);
-	drawbigbutton(12,7,1);
-	drawbigbutton(12,13,1);
+	drawbiglongbutton(3,7,1);
+	drawbiglongbutton(3,13,1);
+	drawbiglongbutton(12,7,1);
+	drawbiglongbutton(12,13,1);
 	
 	drawkeypad(24,2);
 	
 	int activevalue = 0;
+	int xval = -1;
+	int yval = -1;
+	int length = 0;
 
-	if (activerow == -1) {activevalue = 0;}
-
-	if (activerow == 4) {activevalue = settingsnumber;}
-	if (activerow == 5) {activevalue = patternnumber;}
+	if (activerow == 11)
+	{
+		activevalue = settingsnumber;
+		
+		xval = 14;
+		yval = 5;
+		length = 3;
+	}
+	else if (activerow == 12)
+	{
+		activevalue = patternnumber;
+		
+		xval = 14;
+		yval = 7;
+		length = 3;
+	}
 
 	calcanddispnumber(24,4,activevalue);
 	
+	optionsscreenbackground(xval, yval, length);
+
 }
 
 void midicctrack::loadsavepress(void) {
 
+	touchPosition touch;
+	
+	if (keysDown() & KEY_TOUCH){
 
+		touchRead(&touch);
+		
+		int yval = (touch.py / 8);
+		int xval = (touch.px / 8);
 
+		if ((xval > 1) && (xval < 23) && (yval > 1) && (yval < 19))
+		{
+			if (yval == 4)
+			{
+			activerow = 11;
+			}
+			else if (yval == 5)
+			{
+				activerow = 12;
+			}
+	
+		}
+		else if ((xval > 2) && (xval < 11) && (yval > 6) && (yval < 11))
+		{
+
+	
+		}
+		else if ((xval > 2) && (xval < 11) && (yval > 12) && (yval < 17))
+		{
+
+	
+		}
+		else if ((xval > 11) && (xval < 20) && (yval > 6) && (yval < 11))
+		{
+
+	
+		}
+		else if ((xval > 11) && (xval < 20) && (yval > 12) && (yval < 17))
+		{
+
+	
+		}
+		else if ((xval > 23) && (xval < 30) && (yval > 1) && (yval < 9))
+		{
+			xval = (xval / 2);
+			yval = (yval / 2);
+				
+			if (yval == 1)
+			{
+				if (xval == 12)
+				{
+					editoption(100);
+				}
+				else if (xval == 13)
+				{
+					editoption(10);
+				}
+				else if (xval == 14)
+				{
+					editoption(1);
+				}
+			}
+			else if (yval == 3)
+			{
+				if (xval == 12)
+				{
+					editoption(-100);
+				}
+				else if (xval == 13)
+				{
+					editoption(-10);
+				}
+				else if (xval == 14)
+				{
+					editoption(-1);
+				}
+			}
+		}
+	}
 }
 
 // Private Object Functions
@@ -789,12 +891,12 @@ void midicctrack::linealg(int x1, int y1, int x2, int y2) {
 
 // Midi options menu functions
 
-void midicctrack::editmidioptions(int amount) {
+void midicctrack::editoption(int amount) {
 	
 
 	int tempvalue;
 	
-	if (activerow == 4) {
+	if (activerow == 11) {
 	
 		tempvalue = settingsnumber + amount;
 		
@@ -809,7 +911,7 @@ void midicctrack::editmidioptions(int amount) {
 		
 		settingsnumber = tempvalue;
 		
-	} else if (activerow == 5) {
+	} else if (activerow == 12) {
 	
 		tempvalue = patternnumber + amount;
 		
@@ -824,7 +926,7 @@ void midicctrack::editmidioptions(int amount) {
 		
 		patternnumber = tempvalue;
 		
-	} else if (activerow == 8) {
+	} else if (activerow == 1) {
 	
 		tempvalue = midichannel + amount;
 		
@@ -839,11 +941,11 @@ void midicctrack::editmidioptions(int amount) {
 		
 		midichannel = tempvalue;
 		
-	} else if ((activerow > 10) && (activerow < 19)) {
+	} else if ((activerow > 1) && (activerow < 10)) {
 	
-		if (activecolumn == 1)
+		if (activecolumn == 0)
 		{
-			tempvalue = midiccnumbers[activerow - 11] + amount;
+			tempvalue = patternlengths[activerow - 2] + amount;
 		
 			if (tempvalue > 127)
 			{
@@ -854,22 +956,22 @@ void midicctrack::editmidioptions(int amount) {
 				tempvalue = 0;
 			}
 			
-			midiccnumbers[activerow - 11] = tempvalue;
+			patternlengths[activerow - 3] = tempvalue;
 			
-		} else if (activecolumn == 2)
+		} else if (activecolumn == 1)
 		{
-			tempvalue = patternlengths[activerow - 11] + amount;
+			tempvalue = midiccnumbers[activerow - 3] + amount;
 		
-			if (tempvalue > 16)
+			if (tempvalue > 127)
 			{
-				tempvalue = 16;
+				tempvalue = 127;
 			}
-			if (tempvalue < 1)
+			if (tempvalue < 0)
 			{
-				tempvalue = 1;
+				tempvalue = 0;
 			}
 			
-			patternlengths[activerow - 11] = tempvalue;
+			midiccnumbers[activerow - 3] = tempvalue;
 			
 		}
 	}
