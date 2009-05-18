@@ -749,10 +749,10 @@ void bpmtimer() {
 			tracks[i]->sequencerclock();
 			}
 			
-//			for (int i = 0; i < 4; i++ )
-//			{
-//				tracks[i]->sendmididata();
-//			}
+			for (int i = 0; i < 6; i++ )
+			{
+				tracks[i]->sendmididata();
+			}
 		}
 		
 		bpmcount++;
