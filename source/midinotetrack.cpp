@@ -122,7 +122,7 @@ void midinotetrack::sequencerclock(void) {
 			if (stepposition == 16) {
 				stepposition = 0;
 				patternseqpos++;
-				if (patternseqpos > patternseqlength) { patternseqpos = 0; }
+				if (patternseqpos >= patternseqlength) { patternseqpos = 0; }
 			}
 		}
 	}
