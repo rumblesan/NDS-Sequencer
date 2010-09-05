@@ -15,7 +15,7 @@ public:
 	
 	virtual void sequencerclock(void) =0;
 	
-	virtual void sendmididata(void) =0;
+	virtual void triggernotes(void) =0;
 	
 	virtual void modebuttondisplay(void) =0;
 	virtual void modebuttonpress(int xval) =0;
@@ -94,7 +94,7 @@ public:
 	
 	void sequencerclock(void);
 	
-	void sendmididata(void);
+	void triggernotes(void);
 	
 	void modebuttondisplay(void);
 	void modebuttonpress(int xval);
@@ -168,7 +168,7 @@ public:
 	
 	void sequencerclock(void);
 	
-	void sendmididata(void);
+	void triggernotes(void);
 	
 	void modebuttondisplay(void);
 	void modebuttonpress(int xval);
@@ -254,7 +254,7 @@ public:
 	
 	void sequencerclock(void);
 	
-	void sendmididata(void);
+	void triggernotes(void);
 	
 	void modebuttondisplay(void);
 	void modebuttonpress(int xval);

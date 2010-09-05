@@ -132,7 +132,7 @@ void midinotetrack::sequencerclock(void) {
 
 // MIDI functions
 
-void midinotetrack::sendmididata(void) {
+void midinotetrack::triggernotes(void) {
 
 	if (miditrigger)
 	{

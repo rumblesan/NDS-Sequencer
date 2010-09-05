@@ -130,7 +130,7 @@ void mididrumtrack::sequencerclock(void) {
 
 // MIDI functions
 
-void mididrumtrack::sendmididata(void) {
+void mididrumtrack::triggernotes(void) {
 	
 	if (miditrigger)
 	{

@@ -751,7 +751,7 @@ void bpmtimer() {
 			
 			for (int i = 0; i < 6; i++ )
 			{
-				tracks[i]->sendmididata();
+				tracks[i]->triggernotes();
 			}
 		}
 		

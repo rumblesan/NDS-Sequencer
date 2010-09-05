@@ -151,7 +151,7 @@ void midicctrack::sequencerclock(void) {
 
 // Midi functions
 
-void midicctrack::sendmididata(void) {
+void midicctrack::triggernotes(void) {
 
 	if (miditrigger)
 	{
